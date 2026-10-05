@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Build output
+build/
+dist/
+
+# Local app data and run output (per-user, not source)
+data/
+output/
+scratch/

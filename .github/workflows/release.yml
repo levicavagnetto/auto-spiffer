@@ -1,0 +1,54 @@
+name: Release
+
+# Runs when you push a tag like v0.2.0:
+#   git tag v0.2.0 && git push origin v0.2.0
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check tag matches app version
+        run: |
+          $version = python -c "import auto_spiffer; print(auto_spiffer.__version__)"
+          if ("v$version" -ne "${{ github.ref_name }}") {
+            Write-Error "Tag ${{ github.ref_name }} does not match __version__ v$version in auto_spiffer/__init__.py"
+            exit 1
+          }
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Build AutoSpiffer.exe
+        run: |
+          # dist/ and build/ may be checked in; start from a clean slate
+          Remove-Item -Recurse -Force dist, build -ErrorAction SilentlyContinue
+          python build_exe.py
+
+      - name: Zip the app folder
+        run: Compress-Archive -Path dist/AutoSpiffer -DestinationPath "AutoSpiffer-${{ github.ref_name }}-windows.zip"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $flags = @()
+          if ("${{ github.ref_name }}" -like "*-*") { $flags += "--prerelease" }
+          gh release create "${{ github.ref_name }}" "AutoSpiffer-${{ github.ref_name }}-windows.zip" `
+            --title "Auto Spiffer ${{ github.ref_name }}" --generate-notes @flags

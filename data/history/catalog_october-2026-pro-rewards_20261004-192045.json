@@ -1,0 +1,779 @@
+{
+  "program": "October 2026 Pro Rewards",
+  "program_start": "2026-10-01",
+  "program_end": "2026-10-31",
+  "imported_on": "2026-10-04",
+  "source": "ClaimForm.pdf",
+  "items": [
+    {
+      "id": "falken-f-ice-passenger",
+      "site_text": "Falken F-ICE - Passenger Tires",
+      "brand": "Falken",
+      "model": "F-ICE",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "falken-sincera-sn250-a-s-passenger",
+      "site_text": "Falken Sincera SN250 A/S - Passenger Tires",
+      "brand": "Falken",
+      "model": "Sincera SN250 A/S",
+      "category": "Passenger",
+      "unit_value": 1.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "falken-wildpeak-a-t4w-light-truck",
+      "site_text": "Falken Wildpeak A/T4W - Light Truck Tires",
+      "brand": "Falken",
+      "model": "Wildpeak A/T4W",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "falken-aklimate-passenger",
+      "site_text": "Falken Aklimate - Passenger Tires",
+      "brand": "Falken",
+      "model": "Aklimate",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "falken-wildpeak-a-t-trail-light-truck",
+      "site_text": "Falken Wildpeak A/T Trail - Light Truck Tires",
+      "brand": "Falken",
+      "model": "Wildpeak A/T Trail",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "falken-rubitrek-a-t-light-truck",
+      "site_text": "Falken Rubitrek A/T - Light Truck Tires",
+      "brand": "Falken",
+      "model": "Rubitrek A/T",
+      "category": "Light Truck",
+      "unit_value": 1.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-viking-contact-8-passenger",
+      "site_text": "Continental Viking Contact 8 - Passenger Tires",
+      "brand": "Continental",
+      "model": "Viking Contact 8",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-securecontact-aw-passenger",
+      "site_text": "Continental SecureContact AW - Passenger Tires",
+      "brand": "Continental",
+      "model": "SecureContact AW",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-truecontact-tour-54-passenger",
+      "site_text": "Continental TrueContact Tour 54 - Passenger Tires",
+      "brand": "Continental",
+      "model": "TrueContact Tour 54",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-viking-contact-7-passenger",
+      "site_text": "Continental Viking Contact 7 - Passenger Tires",
+      "brand": "Continental",
+      "model": "Viking Contact 7",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-vancontactwinter-light-truck",
+      "site_text": "Continental VanContactWinter - Light Truck Tires",
+      "brand": "Continental",
+      "model": "VanContactWinter",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-terrain-contact-h-t-light-truck",
+      "site_text": "Continental Terrain Contact H/T - Light Truck Tires",
+      "brand": "Continental",
+      "model": "Terrain Contact H/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-terraincontact-a-t-light-truck",
+      "site_text": "Continental TerrainContact A/T - Light Truck Tires",
+      "brand": "Continental",
+      "model": "TerrainContact A/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "continental-terraincontact-a-t-2-light-truck",
+      "site_text": "Continental TerrainContact A/T 2 - Light Truck Tires",
+      "brand": "Continental",
+      "model": "TerrainContact A/T 2",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-altimax-arctic-12-passenger",
+      "site_text": "General Altimax Arctic 12 - Passenger Tires",
+      "brand": "General",
+      "model": "Altimax Arctic 12",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-grabber-arctic-lt-light-truck",
+      "site_text": "General Grabber Arctic LT - Light Truck Tires",
+      "brand": "General",
+      "model": "Grabber Arctic LT",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-altimax-365aw-passenger",
+      "site_text": "General Altimax 365AW - Passenger Tires",
+      "brand": "General",
+      "model": "Altimax 365AW",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-grabber-h-t-light-truck",
+      "site_text": "General Grabber H/T - Light Truck Tires",
+      "brand": "General",
+      "model": "Grabber H/T",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-g-max-as-07-passenger",
+      "site_text": "General G-Max AS-07 - Passenger Tires",
+      "brand": "General",
+      "model": "G-Max AS-07",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-grabber-apt-light-truck",
+      "site_text": "General Grabber APT - Light Truck Tires",
+      "brand": "General",
+      "model": "Grabber APT",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-grabber-a-tx-light-truck",
+      "site_text": "General Grabber A/TX - Light Truck Tires",
+      "brand": "General",
+      "model": "Grabber A/TX",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-g-max-rs-passenger",
+      "site_text": "General G-Max RS - Passenger Tires",
+      "brand": "General",
+      "model": "G-Max RS",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-altimax-rt45-passenger",
+      "site_text": "General Altimax RT45 - Passenger Tires",
+      "brand": "General",
+      "model": "Altimax RT45",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "general-grabber-arctic-passenger",
+      "site_text": "General Grabber Arctic - Passenger Tires",
+      "brand": "General",
+      "model": "Grabber Arctic",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-terra-trac-a-t-light-truck",
+      "site_text": "Hercules Terra Trac A/T - Light Truck Tires",
+      "brand": "Hercules",
+      "model": "Terra Trac A/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-tis-offroad-rt1-light-truck",
+      "site_text": "Hercules TIS Offroad RT1 - Light Truck Tires",
+      "brand": "Hercules",
+      "model": "TIS Offroad RT1",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-terra-trac-cross-v-aw-light-truck",
+      "site_text": "Hercules Terra Trac Cross-V AW - Light Truck Tires",
+      "brand": "Hercules",
+      "model": "Terra Trac Cross-V AW",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-strong-guard-st-trailer-boat-trailer",
+      "site_text": "Hercules Strong Guard ST Trailer - BOAT TRAILER TIRES",
+      "brand": "Hercules",
+      "model": "Strong Guard ST Trailer",
+      "category": "Boat Trailer",
+      "unit_value": 1.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-avalanche-rt-passenger",
+      "site_text": "Hercules Avalanche RT - Passenger Tires",
+      "brand": "Hercules",
+      "model": "Avalanche RT",
+      "category": "Passenger",
+      "unit_value": 1.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-raptis-r-t6x-passenger",
+      "site_text": "Hercules Raptis R-T6X - Passenger Tires",
+      "brand": "Hercules",
+      "model": "Raptis R-T6X",
+      "category": "Passenger",
+      "unit_value": 1.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-tis-offroad-tt1-light-truck",
+      "site_text": "Hercules TIS Offroad TT1 - Light Truck Tires",
+      "brand": "Hercules",
+      "model": "TIS Offroad TT1",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "hercules-raptis-r-t6-passenger",
+      "site_text": "Hercules Raptis R-T6 - Passenger Tires",
+      "brand": "Hercules",
+      "model": "Raptis R-T6",
+      "category": "Passenger",
+      "unit_value": 1.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-observe-gsi-6-passenger",
+      "site_text": "Toyo Observe GSI-6 - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Observe GSI-6",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-a-t-iii-light-truck",
+      "site_text": "Toyo Open Country A/T III - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country A/T III",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-proxes-sport-a-s-passenger",
+      "site_text": "Toyo Proxes Sport A/S+ - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Proxes Sport A/S+",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-r-t-pro-light-truck",
+      "site_text": "Toyo Open Country R/T Pro - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country R/T Pro",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-observe-g3-ice-passenger",
+      "site_text": "Toyo Observe G3 ICE - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Observe G3 ICE",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-extensa-a-s-ii-passenger",
+      "site_text": "Toyo Extensa A/S II - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Extensa A/S II",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-wlt1-light-truck",
+      "site_text": "Toyo Open Country WLT1 - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country WLT1",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-m-t-light-truck",
+      "site_text": "Toyo Open Country M/T - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country M/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-r-t-light-truck",
+      "site_text": "Toyo Open Country R/T - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country R/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-observe-g3-ice-studded-passenger",
+      "site_text": "Toyo Observe G3 ICE Studded - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Observe G3 ICE Studded",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-observe-gsi-6-ls-passenger",
+      "site_text": "Toyo Observe GSI-6 LS - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Observe GSI-6 LS",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-observe-gsi-6-hp-passenger",
+      "site_text": "Toyo Observe GSI-6 HP - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Observe GSI-6 HP",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-q-t-light-truck",
+      "site_text": "Toyo Open Country Q/T - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country Q/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-open-country-r-t-trail-light-truck",
+      "site_text": "Toyo Open Country R/T Trail - Light Truck Tires",
+      "brand": "Toyo",
+      "model": "Open Country R/T Trail",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-proxes-g-tour-passenger",
+      "site_text": "Toyo Proxes G-Tour - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Proxes G-Tour",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "toyo-celsius-ii-passenger",
+      "site_text": "Toyo Celsius II - Passenger Tires",
+      "brand": "Toyo",
+      "model": "Celsius II",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-pzero-all-season-plus-passenger",
+      "site_text": "Pirelli PZero All Season Plus - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "PZero All Season Plus",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-w210-sottozero-series-ii-passenger",
+      "site_text": "Pirelli W210 Sottozero Series II - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "W210 Sottozero Series II",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-winter-ice-zero-fr-passenger",
+      "site_text": "Pirelli Winter Ice Zero FR - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "Winter Ice Zero FR",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-winter-sottozero-series-3-passenger",
+      "site_text": "Pirelli Winter SottoZero Series 3 - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "Winter SottoZero Series 3",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-scorpion-zero-all-season-plus-3-light-truck",
+      "site_text": "Pirelli Scorpion Zero All Season Plus 3 - Light Truck Tires",
+      "brand": "Pirelli",
+      "model": "Scorpion Zero All Season Plus 3",
+      "category": "Light Truck",
+      "unit_value": 4.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-scorpion-weatheractive-light-truck",
+      "site_text": "Pirelli Scorpion Weatheractive - Light Truck Tires",
+      "brand": "Pirelli",
+      "model": "Scorpion Weatheractive",
+      "category": "Light Truck",
+      "unit_value": 4.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-cinturato-weatheractive-passenger",
+      "site_text": "Pirelli Cinturato Weatheractive - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "Cinturato Weatheractive",
+      "category": "Passenger",
+      "unit_value": 4.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-scorpion-xtm-at-light-truck",
+      "site_text": "Pirelli Scorpion XTM AT - Light Truck Tires",
+      "brand": "Pirelli",
+      "model": "Scorpion XTM AT",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-scorpion-all-season-plus-3-light-truck",
+      "site_text": "Pirelli Scorpion All Season Plus 3 - Light Truck Tires",
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "category": "Light Truck",
+      "unit_value": 4.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-p7-all-season-plus-3-passenger",
+      "site_text": "Pirelli P7 All Season Plus 3 - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "P7 All Season Plus 3",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-winter-cinturato-2-passenger",
+      "site_text": "Pirelli Winter Cinturato 2 - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "Winter Cinturato 2",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-scorpion-as-4-light-truck",
+      "site_text": "Pirelli Scorpion AS 4 - Light Truck Tires",
+      "brand": "Pirelli",
+      "model": "Scorpion AS 4",
+      "category": "Light Truck",
+      "unit_value": 4.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-p4-persist-as-plus-passenger",
+      "site_text": "Pirelli P4 Persist AS Plus - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "P4 Persist AS Plus",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-scorpion-all-terrain-plus-light-truck",
+      "site_text": "Pirelli Scorpion All Terrain Plus - Light Truck Tires",
+      "brand": "Pirelli",
+      "model": "Scorpion All Terrain Plus",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "pirelli-winter-cinturato-passenger",
+      "site_text": "Pirelli Winter Cinturato - Passenger Tires",
+      "brand": "Pirelli",
+      "model": "Winter Cinturato",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nitto-recon-grappler-a-t-light-truck",
+      "site_text": "Nitto Recon Grappler A/T - Light Truck Tires",
+      "brand": "Nitto",
+      "model": "Recon Grappler A/T",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nitto-motivo-365-passenger",
+      "site_text": "Nitto Motivo 365 - Passenger Tires",
+      "brand": "Nitto",
+      "model": "Motivo 365",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nitto-nomad-grappler-light-truck",
+      "site_text": "Nitto Nomad Grappler - Light Truck Tires",
+      "brand": "Nitto",
+      "model": "Nomad Grappler",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nitto-terra-grappler-g3-light-truck",
+      "site_text": "Nitto Terra Grappler G3 - Light Truck Tires",
+      "brand": "Nitto",
+      "model": "Terra Grappler G3",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "atd-steel-wheels",
+      "site_text": "ATD Steel Wheels",
+      "brand": "ATD",
+      "model": "Steel Wheels",
+      "category": "",
+      "unit_value": 2.5,
+      "kind": "wheel",
+      "active": true
+    },
+    {
+      "id": "atd-custom-wheels",
+      "site_text": "ATD Custom Wheels",
+      "brand": "ATD",
+      "model": "Custom Wheels",
+      "category": "",
+      "unit_value": 5.0,
+      "kind": "wheel",
+      "active": true
+    },
+    {
+      "id": "nokian-one-ht-light-truck",
+      "site_text": "Nokian One HT - Light Truck Tires",
+      "brand": "Nokian",
+      "model": "One HT",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-outpost-apt-light-truck",
+      "site_text": "Nokian Outpost Apt - Light Truck Tires",
+      "brand": "Nokian",
+      "model": "Outpost Apt",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-remedy-wrg5-passenger",
+      "site_text": "Nokian Remedy WRG5 - Passenger Tires",
+      "brand": "Nokian",
+      "model": "Remedy WRG5",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-hakkapeliitta-r5-ev-passenger",
+      "site_text": "Nokian Hakkapeliitta R5 EV - Passenger Tires",
+      "brand": "Nokian",
+      "model": "Hakkapeliitta R5 EV",
+      "category": "Passenger",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-hakkapeliitta-r5-suv-light-truck",
+      "site_text": "Nokian Hakkapeliitta R5 SUV - Light Truck Tires",
+      "brand": "Nokian",
+      "model": "Hakkapeliitta R5 SUV",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-hakkapeliitta-r5-passenger",
+      "site_text": "Nokian Hakkapeliitta R5 - Passenger Tires",
+      "brand": "Nokian",
+      "model": "Hakkapeliitta R5",
+      "category": "Passenger",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-outpost-nat-light-truck",
+      "site_text": "Nokian Outpost nAT - Light Truck Tires",
+      "brand": "Nokian",
+      "model": "Outpost nAT",
+      "category": "Light Truck",
+      "unit_value": 2.0,
+      "kind": "tire",
+      "active": true
+    },
+    {
+      "id": "nokian-hakkapeliitta-01-light-truck",
+      "site_text": "Nokian Hakkapeliitta 01 - Light Truck Tires",
+      "brand": "Nokian",
+      "model": "Hakkapeliitta 01",
+      "category": "Light Truck",
+      "unit_value": 3.0,
+      "kind": "tire",
+      "active": true
+    }
+  ]
+}

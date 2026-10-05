@@ -1,0 +1,1002 @@
+﻿.buttonFloater {
+	/*width: 500px;*/
+	min-width: 250px;
+}
+/*
+Don't mess with this.
+*/
+.clearfix:after
+{
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+.exportLabel {
+	padding: 5px 0 0 0;
+}
+/*
+.clearfix
+{
+	display: inline-block;
+}
+*/
+
+html[xmlns] .clearfix
+{
+	display: block;
+}
+
+* html .clearfix
+{
+	height: 1%;
+}
+
+/*
+.popUpPanel
+{
+	border-bottom: #999999 1px solid;
+	border-left: #999999 1px solid;
+	padding-bottom: 5px;
+	background-color: #ffffff;
+	padding-left: 5px;
+	padding-right: 5px;
+	display: block;
+	border-top: #999999 1px solid;
+	border-right: #999999 1px solid;
+	padding-top: 5px;
+}
+.popUpBackground
+{
+	filter: alpha(opacity=70);
+	background-color: #cccccc;
+	margin-top: 0px;
+	opacity: 0.7;
+}
+*/
+.PrProgress
+{
+	display: block;
+	position: absolute;
+	padding: 2px 3px;
+}
+.PrContainer
+{
+	border: solid 1px #808080;
+	border-width: 1px 0px;
+}
+.PrHeader
+{
+	/*background: url(/App_Themes/images/sprite.png) repeat-x 0px 0px;*/
+	border-color: #808080 #808080 #ccc;
+	border-style: solid;
+	border-width: 0px 1px 1px;
+	padding: 0px 10px;
+	color: #000000;
+	font-size: 9pt;
+	font-weight: bold;
+	line-height: 1.9;
+	white-space: nowrap;
+	font-family: arial,helvetica,clean,sans-serif;
+}
+.PrBody
+{
+	background-color: #f2f2f2;
+	border-color: #808080;
+	border-style: solid;
+	border-width: 0px 1px;
+	padding: 10px;
+}
+.PrIFrame
+{
+	background-color: #cccccc;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
+}
+.popUpPanel
+{
+	background-color: #FFFFFF;
+	padding: 5px 5px 5px 5px;
+	display: block;
+	border: solid 1px #999999;    
+	
+  border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+.popUpPanelFund
+{
+    background-color: #FFFFFF;
+	padding: 5px 5px 5px 5px;
+    top: 200px;
+	border: solid 1px #999999;    
+}
+.popUpBackground
+{
+	background-color: #ffffff;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
+	margin-top: 0px;
+}
+.popUpBackgroundDarker
+{
+	background-color: #000000;
+	filter: alpha(opacity=50);
+	opacity: 0.5;
+	margin-top: 0px;
+}
+.CustomValidator
+{
+	position: relative;
+	margin-left: 24px;
+}
+
+.CustomValidator div
+{
+	border: solid 1px Black;
+	background-color: Yellow;
+	position: relative;
+}
+
+.CustomValidator td
+{
+	border: solid 1px Black;
+	background-color: Yellow;
+}
+
+.CustomValidator .ajax__validatorcallout_popup_table
+{
+	display: none;
+	border: none;
+	background-color: transparent;
+	padding: 0px;
+}
+
+.CustomValidator .ajax__validatorcallout_popup_table_row
+{
+	vertical-align: top;
+	height: 100%;
+	background-color: transparent;
+	padding: 0px;
+}
+
+.CustomValidator .ajax__validatorcallout_callout_cell
+{
+	width: 20px;
+	height: 100%;
+	text-align: right;
+	vertical-align: top;
+	border: none;
+	background-color: transparent;
+	padding: 0px;
+}
+
+.CustomValidator .ajax__validatorcallout_callout_table
+{
+	height: 100%;
+	border: none;
+	background-color: transparent;
+	padding: 0px;
+}
+
+.CustomValidator .ajax__validatorcallout_callout_table_row
+{
+	background-color: transparent;
+	padding: 0px;
+}
+
+.CustomValidator .ajax__validatorcallout_callout_arrow_cell
+{
+	padding: 8px 0px 0px 0px;
+	text-align: right;
+	vertical-align: top;
+	font-size: 1px;
+	border: none;
+	background-color: transparent;
+}
+
+.CustomValidator .ajax__validatorcallout_callout_arrow_cell .ajax__validatorcallout_innerdiv
+{
+	font-size: 1px;
+	position: relative;
+	left: 1px;
+	border-bottom: none;
+	border-right: none;
+	border-left: none;
+	width: 15px;
+	background-color: transparent;
+	padding: 0px;
+}
+
+.CustomValidator .ajax__validatorcallout_callout_arrow_cell .ajax__validatorcallout_innerdiv div
+{
+	height: 1px;
+	overflow: hidden;
+	border-top: none;
+	border-bottom: none;
+	border-right: none;
+	padding: 0px;
+	margin-left: auto;
+}
+
+.CustomValidator .ajax__validatorcallout_error_message_cell
+{
+	font-family: Verdana;
+	font-size: 10px;
+	padding: 5px;
+	border-right: none;
+	border-left: none;
+	width: 100%;
+}
+
+.CustomValidator .ajax__validatorcallout_icon_cell
+{
+	width: 20px;
+	padding: 5px;
+	border-right: none;
+}
+
+.CustomValidator .ajax__validatorcallout_close_button_cell
+{
+	vertical-align: top;
+	padding: 0px;
+	text-align: right;
+	border-left: none;
+}
+
+.CustomValidator .ajax__validatorcallout_close_button_cell .ajax__validatorcallout_innerdiv
+{
+	border: none;
+	text-align: center;
+	width: 10px;
+	padding: 2px;
+	cursor: pointer;
+}
+.overlay
+{
+	position: fixed;
+	z-index: 99;
+	top: 0px;
+	left: 0px;
+	background-color: #FFFFFF;
+	width: 100%;
+	height: 100%;
+	filter: Alpha(Opacity=80);
+	opacity: 0.80;
+	-moz-opacity: 0.80;
+}
+*html .overlay
+{
+	position: absolute;
+	height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
+	width: expression(document.body.scrollWidth > document.body.offsetWidth ? document.body.scrollWidth : document.body.offsetWidth + 'px');
+}
+
+
+/* end don't mess with ths */
+
+.white_wrap {
+    padding-bottom: 10px;
+    background: #FFF none repeat scroll 0% 0%;
+}
+
+#divSearch {
+    margin-top: 7px;
+}
+.form-inline .input-group {
+    display: inline-table;
+    vertical-align: middle;
+}
+
+.black_wrap {
+    background: #000 none repeat scroll 0% 0%;
+}
+
+.no-margin {
+   margin: 0 !important;
+}
+
+.header_wrap {
+    background: #FFF none repeat scroll 0% 0%;
+    height: 100%;
+    margin: 0px auto;
+}
+
+.header_logo {
+    float: left;
+    /*width: 182px;*/
+    height: 100%;
+}
+
+.vertical_align_middle
+{
+    vertical-align:middle !important;
+}
+
+
+.header_nav {
+    float: left;
+	margin: 14px 20px 0 0px;
+}
+
+.header_nav .secondary_nav {
+    float: right;
+}
+
+.secondary_nav {
+    margin-top: 20px;
+}
+
+
+
+.RadDock_Bootstrap .rdTable tr.rdTop td.rdLeft, .RadDock_Bootstrap .rdTable tr.rdTop td.rdCenter, .RadDock_Bootstrap .rdTable tr.rdTop td.rdRight {
+    height: 38px !important;
+    background-color: transparent !important;
+    background-position: 0px 0px;
+}
+
+.RadDock .rdTitleBar {
+    color: #FFF;
+    font-weight: bold;
+    position: relative;
+		top: 0px;
+		left: -7px;
+    background-color: #ae121d;
+	padding: 10px 0 0 10px;
+}
+
+.RadDock_Bootstrap {
+    border: transparent !important;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.RadDockZone_Bootstrap {
+    border-color: transparent !important;
+}
+
+.rdContent  tr td {
+    padding: 5px;
+    word-break: break-word;
+}
+
+#ctl00_ContentPlaceHolder1_RadDock3_C td {
+    width: initial !important;
+}
+
+.well {
+	width: 90%;
+	margin: 0;
+	margin-bottom: 0px;
+	min-height: 20px;
+	padding: 19px;
+	background-color: transparent !important;
+	border: none !important;
+	border-radius: 4px;
+	box-shadow: none !important;
+}
+
+.page-header {
+    font-size: 18px;
+    font-weight: normal;
+    text-transform: none;
+    background: #ae121d none repeat scroll 0% 0%;
+    color: #FFF;
+    padding: 10px;
+    float: left;
+    display: block;
+    clear: both;
+    margin: 10px 0px -1px;
+}
+
+.page-block {
+    font-size: 18px;
+    font-weight: normal;
+    text-transform: none;
+    background: #ae121d none repeat scroll 0% 0%;
+    color: #FFF;
+    padding: 10px;
+    float: left;
+    display: block;
+    clear: both;
+    margin: 10px 0px -1px -15px;
+}
+
+.page-title {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.outline {
+	border: 1px solid #BBB;
+	padding:5px;
+}
+
+a.Link1 {
+    color: #ae121d !important;
+}
+
+a.Link1:hover {
+    color: #010101 !important;
+}
+
+.bgDark {
+	background-color: #AAA;
+}
+
+.invisibleCell {
+	border: 1px solid #FFF !important;
+	background-color:#FFF !important;
+	border-bottom: 1px solid #DDD !important;
+}
+
+.underLine {
+	border-bottom: 2px solid #ae121d;
+	padding-right: 10px;
+	margin-right: 10px;
+}
+
+.underLine:after {
+	border-bottom: 2px solid #FFF;
+	width:25%;
+}
+
+.smallerTitleFont {
+    font-size:.7em;
+}
+
+/* stops the last menu item from displaying ie: Log Out was being hidden */
+/*
+#ctl00_RadMenu1.RadMenu .rmHorizontal > .rmLast {
+    display: none !important;
+}
+*/
+
+.RadDock_Bootstrap .rdCenter .rdCommands {
+    margin 0;
+    margin-top: -8px !important;
+}
+
+.break-words 
+{
+    white-space: pre-wrap;
+    word-break: break-all;
+    word-break: break-word;
+}
+
+.table.no-border > thead > tr > th, .table.no-border > tbody > tr > th, .table.no-border > tfoot > tr > th, .table.no-border > thead > tr > td, .table.no-border > tbody > tr > td, .table.no-border > tfoot > tr > td, .table-responsive.no-border {
+    border: none !important;
+}
+
+.bullets td {
+    padding: 0 10px;
+}
+
+.text-box {
+    height: 34px;
+    border: #ccc 1px solid;
+    border-radius: 4px;
+    color: #555;
+    background: #fff;
+    font: 14px/1.42857 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    padding-left: 10px !important;
+    box-sizing: border-box !important;
+
+}
+
+#ctl00_ContentPlaceHolder1_ruDealerFileTextBox0, .ruFakeInput {
+    width: 60%;
+}
+
+.RadGrid_Bootstrap .rgFilterBox {
+    height: 23px !important;
+    width: 60%;
+}
+
+.arrows 
+{
+    margin-top: 100px;
+}
+
+.ajax__tab_outer {
+    width: 25% !important;
+}
+
+.code_editing .ajax__tab_outer {
+    width: 33.33% !important;
+}
+
+.superuserapprovaltracking .ajax__tab_outer {
+    width: 20% !important;
+}
+
+.ajax__tab_inner {
+    width: 100% !important;
+}
+
+.ajax__tab_tab 
+{
+    word-break: break-word !important;
+    height: 21px !important;
+    width: 100% !important;
+}
+
+.rdTitleBar {
+    font-size: 14px;
+}
+
+/* Media Queries */
+
+
+@media (max-width: 964px)
+{
+    
+    .RadMenu_Bootstrap .rmRootGroup .rmRootLink {
+        padding: 15px 5px !important;
+    }  
+    
+    .RadGrid_Bootstrap .rgFilterBox {
+        width: 45%;
+    }
+    
+}
+
+@media (max-width: 960px)
+{
+    .adauthcancel-hidden-column {
+        display: none;
+    }    
+}
+
+@media (min-width: 895px)
+{
+     #ctl00_RadMenu2 {
+        display: none;   
+     }   
+}
+
+@media (max-width: 894px)
+{
+     #ctl00_RadMenu1 {
+        display: none;   
+     }   
+        
+    .RadMenu {
+        position: absolute !important;
+        right: 30px;
+        margin-top: 0;
+    }
+    
+    .reduce-size 
+    {
+        white-space: pre-wrap;
+        word-break: break-all;
+        word-break: break-word;
+        font-size: 10px !important
+    }
+    
+}
+
+@media (max-width: 860px)
+{
+    .adauthsearch-hidden-column {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) 
+{
+    
+    .RadMenuPopup {
+        font-size: 12px !important;
+    }
+        
+}
+
+@media (max-width: 767px)
+{
+    .RadGrid_Bootstrap {
+        border: none !important;
+    }
+
+    
+    .arrows    
+    {
+        width: 65px;
+        margin: 20px auto;
+    }
+}
+
+@media (max-width: 760px)
+{
+    .table-fit.well {
+        width: 100%;
+        padding: 0 !important;
+    }
+    
+    .RadGrid_Bootstrap .rgFilterBox {
+        width: 35%;
+    }
+    
+}
+
+@media (max-width: 680px)
+{
+    .well {
+        width: 100%;
+    }
+    
+    .no-padding {
+        padding: 0 !important;
+    }
+
+}
+
+@media (max-width: 615px)
+{
+    
+    .dealers_by_file {
+        display: none;
+    }
+    
+    .RadGrid_Bootstrap .rgFilterBox {
+        width: 25%;
+    }
+    
+}
+
+@media (max-width: 580px)
+{
+    
+    .RadGrid_Bootstrap .rgFilter {
+        width: 20px !important;
+        background-position: -15px -4509px !important;
+    }
+    
+    .ajax__tab_container {
+        width: 400px !important;
+    }
+        
+}
+
+@media (max-width: 565px)
+{
+    
+    .bullets td {
+        padding: 0 5px;
+    }
+
+}
+
+@media (max-width: 560px)
+{
+    
+    .potrait-mode-hide-large {
+        display: block;    
+    }
+    
+    .potrait-mode-show-large {
+        display: none;    
+    }
+    
+}
+
+@media (min-width: 561px)
+{
+    
+    .potrait-mode-hide-large {
+        display: none;    
+    }
+    
+    .potrait-mode-show-large {
+        display: block;    
+    }
+    
+}
+
+@media (max-width: 497px)
+{
+    
+    .potrait-mode-hide {
+        display: block;    
+    }
+    
+    .potrait-mode-show {
+        display: none;    
+    }
+    
+}
+
+@media (min-width: 498px)
+{
+    
+    .potrait-mode-hide {
+        display: none;    
+    }
+    
+    .potrait-mode-show {
+        display: block;    
+    }
+    
+}
+
+
+@media (max-width: 492px) 
+{
+    .arrequestapprovalqueue-hidden-column {
+        display: none;
+    }   
+}
+
+@media (max-width: 470px)
+{
+    
+    .ajax__tab_container {
+        width: 300px !important;
+    }
+        
+}
+
+@media (max-width: 410px)
+{
+    
+    .RadCalendarPopup {
+        left: 20px !important;
+    }
+    
+    .RadGrid_Bootstrap .rgFilter {
+        width: 11px !important;
+        background-position: -19px -4509px !important;
+    }
+    
+}
+
+@media (max-width: 350px)
+{
+    
+    .ajax__tab_container {
+        width: 275px !important;
+    }
+        
+}
+/*Tom T Changes */
+
+
+.RadMenu_Bootstrap .rmRootGroup.rmHorizontal, .RadMenu_Bootstrap .rmRootGroup.rmVertical, .RadMenu_Bootstrap ul.rmRootScrollGroup {
+    float: right !important;
+}
+
+.RadMenu_Bootstrap .rmRootGroup.rmHorizontal {
+    float: left !important;
+    
+    background-color: #fff;
+}
+
+.RadMenu ul.rmVertical, .RadMenu ul.rmHorizontal, .RadMenu ul.rmRootScrollGroup, .RadMenu_Context ul.rmHorizontal {
+    position: relative;
+    /*left: 25% !important;*/
+    float: left !important;
+    background-color: #fff;
+}
+/*
+.RadMenu_Bootstrap .rmRootLink:hover {
+    color: #000 !important;
+	background-color: #ae121d !important;
+}
+*/
+/*
+.RadMenu_Bootstrap .rmRootLink {
+    color: #000 !important;
+	background-color: #FFF !important;
+}
+*/
+/*
+.RadMenu a.rmLink {
+    cursor: pointer;
+    background-color: #ae121d;
+}
+*/
+/*
+.RadMenu_Bootstrap .rmRootGroup {
+    background-color: #000 !important;
+}
+*/
+
+.RadMenu_Bootstrap .rmGroup .rmLink {
+    color: #000 !important;
+	background-color: #FFF !important;
+}
+
+.RadMenu_Bootstrap .rmGroup .rmLink:hover {
+    color: #fff !important;
+	background-color: #aaaaaa !important;
+}
+
+.RadMenu_Bootstrap .rmGroup .rmLink:focus {
+    color: #000 !important;
+	background-color: #FFF !important;
+}
+
+.RadMenu_Bootstrap .rmRootGroup .rmRootLink {
+    padding: 8px 8px !important;
+    border-left: 1px solid #e1e1e1 !important;
+    border-top: 1px solid #e1e1e1 !important;
+    border-right: 1px solid #e1e1e1 !important;
+    border-bottom: 2px solid darkgray !important;
+}
+
+.RadMenu_Bootstrap .rmHorizontal>.rmItem .rmExpandDown:after, .RadMenu_Bootstrap .rmHorizontal>.rmItem .rmExpandTop:after, .RadMenu_Bootstrap .rmHorizontal>.rmItem .rmExpandLeft:after, .RadMenu_Bootstrap .rmHorizontal>.rmItem .rmExpandRight:after {
+    border: none !important;
+}
+
+#menu {
+    height: 18px;
+    padding: 0px 0px 2px 2px;
+    background: transparent !important;
+    margin: 0px 2px;
+}
+
+
+.RadMenu .rmRootGroup
+{
+ background-image:none;
+}
+
+.RadMenu_Bootstrap .rmRootLink:hover {
+    color: #fff !important;
+	background-color: #cccccc !important;
+}
+.RadMenu_Bootstrap .rmRootLink {
+    color: #fff !important;
+	/*background-color: #FFF !important;*/
+	background-color: #cccccc !important;
+}
+.RadMenu a.rmLink {
+    cursor: pointer;
+    /*background-color: #e6e6fa !important;*/
+    background-color: #f2f2f2 !important;
+}
+.RadMenu_Bootstrap .rmRootLink {
+    color: #000 !important; /* menu item text color */
+    background-color: #cccccc !important;
+}
+
+.RadMenu_Bootstrap .rmRootGroup {
+    border: 1px solid #FFF !important;
+    /*background-color: #FFF !important;*/
+    
+    background-color: #fff !important;
+}
+
+/*end tom t changes*/
+
+input[type=checkbox]
+{
+  /* Double-sized Checkboxes */
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(1.5); /* Safari and Chrome */
+  -o-transform: scale(1.5); /* Opera */
+  padding: 25px;
+}
+
+input[type=radio]
+{
+  /* Double-sized Checkboxes */
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(1.5); /* Safari and Chrome */
+  -o-transform: scale(1.5); /* Opera */
+  padding: 25px;
+}
+
+.submit_button
+{
+    font-size: 14px !important;
+}
+
+.RadMenuPopup .rmItem {
+	background-color:#C8102E;
+    /*background-color: blue;*/
+	color: #ffffff;
+	border-color: #ffffff;
+}
+.RadMenuPopup .rmItem a.rmLink {
+	color: #FFF;
+}
+	
+	.RadMenuPopup_Bootstrap {
+	    top: -40px !important;
+	    right: 14px !important;
+	}
+	
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.navbar-brand {
+  padding: 0px;
+}
+.navbar-brand>img {
+  height: 100%;
+  padding: 15px;
+  width: auto;
+}
+/*
+.RadInputMgr {
+    height: 30px;
+}
+*/
+
+.radioButtonList td {
+    padding-left: 20px !important;
+    display: table-cell !important;
+    display: inline-block !important;
+}
+
+.radioButtonList label {
+    padding-right: 15px;
+    margin-left: 10px !important;
+    font-weight: bold !important;
+    font-size: 15px !important;
+    font-family: arial !important;
+}
+
+.radioButtonList input[type="radio"] {
+    height: 14px;
+    width: 14px;
+    margin-left: 0px !important;
+    margin-right: 1px !important;
+    vertical-align: middle !important;
+    margin-bottom: 4px !important;
+}
+
+.smallradioButtonList td {
+    padding-left: 20px !important;
+    display: table-cell !important;
+    display: inline-block !important;
+}
+
+.smallradioButtonList label {
+    padding-right: 15px;
+    margin-left: 10px !important;
+    font-weight: bold !important;
+    font-size: 13px !important;
+    font-family: arial !important;
+}
+
+.smallradioButtonList input[type="radio"] {
+    height: 11px;
+    width: 11px;
+    margin-left: 5px !important;
+    margin-right: 1px !important;
+    vertical-align: middle !important;
+    margin-bottom: 7px !important;
+}
+
+.linkButton {
+    color: blue !important;
+}
+
+.linkButton:hover {
+    color: #34568E !important;
+}
+
+.formGridInPanel {
+    padding: 0 5px 5px 5px;
+}
+
+.nomargin {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+.nopadding {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}

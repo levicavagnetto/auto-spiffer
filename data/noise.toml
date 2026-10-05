@@ -1,0 +1,16 @@
+# Words on a report description that say nothing about WHICH tire it is.
+# They are removed before matching. Edit freely; capitalization does not matter.
+
+[noise]
+words = [
+  "BW",     # black wall
+  "M",      # mud and snow marking
+  "XL",     # extra load
+  "RF", "SL", "OWL", "RWL", "WL",
+  "3PMS", "3PMSF", "M+S", "M/S", "MS",
+]
+
+# Patterns (regular expressions) matched against a whole word. Ply rating like 10PR, 12PR:
+patterns = [
+  '^\d{1,2}PR$',
+]

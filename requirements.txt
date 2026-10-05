@@ -1,0 +1,12 @@
+# Runtime
+pdfplumber>=0.11          # read Material-Sales.pdf, invoice PDFs, ClaimForm.pdf
+rapidfuzz>=3.10           # fuzzy tire-name matching
+playwright>=1.49          # drive the ATD ProRewards claim page
+
+# Build and test (dev only)
+pyinstaller>=6.11         # package the app as an .exe
+pytest>=8.0               # tests
+pillow>=10.0              # only used by docs/mockups/mockup_gui.py to save screenshots
+
+# Standard library, nothing to install: tkinter (GUI), tomllib (config), json, csv, pathlib
+# Optional later: windnd (Windows drag and drop of files onto the window)

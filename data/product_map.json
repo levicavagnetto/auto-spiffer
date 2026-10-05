@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "entries": {
+    "hercules|roadtourconnectas": {
+      "item_id": "hercules-roadtour-connect-pcv-passenger",
+      "skip": false,
+      "example": "205/65R16 95H HER ROADTOUR CONNECT AS BW 55K 205/65R16 BW 95H (55K)",
+      "decided_on": "2026-10-04",
+      "inactive": false
+    },
+    "hercules|terratracatxjourney": {
+      "item_id": "hercules-terra-trac-cross-v-aw-light-truck",
+      "skip": false,
+      "example": "275/55R20XL 117T HER TERRA TRAC AT X-JOURNEY 3PMS 60K",
+      "decided_on": "2026-10-04",
+      "inactive": false
+    },
+    "nokian|one": {
+      "item_id": "nokian-one-ht-light-truck",
+      "skip": false,
+      "example": "245/55R19 103H NOK ONE BW 80K 245/55R19 103H (80K)",
+      "decided_on": "2026-10-04",
+      "inactive": false
+    }
+  }
+}

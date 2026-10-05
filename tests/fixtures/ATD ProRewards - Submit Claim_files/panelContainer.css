@@ -1,0 +1,75 @@
+﻿.panelOuterShellTop {background: #eeeeee url(images/pixelBorder.png) 0 0 repeat-x;}
+.panelOuterShellBottom {background: url(images/pixelBorder.png) 0 100% repeat-x;}
+.panelOuterShellLeft {background: url(images/pixelBorder.png) 0 0 repeat-y;}
+.panelOuterShellRight {background: url(images/pixelBorder.png) 100% 0 repeat-y;}
+.panelCornerBottomLeft {background: url(images/bottomLeft.png) 0 100% no-repeat;}
+.panelCornerBottomRight {background: url(images/bottomRight.png) 100% 100% no-repeat;}
+.panelCornerTopLeft {background: url(images/topLeft.png) 0 0 no-repeat;}
+.panelCornerTopRight {background: url(images/topRight.png) 100% 0 no-repeat;padding: 5px 8px 15px 8px;}
+
+.footerContainer .panelOuterShellTop {background: #000 url(images/pixelBorder.png) 0 0 repeat-x;}
+.footerContainer .panelOuterShellBottom {background: url(images/pixelBorder.png) 0 100% repeat-x;}
+.footerContainer .panelOuterShellLeft {background: url(images/pixelBorder.png) 0 0 repeat-y;}
+.footerContainer .panelOuterShellRight {background: url(images/pixelBorder.png) 100% 0 repeat-y;}
+.footerContainer .panelCornerBottomLeft {background: url(images/footerBL.png) 0 100% no-repeat;}
+.footerContainer .panelCornerBottomRight {background: url(images/footerBR.png) 100% 100% no-repeat;}
+.footerContainer .panelCornerTopLeft {background: url(images/topLeft.png) 0 0 no-repeat;}
+.footerContainer .panelCornerTopRight {background: url(images/topRight.png) 100% 0 no-repeat;padding: 5px 8px 15px 8px;}
+
+
+.skinnedPanel
+{
+	background-color:#7B818E;
+}
+.skinnedPanelContainer
+{
+	margin: 8px 0px 8px 13px;
+	display:inline;
+	width:100%;
+}
+.innerSkinnedPanelContainer
+{		
+
+}
+.panelCornerTopRightRollupButton
+{
+	float:right;
+}
+.panelHeaderLabel 
+{
+	font-size: 90%;
+}
+.skinnedPanelSpacer {
+	margin: 5px 0 0 0;
+}
+.panelHeaderTextLabel
+{	
+	float:left;
+	margin: 5px 0 5px 0px;
+	font-size: 115%;
+}
+.innerColoredPanel
+{
+	display: block;
+	background-color: #7B818E;
+	padding: 5px 5px 5px 5px;
+	height: 100%;
+	border: solid 1px #8c8c8c;
+	clear:both;
+	margin: 0px 0px 0px 0px;
+}
+.innerSkinnedPanel
+{
+	display: block;
+	padding: 5px 5px 5px 5px;
+	height: 100%;	
+	margin: 0px 5px 0px 5px;
+}
+.innerSkinnedPanelWhiteBackGround
+{
+	background-color:White;
+	display: block;
+	padding: 5px 5px 5px 5px;
+	height: 100%;	
+	margin: 0px 5px 0px 5px;
+}

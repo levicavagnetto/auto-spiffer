@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx -->
+<html class="t-chrome t-chrome153"><head id="Head1"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><link href="./ATD ProRewards - Submit Claim_files/BasicLayout.css" type="text/css" rel="stylesheet"><link href="./ATD ProRewards - Submit Claim_files/BootStrapOverride.css" type="text/css" rel="stylesheet"><link href="./ATD ProRewards - Submit Claim_files/buttons.css" type="text/css" rel="stylesheet"><link href="./ATD ProRewards - Submit Claim_files/FormFieldsAndLabels.css" type="text/css" rel="stylesheet"><link href="./ATD ProRewards - Submit Claim_files/Menu.IntelBlue.css" type="text/css" rel="stylesheet"><link href="./ATD ProRewards - Submit Claim_files/Nothing.css" type="text/css" rel="stylesheet"><link href="./ATD ProRewards - Submit Claim_files/panelContainer.css" type="text/css" rel="stylesheet"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"><meta name="robots" content="noindex"><meta name="googlebot" content="noindex"><title>ATD ProRewards - Submit Claim</title><link href="./ATD ProRewards - Submit Claim_files/Global.css" rel="stylesheet" type="text/css"><link href="./ATD ProRewards - Submit Claim_files/NoPrint.css" rel="stylesheet" type="text/css" media="print">
+    <script src="./ATD ProRewards - Submit Claim_files/jquery.min.js.download" type="text/javascript"></script>
+    <script src="./ATD ProRewards - Submit Claim_files/Global.js.download" language="javascript" type="text/javascript"></script>
+    <script src="./ATD ProRewards - Submit Claim_files/jquery.js.download" language="javascript" type="text/javascript"></script>
+    <link href="./ATD ProRewards - Submit Claim_files/bootstrap.css" rel="stylesheet" type="text/css">
+
+    <style type="text/css"></style>
+    <script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/jquery.lightbox-0.5.js.download"></script>
+    <script src="./ATD ProRewards - Submit Claim_files/blockui.js.download" type="text/javascript"></script>
+    <link href="./ATD ProRewards - Submit Claim_files/buttons.css" rel="stylesheet" type="text/css"><link href="./ATD ProRewards - Submit Claim_files/bootstrap-glyphicons.css" rel="stylesheet" type="text/css"><link href="./ATD ProRewards - Submit Claim_files/chosen.css" rel="stylesheet" type="text/css"><link rel="stylesheet" type="text/css" href="./ATD ProRewards - Submit Claim_files/jquery.lightbox-0.5.css" media="screen">
+    <style type="text/css">
+        .rmRootGroup
+        {
+            border: none !important;
+        }
+        #MasterPageWrapper
+        {
+            background-color: #ffffff;
+        }
+        /* NAV PANEL STUFF */
+        /* for the Nav Bar Child menu item back ground color and font color*/
+        .dropdown-submenu > a:focus, .dropdown-submenu > a:hover, .dropdown-submenu:focus > a, r, .dropdown-submenu:hover > a, .dropdown-menu > li a:hover, .dropdown-menu > li a:focus
+        {
+            background-color: #000000;
+            background-image: none;
+            filter: none;
+            text-decoration: none;
+            border: none;
+            color: #dcdcdc;
+        }
+        /* to change the main nav bar background color to red */
+        .navbar-custom
+        {
+            background-color: #E4002B;
+        }
+        
+        /* Main Nav Bar font color */
+        .navbar-nav > li > a
+        {
+            color: #ffffff !important;
+        }
+
+        /* to change hover effect background color and font color when hovering over the parent menu items */
+        .nav > li > a:hover
+        {
+            color: #fff !important;
+            background-color: #7A0315 !important;
+        }
+        .navbar-inverse .navbar-nav .open .dropdown-menu > li > a
+        {
+            color: #000;
+            background-color: #f1f1f1;
+        }
+        .navbar-nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus
+        {
+            color: #fff !important;
+        }
+        .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus
+        {
+            color: #fff !important;
+            background-color: #7A0315 !important;
+        }
+
+        /* color of a selected child menu item */
+        .dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus
+        {
+            color: #fff;
+            text-decoration: none;
+            background-color: black;
+            outline: 0;
+        }
+        .dropdown:hover .dropdown-menu
+        {
+            display: block;
+        }
+
+        .navbar-nav > li > a
+        {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+        .navbar
+        {
+            min-height: 30px !important;
+        }
+        /* END OF NAV PANEL STUFF */
+        
+        /*@media (min-width: 1500px)
+        {
+            .container
+            {
+                width: 1470px;
+            }
+        }*/
+    </style>
+    <script type="text/javascript" language="javascript">
+        // the below document.ready script sets the style of the selected parent menu item and the selected sub menu item.
+        $(document).ready(function () {
+            // Remove active for all items.
+            $('.page-sidebar-menu li').removeClass('active');
+
+            // highlight submenu item
+            $('li a[href="' + this.location.pathname + '"]').parent().addClass('active');
+
+            // Highlight parent menu item.
+            $('ul a[href="' + this.location.pathname + '"]').parents('li').addClass('active');
+        });
+
+        // the below (window) functions are needed because the "fixed bootstrap header" will hide some of the body text.  This will prevent that from happening.
+        //$(window).resize(function () {
+        //    $('body').css('padding-top', parseInt($('#main-navbar').css("height")) + 1);
+        //});
+
+        //$(window).load(function () {
+        //    $('body').css('padding-top', parseInt($('#main-navbar').css("height")) + 1);
+        //});
+
+        function OnClientItemClicking(sender, args) {
+            if (args.get_item().get_navigateUrl().indexOf("Menu.aspx") != -1) {
+                args.get_item().open();
+                args.set_cancel(true);
+            }
+        }
+        var defaultButtonClass;
+        var defaultButtonClientID;
+        var secondaryButtonClientID;
+
+        function keypressHandler(e) {
+            if (defaultButtonClientID) {
+                if (e.which == 13) {
+                    (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
+                    document.getElementById(defaultButtonClientID).click();
+                }
+            }
+            if (e.which == 13) {
+                $(this).blur();
+                if (defaultButtonClass != undefined) {
+                    elements = $(defaultButtonClass);
+                    if (elements.length > 0) {
+                        (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
+                        window.location = elements[0];
+                    }
+                }
+            }
+        }
+
+        function secondaryKeypressHandler(e) {
+            if (secondaryButtonClientID) {
+                if (e.which == 13) {
+                    document.getElementById(secondaryButtonClientID).click();
+                }
+            }
+        }
+
+        function ChangeHyperLinkColor(linkId) {
+            try {
+                document.getElementById(linkId).style.color = "Red";
+                document.getElementById(linkId).style.fontWeight = "Bold";
+            }
+            catch (err) {
+
+            }
+        }
+    </script>
+<link href="./ATD ProRewards - Submit Claim_files/WebResource.axd" type="text/css" rel="stylesheet" class="Telerik_stylesheet"><link href="./ATD ProRewards - Submit Claim_files/WebResource(1).axd" type="text/css" rel="stylesheet" class="Telerik_stylesheet"><link href="./ATD ProRewards - Submit Claim_files/WebResource(2).axd" type="text/css" rel="stylesheet" class="Telerik_stylesheet"><link href="./ATD ProRewards - Submit Claim_files/WebResource(3).axd" type="text/css" rel="stylesheet" class="Telerik_stylesheet"><link href="./ATD ProRewards - Submit Claim_files/WebResource(4).axd" type="text/css" rel="stylesheet" class="Telerik_stylesheet"><link href="./ATD ProRewards - Submit Claim_files/WebResource(5).axd" type="text/css" rel="stylesheet" class="Telerik_stylesheet"><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource.axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(1).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(2).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(3).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(4).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(5).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(6).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(7).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(8).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(9).axd"></script><script type="text/javascript" src="./ATD ProRewards - Submit Claim_files/ScriptResource(10).axd"></script><script type="text/javascript">Sys.WebForms.PageRequestManager._addArrayElement('Page_ValidationSummaries', document.getElementById("DefaultContent_ValidationSummary"));
+</script><script type="text/javascript">document.getElementById('DefaultContent_ValidationSummary')['validationGroup'] = "Product"
+</script><script type="text/javascript">
+(function(id) {
+    var e = document.getElementById(id);
+    if (e) {
+        e.dispose = function() {
+            Array.remove(Page_ValidationSummaries, document.getElementById(id));
+        }
+        e = null;
+    }
+})('DefaultContent_ValidationSummary');
+</script><script type="text/javascript">if(typeof ($telerik)!='undefined'){$telerik.registerSkins();};</script><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(6).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(7).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(8).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(9).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(10).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(11).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(12).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(13).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(14).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(15).axd"><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadDateInput, {"_displayText":"mm/dd/yyyy","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"__doPostBack(\u0027ctl00$DefaultContent$InvoiceDateRadDatePicker\u0027,\u0027\u0027)","_skin":"Metro","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput_ClientState","dateFormat":"M/d/yyyy","dateFormatInfo":{"DayNames":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"MonthNames":["January","February","March","April","May","June","July","August","September","October","November","December",""],"AbbreviatedDayNames":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"AbbreviatedMonthNames":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",""],"AMDesignator":"AM","PMDesignator":"PM","DateSeparator":"/","TimeSeparator":":","FirstDayOfWeek":0,"DateSlots":{"Month":0,"Day":1,"Year":2},"ShortYearCenturyEnd":2029,"TimeInputOnly":false,"MonthYearOnly":false},"displayDateFormat":"M/d/yyyy","emptyMessage":"mm/dd/yyyy","enabled":true,"incrementSettings":{InterceptArrowKeys:true,InterceptMouseWheel:true,Step:1},"maxDate":"2026-10-31-00-00-00","minDate":"2026-10-01-00-00-00","styles":{HoveredStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riHover"],InvalidStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riError"],DisabledStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riDisabled"],FocusedStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riRead"],EnabledStyle: ["font-size:12px;font-style:normal;width:100%;", "riTextBox riEnabled"]}}, null, null, $get("ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadCalendar, {"_DayRenderChangedDays":{},"_FormatInfoArray":[["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],["January","February","March","April","May","June","July","August","September","October","November","December",""],["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",""],"dddd, MMMM d, yyyy h:mm:ss tt","dddd, MMMM d, yyyy","h:mm:ss tt","MMMM d","ddd, dd MMM yyyy HH\u0027:\u0027mm\u0027:\u0027ss \u0027GMT\u0027","M/d/yyyy","h:mm tt","yyyy\u0027-\u0027MM\u0027-\u0027dd\u0027T\u0027HH\u0027:\u0027mm\u0027:\u0027ss","yyyy\u0027-\u0027MM\u0027-\u0027dd HH\u0027:\u0027mm\u0027:\u0027ss\u0027Z\u0027","MMMM yyyy","AM","PM","/",":",0],"_ViewRepeatableDays":{},"_ViewsHash":{"ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top" : [[2026,10,1], 1]},"_calendarWeekRule":0,"_culture":"en-US","_enableKeyboardNavigation":false,"_enableViewSelector":false,"_firstDayOfWeek":7,"_postBackCall":"__doPostBack(\u0027ctl00$DefaultContent$InvoiceDateRadDatePicker$calendar\u0027,\u0027@@\u0027)","_rangeSelectionMode":0,"clientStateFieldID":"ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_ClientState","enableMultiSelect":false,"enabled":true,"monthYearNavigationSettings":["Today","OK","Cancel","Date is out of range.","False","True","300","1","300","1","False"],"skin":"Metro","specialDaysArray":[],"stylesHash":{"DayStyle": ["", ""],"CalendarTableStyle": ["", "rcMainTable"],"OtherMonthDayStyle": ["", "rcOtherMonth"],"TitleStyle": ["", ""],"SelectedDayStyle": ["", "rcSelected"],"SelectorStyle": ["", ""],"DisabledDayStyle": ["", "rcDisabled"],"OutOfRangeDayStyle": ["", "rcOutOfRange"],"WeekendDayStyle": ["", "rcWeekend"],"DayOverStyle": ["", "rcHover"],"FastNavigationStyle": ["", "RadCalendarMonthView RadCalendarMonthView_Metro"],"ViewSelectorStyle": ["", "rcViewSel"]},"useColumnHeadersAsSelectors":false,"useRowHeadersAsSelectors":false}, null, null, $get("ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadDatePicker, {"_PopupButtonSettings":{ ResolvedImageUrl : "", ResolvedHoverImageUrl : ""},"_animationSettings":{ShowAnimationDuration:300,ShowAnimationType:1,HideAnimationDuration:300,HideAnimationType:1},"_enableKeyboardNavigation":false,"_popupControlID":"ctl00_DefaultContent_InvoiceDateRadDatePicker_popupButton","clientStateFieldID":"ctl00_DefaultContent_InvoiceDateRadDatePicker_ClientState","focusedDate":"2026-10-03-00-00-00","maxDate":"2026-10-31-00-00-00","minDate":"2026-10-01-00-00-00"}, null, {"calendar":"ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar","dateInput":"ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput"}, $get("ctl00_DefaultContent_InvoiceDateRadDatePicker"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTextBox, {"_displayText":"","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$DefaultContent$InvoiceNumberTextBox\\\u0027,\\\u0027\\\u0027)\", 0)","_renderMode":2,"_skin":"Bootstrap","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_InvoiceNumberTextBox_ClientState","enabled":true,"styles":{HoveredStyle: ["width:100%;", "riTextBox riHover"],InvalidStyle: ["width:100%;", "riTextBox riError"],DisabledStyle: ["width:100%;", "riTextBox riDisabled"],FocusedStyle: ["width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["width:100%;", "riTextBox riRead"],EnabledStyle: ["width:100%;", "riTextBox riEnabled"]}}, null, null, $get("ctl00_DefaultContent_InvoiceNumberTextBox"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadNumericTextBox, {"_displayText":"","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$DefaultContent$QtyClaimedRadNumericTextBox\\\u0027,\\\u0027\\\u0027)\", 0)","_renderMode":2,"_skin":"Bootstrap","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_QtyClaimedRadNumericTextBox_ClientState","enabled":true,"incrementSettings":{InterceptArrowKeys:true,InterceptMouseWheel:true,Step:1},"minValue":0,"numberFormat":{"DecimalDigits":0,"DecimalSeparator":".","CultureNativeDecimalSeparator":".","GroupSeparator":",","GroupSizes":3,"NegativePattern":"-n","NegativeSign":"-","PositivePattern":"n","AllowRounding":true,"KeepNotRoundedValue":false,"KeepTrailingZerosOnFocus":false,"NumericPlaceHolder":"n"},"styles":{HoveredStyle: ["width:100%;", "riTextBox riHover"],InvalidStyle: ["width:100%;", "riTextBox riError"],DisabledStyle: ["width:100%;", "riTextBox riDisabled"],FocusedStyle: ["width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["width:100%;", "riTextBox riRead"],EnabledStyle: ["width:100%;", "riTextBox riEnabled"],NegativeStyle: ["width:100%;", "riTextBox riNegative"]}}, null, null, $get("ctl00_DefaultContent_QtyClaimedRadNumericTextBox"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.GridMobileColumnView, {"_groupText":"Group By","_type":1,"_ungroupText":"Ungroup"}, null, null, $get("ctl00_DefaultContent_ProductRadGrid_ctl00_ColumnViewctl00"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.GridMobileColumnsView, {"_type":2}, null, null, $get("ctl00_DefaultContent_ProductRadGrid_ctl00_ColumnsViewctl00"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.GridMobileFilterView, {"_titleFormat":"Filter by {0}","_type":0}, null, null, $get("ctl00_DefaultContent_ProductRadGrid_ctl00_FilterViewctl00"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.GridMobileExportView, {"_type":3}, null, null, $get("ctl00_DefaultContent_ProductRadGrid_ctl00_ExportViewctl00"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadGrid, {"ClientID":"ctl00_DefaultContent_ProductRadGrid","ClientSettings":{"AllowAutoScrollOnDragDrop":true,"ShouldCreateRows":true,"DataBinding":{},"Selecting":{"CellSelectionMode":0},"Scrolling":{"AllowScroll":true,"ScrollHeight":"300px"},"Resizing":{},"ClientMessages":{},"KeyboardNavigationSettings":{"AllowActiveRowCycle":false,"EnableKeyboardShortcuts":true,"FocusKey":89,"InitInsertKey":73,"RebindKey":82,"ExitEditInsertModeKey":27,"UpdateInsertItemKey":13,"DeleteActiveRow":127,"ExpandDetailTableKey":39,"CollapseDetailTableKey":37,"MoveDownKey":40,"MoveUpKey":38,"SaveChangesKey":85,"CancelChangesKey":81},"Animation":{},"Virtualization":{}},"Skin":"Default","UniqueID":"ctl00$DefaultContent$ProductRadGrid","_activeRowIndex":"","_controlToFocus":"","_currentPageIndex":0,"_defaultDateTimeFormat":"M/d/yyyy h:mm:ss tt","_editIndexes":"[]","_embeddedSkin":true,"_freezeText":"Freeze","_gridTableViewsData":"[{\"ClientID\":\"ctl00_DefaultContent_ProductRadGrid_ctl00\",\"UniqueID\":\"ctl00$DefaultContent$ProductRadGrid$ctl00\",\"PageSize\":200,\"PageCount\":1,\"EditMode\":\"EditForms\",\"AllowPaging\":false,\"CurrentPageIndex\":0,\"VirtualItemCount\":0,\"AllowMultiColumnSorting\":false,\"AllowNaturalSort\":true,\"AllowFilteringByColumn\":false,\"PageButtonCount\":10,\"HasDetailTables\":false,\"HasMultiHeaders\":false,\"CheckListWebServicePath\":\"\",\"GroupLoadMode\":\"Server\",\"PagerAlwaysVisible\":false,\"IsItemInserted\":false,\"clientDataKeyNames\":[],\"hasDetailItemTemplate\":false,\"_dataBindTemplates\":false,\"_selectedItemStyle\":\"\",\"_selectedItemStyleClass\":\"rgSelectedRow\",\"_columnsData\":[{\"UniqueName\":\"DeleteColumn\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":false,\"Groupable\":false,\"ColumnType\":\"GridButtonColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"HeaderText\":\"Action\",\"DataTypeName\":\"System.String\",\"ButtonType\":\"LinkButton\",\"CommandName\":\"Delete\",\"CommandArgument\":\"\",\"Text\":\"Remove\",\"DataTextField\":\"\",\"DataTextFormatString\":\"\",\"ImageUrl\":\"/WebResource.axd?d=_CAPQfS5tkxrd2Ye0mhBpkLVpCH_Gp3HTicgyQ7M8U2c365xzaQ8kyRKA65oQolPEa1H4vu1h3bulMpZZbleqfPTa7X-dn8c_eubPNJ20RX-6HZ1NjhF9xP0qwnEp-zmchCI1kklNYHoQd1Oi0Pcgly6PHhDZIDcyboiciqhtAI1\\u0026t=638346180030145370\",\"Display\":true},{\"UniqueName\":\"ClaimInvoiceInvoiceDate\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"HeaderText\":\"Sale Date\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true},{\"UniqueName\":\"ClaimInvoiceInvoiceNumber\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"HeaderText\":\"Invoice Number\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true},{\"UniqueName\":\"ProductRadComboBoxTemplate\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"HeaderText\":\"Product\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true},{\"UniqueName\":\"QuantityClaimedGridTemplate\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"HeaderText\":\"Qty Claimed\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true}]}]","_masterClientID":"ctl00_DefaultContent_ProductRadGrid_ctl00","_shouldFocusOnPage":false,"_unfreezeText":"Unfreeze","allowMultiRowSelection":false,"clientStateFieldID":"ctl00_DefaultContent_ProductRadGrid_ClientState","renderMode":4}, null, null, $get("ctl00_DefaultContent_ProductRadGrid"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadAsyncUpload, {"_accessKey":"","_chunkSize":2097152,"_fileFilter":"{\"values\":[{\"Description\":\"*.bmp; *.gif; *.jpg; *.jpeg; *.png; *.pdf\",\"Extensions\":\"*.bmp;*.gif;*.jpg;*.jpeg;*.png;*.pdf\"}]}","_flashModuleUrl":"/WebResource.axd?d=ZRpEwj-ZniGbVEQijqQ4tCDWosqcoNiI43pAMdgioLnG1ayHnUn0VtkEZ1pH_i5Sx5mLPPaDXVfQSGYvoESIh6hn6Tox0j4YOvUZG-FBCuWgwXTRiF-2on942sIbn__5roALiGdEPn44nFKCf6Jt5QzFQVs9yKVozVs_t_In133J9ptpPSaTX94vxZUoLY1i0\u0026t=638346180030145370","_handlerUrl":"/Telerik.Web.UI.WebResource.axd?type=rau","_maxFileSize":90485760,"_multipleFileSelection":1,"_pageGUID":"4aebdc10-4a7c-4625-a248-84c1eaa0e00b","_progressHandlerUrl":"../../Telerik.RadUploadProgressHandler.ashx","_renderMode":2,"_serializedConfiguration":"BD14FDFC44FD18AACC4027083AC0A7B7B39742054E433AC227CC31EFB121182ECF79E2EF4626CC99DFFFFAF9F6FED5566A2D8C1E666AFAF46CD410065D4FBF9B06D3FCDB17F53EDB9F4E879130955BDB0DC22CBA2205E7F44E5D507329B994D65AE03C22192C4B91DFD9AE2D9CC62979562769C350DBEC2CE850FA2A901C18C3DCDCC6FB661F075B12379E7DD9735981CE3F94A971C59E860CCF4A5BE8CE18C480F1DF7D4C87770F7D2CFB18F687136F4A65FB9F3923DC39FF1643B17741153417D190B9653CD875DF164F9A24B341518E935005D980F4CD09D10AB453FF0D4C1719D1496970640D1F149085B658EC3DCCCA59EC7B54171DF27595BCDC941F0C8CC3231360EC41C3EB9387625B792C11F32CDF191D44A459132AE1311C7206DF36B22CC5B02D5B9432E0AE3B5F8EAF7E6FE9FC0B89A2A04874E086063A901DA074C3CDB059FAC4DB22A297F97D54FD90D8DF796B6FF95D3B2B1CFDA4D200380D544F5B9C5E8E9518983F082EED5BF0F4557CB3074587572661E51CFD0A7AD7AFF8E0A6B056DB33D390F32EFEF4499F3DF1642256E8016A59157BB4B2F4F692566CF573866CFCE6054607F398099AB87D84C90C19F5C8EEA61B2270F2FF638F55038E1D1D67169016CAC7BD9F67181B7588E736AD0A49613C823661C7498B711926637AE39FD839C64FC7D1512A8F963F9B16119C50A795619A0ABFF4388A68149253256B209BBF5C81722DF1188FB87C6F6DC557E30E810F293B736957CE81F2DB1CBFA51115A36E3AB8ED60DA257782E0984767318E9DD5594020F94D55F8910804EBC0C7B7A3B9DF0B15B9D618EA2501569A5EF27B760AF60F5240F28C1D13D1F4CDC201DA2EA4F92645D63CAB88096E46C89EAB98EDDFEEBB425D3D92590F124243CE02DB03E482EA212D1FB1D7BE37BF0711180A298F78332C03C84C9CC086DC95319FCF1392CE638E2586A8BA86C421C0A165100DE83DB2791DB0D873FFAFB6A4DF4D884EEE859909C232F9D0062B68BB1CF1D71C7AFDA17E5560BF197032AD9517AEAFB8418758884B7B339A2B37F2D9C028744345F08ED4E918625B4F51E16A086DC2DF4362215D98EB2201E4A1989091CDA803EE09324F6BFEAE85C99D609837C1B01DBA2DF89F715F13A2FF1934D623A6A689ECC5AEAC646919449A1B44B6E92E5F3B7B559F3D020A6E5C67D39AA9DB78BBC5A35EE009B0399E2F8E5ECD2186772490F69E3419856D753ECDE66DC62571C031569938774E83269388B3447BB03D18AB7FE08483C6467CE8717507B5E5A6D8D5BA521BCE8F0C27FA7F699BF4A183E0E1990ABEFE7E34755BFDA6425FE16D82AFE5EB3DBCC0915D7A47080CCE49739788BF46197E4B6EADE805CBFA0DE1ECF7DECA4ADB21162B9CC5A6ECE145B018938D78294714A03CC089740BF6B9B0690EF7E3881040BD3A4AA111D8C83B10FA8C1A4037DDED6D43F943D48E95D593E0F356FAB9309755F82D808B8487284BD5C4C7E5EF769507FF98C916","_serializedConfigurationType":"0F2B9415EED48507B603B9BD53C706442244E9AB4A1237BC27449635A3B1C004A09F8C408FD64A2E308934A62F91C0A0AC3A1D830F921374A89867636C39BAE7A7B0D81DD9F714E21824186891AE97D100D2D54AEA6A80985A90CEEE106226097054D426A0CC57C3233EF0676EF05297AD71262DACD9CB715023716DC6DD9F44F50868F66C12A31BFF0586933573503336996AD113E2A79887290042E4D0FA655E62E94EEED9DE8A5899EB307CD12744BD6AC593E28FED70DA0B414BCB2C11DB0F4394F785C52F0B2714657F63C207E1DED6FF24121C4F006F1694CEE48BDC84","_silverlightModuleUrl":"/WebResource.axd?d=6IDbGcBXm4KW43fRc1VPqMcwWNWIVjYo1m6IlaDzIApFiiHzvUsHGGMXv9Oesp53y62HgSIR440rQGsyjwYo4-Tsxmj-TwqJYWt4hdeWK9VAjxrB0iMnJO-r3uH5Ce1FtXJvS2dtDMTu-Wd7qvPHwbO9qcDLhMRzr2o8RwANrEhfVmMJgeJshhAQ8DDhrFezeE7LLiZcmU9Okch7NPHRmA2\u0026t=638346180030145370","_skin":"Default","_tabIndex":0,"allowedFileExtensions":"[\"bmp\",\"gif\",\"jpg\",\"jpeg\",\"png\",\"pdf\"]","clientStateFieldID":"ctl00_DefaultContent_FileUploadRadAsyncUpload_ClientState","dropZones":"[]","localization":{"Select":"Select","Remove":"Remove","Cancel":"Cancel","DropZone":"Drop files here"},"maxFileCount":500}, {"fileUploadRemoved":OnFileUploadRemoved,"fileUploaded":OnFileUploaded,"filesSelected":OnFilesSelected,"validationFailed":validationFailed}, null, $get("ctl00_DefaultContent_FileUploadRadAsyncUpload"));
+});
+</script><script type="text/javascript">Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadGrid, {"ClientID":"ctl00_DefaultContent_FilesRadGrid","ClientSettings":{"AllowAutoScrollOnDragDrop":true,"ShouldCreateRows":true,"DataBinding":{},"Selecting":{"CellSelectionMode":0},"Scrolling":{"AllowScroll":true,"ScrollHeight":"300px"},"Resizing":{},"ClientMessages":{},"KeyboardNavigationSettings":{"AllowActiveRowCycle":false,"EnableKeyboardShortcuts":true,"FocusKey":89,"InitInsertKey":73,"RebindKey":82,"ExitEditInsertModeKey":27,"UpdateInsertItemKey":13,"DeleteActiveRow":127,"ExpandDetailTableKey":39,"CollapseDetailTableKey":37,"MoveDownKey":40,"MoveUpKey":38,"SaveChangesKey":85,"CancelChangesKey":81},"Animation":{},"Virtualization":{}},"Skin":"Default","UniqueID":"ctl00$DefaultContent$FilesRadGrid","_activeRowIndex":"","_controlToFocus":"","_currentPageIndex":0,"_defaultDateTimeFormat":"M/d/yyyy h:mm:ss tt","_editIndexes":"[]","_embeddedSkin":true,"_freezeText":"Freeze","_gridTableViewsData":"[{\"ClientID\":\"\",\"UniqueID\":null,\"PageSize\":500,\"PageCount\":1,\"EditMode\":\"EditForms\",\"AllowPaging\":false,\"CurrentPageIndex\":0,\"VirtualItemCount\":0,\"AllowMultiColumnSorting\":false,\"AllowNaturalSort\":true,\"AllowFilteringByColumn\":false,\"PageButtonCount\":10,\"HasDetailTables\":false,\"HasMultiHeaders\":false,\"CheckListWebServicePath\":\"\",\"GroupLoadMode\":\"Server\",\"PagerAlwaysVisible\":false,\"IsItemInserted\":false,\"clientDataKeyNames\":[\"DisplayName\",\"LFFullName\",\"FileSize\",\"UploadDate\"],\"hasDetailItemTemplate\":false,\"_dataBindTemplates\":false,\"_selectedItemStyle\":\"\",\"_selectedItemStyleClass\":\"rgSelectedRow\",\"_columnsData\":[{\"UniqueName\":\"ExpandColumn\",\"Resizable\":false,\"Reorderable\":false,\"Selectable\":false,\"Groupable\":false,\"ColumnType\":\"GridExpandColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"DataTypeName\":\"System.String\",\"Display\":true},{\"UniqueName\":\"DisplayName\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"Editable\":true,\"DataTypeName\":\"System.String\",\"DataField\":\"DisplayName\",\"Display\":true},{\"UniqueName\":\"LFFullName\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"Editable\":true,\"DataTypeName\":\"System.String\",\"DataField\":\"LFFullName\",\"Display\":true},{\"UniqueName\":\"FileSize\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"Editable\":true,\"DataTypeName\":\"System.String\",\"DataField\":\"FileSize\",\"Display\":true},{\"UniqueName\":\"UploadDate\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"Editable\":true,\"DataTypeName\":\"System.String\",\"DataField\":\"UploadDate\",\"Display\":true},{\"UniqueName\":\"DeleteColumn\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":false,\"Groupable\":false,\"ColumnType\":\"GridButtonColumn\",\"ColumnGroupName\":\"\",\"Editable\":false,\"DataTypeName\":\"System.String\",\"ButtonType\":\"LinkButton\",\"CommandName\":\"Remove\",\"CommandArgument\":\"\",\"Text\":\"Remove\",\"DataTextField\":\"\",\"DataTextFormatString\":\"\",\"ImageUrl\":\"\",\"Display\":true}]}]","_masterClientID":"","_shouldFocusOnPage":false,"_unfreezeText":"Unfreeze","allowMultiRowSelection":false,"clientStateFieldID":"ctl00_DefaultContent_FilesRadGrid_ClientState","renderMode":1}, null, null, $get("ctl00_DefaultContent_FilesRadGrid"));
+});
+</script></head>
+<body style="margin: 0px; background-color: rgb(255, 255, 255);">
+    <div class="container-fluid" style="margin-left: 0px !important; margin-right: 0px !important;
+        padding-left: 0px !important; padding-right: 0px !important;">
+        <div id="MasterPageWrapper">
+            <!-- Fixed navbar -->
+            <div id="NavBarPanel">
+	
+                <div id="main-navbar" class="navbar navbar-inverse navbar-custom" role="navigation" style="border-color: #ffffff; display: block;">
+                    <div class="header" style="background-color: #ffffff;">
+                        <div class="container pull-left" style="background-color: #ffffff; width: 100%;">
+                            <div class="col-md-12" style="padding-bottom: 5px; margin-top: 20px; max-width: 500px;">
+                                <a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">
+                                    <img class="img-responsive" src="./ATD ProRewards - Submit Claim_files/HeaderLogoProRewards2.png" alt=""></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container no-margin">
+                        <!-- Hamburger Button -->
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar">
+                                </span>
+                            </button>
+                        </div>
+                        <div class="navbar-collapse collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="https://prorewards.acbrewards.com/Authorized/Home.aspx">Home</a></li><li class="dropdown"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Profile<span class="caret"></span></a><ul class="dropdown-menu dropdown-menu-arrow"><li><a href="https://prorewards.acbrewards.com/Authorized/ChangePassword.aspx">Change Password</a></li><li><a href="https://prorewards.acbrewards.com/Authorized/EditProfile.aspx">Edit Profile</a></li></ul></li><li class="dropdown active"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Claims<span class="caret"></span></a><ul class="dropdown-menu dropdown-menu-arrow"><li><a href="https://prorewards.acbrewards.com/Authorized/Claims/ClaimSearch.aspx">Claim Search</a></li><li class="active"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx">Submit Sale</a></li></ul></li><li><a href="https://prorewards.acbrewards.com/Authorized/TermsAndConditions.aspx">Terms &amp; Conditions</a></li><li class="dropdown"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">FAQ<span class="caret"></span></a><ul class="dropdown-menu dropdown-menu-arrow"><li><a href="https://prorewards.acbrewards.com/UserUploads/Attachments/RewardsSchedule638924209966578035.png" target="_blank">Payout Schedule</a></li><li><a href="https://prorewards.acbrewards.com/UserUploads/Attachments/ProRewardsFAQ6172025_v04638981268587712951.pdf" target="_blank">Pro Rewards FAQ's</a></li></ul></li><li><a href="https://prorewards.acbrewards.com/Authorized/ContactUs.aspx">Contact</a></li><li><a href="https://prorewards.acbrewards.com/Authorized/LogOut.aspx">Log Out</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            
+</div>
+            <!-- END Fixed navbar -->
+            <div class="row no-margin">
+                <div id="main-container" style="margin-left: 15px !important; margin-right: 15px !important;
+                    padding-left: 15px !important; padding-right: 15px !important;">
+                    <form method="post" action="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx" id="form2">
+<div class="aspNetHidden">
+
+
+
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form2'];
+if (!theForm) {
+    theForm = document.form2;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="./ATD ProRewards - Submit Claim_files/WebResource(16).axd" type="text/javascript"></script>
+
+
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(11).axd" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof(Sys) === 'undefined') throw new Error('ASP.NET Ajax client-side framework failed to load.');
+//]]>
+</script>
+
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(12).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(13).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(14).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(15).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(16).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(17).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(18).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(19).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(20).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(21).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(22).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(23).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(24).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(25).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(26).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(27).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(28).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(29).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(30).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(31).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(32).axd" type="text/javascript"></script>
+<script src="./ATD ProRewards - Submit Claim_files/ScriptResource(33).axd" type="text/javascript"></script>
+<div class="aspNetHidden">
+
+	
+	
+	
+	
+</div>
+                    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ScriptManager2', 'form2', ['tctl00$DefaultContent$AdminEntryForSalesPersonUpdatePanel','DefaultContent_AdminEntryForSalesPersonUpdatePanel','tctl00$DefaultContent$StepOneUpdatePanel','DefaultContent_StepOneUpdatePanel','tctl00$DefaultContent$DealershipSelectUpdatePanel','DefaultContent_DealershipSelectUpdatePanel','tctl00$DefaultContent$StepTwoUpdatePanel','DefaultContent_StepTwoUpdatePanel','tctl00$DefaultContent$StepThreeUpdatePanel','DefaultContent_StepThreeUpdatePanel','fctl00$DefaultContent$DocumentUploadUpdatePanel','DefaultContent_DocumentUploadUpdatePanel','tctl00$DefaultContent$StepThreeButtonsUpdatePanel','DefaultContent_StepThreeButtonsUpdatePanel','tctl00$DefaultContent$StepFourUpdatePanel','DefaultContent_StepFourUpdatePanel','tctl00$DefaultContent$ValidateUpdatePanel','DefaultContent_ValidateUpdatePanel','tctl00$DefaultContent$AdminEntryUpdatePanel','DefaultContent_AdminEntryUpdatePanel','tctl00$DefaultContent$DuplicateLineItemMessageUpdatePanel','DefaultContent_DuplicateLineItemMessageUpdatePanel'], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+                    
+    
+    <style>
+        .dropdown-menu > li > a {
+            font-size: 13px; /*white-space: normal !important;*/ /*max-width: 300px !important;*/
+        }
+
+        /*When the browser's width is between 699 and 200px*/
+        @media screen and (max-width: 699px) and (min-width: 200px) {
+            .dropdown-menu > li > a {
+                font-size: 13px;
+                white-space: normal !important;
+            }
+        }
+
+        select {
+            color: #000;
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            font-weight: normal;
+        }
+    </style>
+    <div class="row clearfix form-group">
+        <div class="form-group">
+            <h1 style="margin-top: 10px;">Submit a Sales Claim
+            </h1>
+            <span id="DefaultContent_SubmissionDeadlineLabel" style="color:Red;">Submission deadline is based on MST time zone.</span>
+        </div>
+        <div id="DefaultContent_AdminEntryForSalesPersonUpdatePanel">
+                
+                
+            </div>
+        <div id="DefaultContent_StepOneUpdatePanel">
+                
+            </div>
+        <div id="DefaultContent_DealershipSelectUpdatePanel">
+                
+            </div>
+        <div id="DefaultContent_StepTwoUpdatePanel">
+                
+            </div>
+        <div id="DefaultContent_StepThreeUpdatePanel">
+                <div id="DefaultContent_StepThreePanel">
+	
+                    <div class="divShadow">
+                        <div id="DefaultContent_SelectedPromotionPanelStep3">
+		
+                            <div class="row ">
+                                <div class="col-sm-3">
+                                    <b>Promotion Name:</b>
+                                </div>
+                                <div class="col-sm-9">
+                                    <span id="DefaultContent_Step3PromotionNameLabelText">October 2026 Pro Rewards  (10/1/2026 - 10/31/2026)</span>
+                                </div>
+                            </div>
+                            <div class="row ">
+                                <div class="col-sm-3">
+                                    <b>Dealership Name:</b>
+                                </div>
+                                <div class="col-sm-9">
+                                    <span id="DefaultContent_Step3DealershipNameLabelText">JD TIRE 1, LLC</span>
+                                </div>
+                            </div>
+                            <div class="row ">
+                                <div class="col-sm-3">
+                                    &nbsp;
+                                </div>
+                                <div class="col-sm-9">
+                                    
+                                    <a id="DefaultContent_Step3DynamicClaimFormHyperLink" href="https://prorewards.acbrewards.com/authorized/claims/ClaimForm.aspx?pid=157&amp;did=268537" target="_blank">Incentive Claim Form</a>
+                                </div>
+                            </div>
+                            <div id="DefaultContent_StatementCreditOptionUpdatePanel">
+			
+                                    
+                                
+		</div>
+                        
+	</div>
+                        
+                    </div>
+                    <br>
+
+                    
+
+
+                    <div id="DefaultContent_IndividualEntryPanel">
+		
+                        <div class="row" style="margin-top: 5px;">
+                            &nbsp;
+                        </div>
+                        <div id="DefaultContent_Step3ProductsPanel">
+			
+                            <div class="divShadow" style="margin-top: 0px !important; padding-top: 5px !important;">
+                                <div class="clearfix formSubTitle">
+                                    <span id="DefaultContent_SelectProductsLabel">Enter your Sale(s)</span>
+                                </div>
+                                <div>
+                                    <span id="DefaultContent_ValidationSummaryLabel"></span>
+                                    <div id="ClaimSubmitValidationSummaryDiv" style="margin-left: 0px; margin-top: 5px; margin-bottom: 5px;">
+                                        <div id="DefaultContent_ValidationSummary" class="validationSummary" style="font-family:Arial;display:none;">
+
+			</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row form-group" style="margin-left: 0px !important;">
+                                    <span id="DefaultContent_InvoiceTextLabel">Enter your sales invoice and product information and click the 'Add' button.<br>This will add to the cumulative sale(s) list below.</span>
+                                </div>
+                                <div class="row form-group" style="margin-left: 0px !important;">
+                                    <span id="DefaultContent_MemberIDInfoLabel" style="color:Black;font-size:12px;font-weight:bold;font-style:italic;">The eligible product list is based upon your dealership's participation within the Tire Pros ProRewards program for any of the following vendor programs in which you are an active dealer and ATD is your Primary Distributor for that program; MAST Alliance (BIB 250 - 3500 , Continental GOLD, Hankook ONE, Kumho Premium FUEL, Falken FANATIC, Nexen NEXT LEVEL, Toyo DRIVEN, Mickey Thompson MTMA, Cooper MEDALLION, Mastercraft CENTURY, Pirelli FasTrack and Hercules Power Program.</span>
+                                </div>
+                                
+                                <div id="DefaultContent_ProductUpdatePanel">
+				
+                                        <div id="DefaultContent_SelectedProductsEntryPanel" class="isRow gridContainer">
+					
+                                            <input type="hidden" name="ctl00$DefaultContent$SetFocusToInvoiceDateRadDatePickerHiddenField" id="DefaultContent_SetFocusToInvoiceDateRadDatePickerHiddenField">
+                                            <div id="Div45" style="margin-left: 0px;">
+                                                <div class="clearfix isRow">
+                                                </div>
+                                                <div id="DefaultContent_ProductInvoicePanel" class="clearfix">
+						
+                                                    <div class="clearfix isRow">
+                                                    </div>
+                                                    <div class="row ">
+                                                        <div class="col-sm-2" style="white-space: nowrap;">
+                                                            <span id="DefaultContent_EntrySaleDateLabel">Sale Date</span>
+                                                            <div class="row">
+                                                                <div class="col-sm-12 form-group">
+                                                                    <div id="ctl00_DefaultContent_InvoiceDateRadDatePicker_wrapper" class="RadPicker RadPicker_Metro" style="display:inline-block;width:100%;">
+							<!-- 2021.2.616.40 --><input style="visibility:hidden;display:block;float:right;margin:0 0 -1px -1px;width:1px;height:1px;overflow:hidden;border:0;padding:0;" id="ctl00_DefaultContent_InvoiceDateRadDatePicker" name="ctl00$DefaultContent$InvoiceDateRadDatePicker" type="text" class="rdfd_ radPreventDecorate" value="" title="Visually hidden input created for functionality purposes."><table cellspacing="0" class="rcTable rcSingle" summary="Table holding date picker control for selection of dates." style="width:100%;">
+								<caption style="display:none;">
+									RadDatePicker
+								</caption><thead style="display:none;">
+									<tr>
+										<th scope="col">RadDatePicker</th>
+									</tr>
+								</thead><tbody>
+									<tr>
+										<td class="rcInputCell" style="width:100%;"><span id="ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput_wrapper" class="riSingle RadInput RadInput_Metro" style="display:block;width:100%;"><input id="ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput" name="ctl00$DefaultContent$InvoiceDateRadDatePicker$dateInput" class="riTextBox riEmpty" tabindex="6" value="mm/dd/yyyy" type="text" style="font-size: 12px; font-style: normal;"><input id="ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput_ClientState" name="ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;mm/dd/yyyy&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;minDateStr&quot;:&quot;2026-10-01-00-00-00&quot;,&quot;maxDateStr&quot;:&quot;2026-10-31-00-00-00&quot;,&quot;lastSetTextBoxValue&quot;:&quot;mm/dd/yyyy&quot;}"></span></td><td><a title="Open the calendar popup." href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#" id="ctl00_DefaultContent_InvoiceDateRadDatePicker_popupButton" tabindex="6" class="rcCalPopup">Open the calendar popup.</a><div id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_wrapper" style="display:none;">
+											<table id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar" cellspacing="0" class="RadCalendar RadCalendar_Metro">
+												<caption>
+													<span style="display:none;">Calendar</span>
+												</caption><thead>
+													<tr>
+														<td class="rcTitlebar"><table cellspacing="0">
+															<caption>
+																<span style="display:none;">Title and navigation</span>
+															</caption><thead>
+																<tr style="display:none;">
+																	<th scope="col">Title and navigation</th>
+																</tr>
+															</thead><tbody>
+	<tr>
+		<td><a id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_FNP" class="t-button rcFastPrev" title="&lt;&lt;" href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">&lt;&lt;</a></td><td><a id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_NP" class="t-button rcPrev" title="&lt;" href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">&lt;</a></td><td id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Title" class="rcTitle">October 2026</td><td><a id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_NN" class="t-button rcNext" title="&gt;" href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">&gt;</a></td><td><a id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_FNN" class="t-button rcFastNext" title="&gt;&gt;" href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">&lt;&lt;</a></td>
+	</tr>
+</tbody>
+														</table></td>
+													</tr>
+												</thead><tbody>
+	<tr>
+		<td class="rcMain"><table id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top" class="rcMainTable" cellspacing="0">
+	<caption>
+		<span style="display:none;">October 2026</span>
+	</caption><thead>
+		<tr class="rcWeek">
+			<th class="rcViewSel" scope="col">&nbsp;</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_1" title="Sunday" scope="col">S</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_2" title="Monday" scope="col">M</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_3" title="Tuesday" scope="col">T</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_4" title="Wednesday" scope="col">W</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_5" title="Thursday" scope="col">T</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_6" title="Friday" scope="col">F</th><th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_cs_7" title="Saturday" scope="col">S</th>
+		</tr>
+	</thead><tbody>
+		<tr class="rcRow">
+			<th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_rs_1" scope="row">40</th><td class="rcOutOfRange"><span>27</span></td><td class="rcOutOfRange"><span>28</span></td><td class="rcOutOfRange"><span>29</span></td><td class="rcOutOfRange"><span>30</span></td><td title="Thursday, October 01, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">1</a></td><td title="Friday, October 02, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">2</a></td><td class="rcWeekend" title="Saturday, October 03, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">3</a></td>
+		</tr><tr class="rcRow">
+			<th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_rs_2" scope="row">41</th><td class="rcWeekend" title="Sunday, October 04, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">4</a></td><td title="Monday, October 05, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">5</a></td><td title="Tuesday, October 06, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">6</a></td><td title="Wednesday, October 07, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">7</a></td><td title="Thursday, October 08, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">8</a></td><td title="Friday, October 09, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">9</a></td><td class="rcWeekend" title="Saturday, October 10, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">10</a></td>
+		</tr><tr class="rcRow">
+			<th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_rs_3" scope="row">42</th><td class="rcWeekend" title="Sunday, October 11, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">11</a></td><td title="Monday, October 12, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">12</a></td><td title="Tuesday, October 13, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">13</a></td><td title="Wednesday, October 14, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">14</a></td><td title="Thursday, October 15, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">15</a></td><td title="Friday, October 16, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">16</a></td><td class="rcWeekend" title="Saturday, October 17, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">17</a></td>
+		</tr><tr class="rcRow">
+			<th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_rs_4" scope="row">43</th><td class="rcWeekend" title="Sunday, October 18, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">18</a></td><td title="Monday, October 19, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">19</a></td><td title="Tuesday, October 20, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">20</a></td><td title="Wednesday, October 21, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">21</a></td><td title="Thursday, October 22, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">22</a></td><td title="Friday, October 23, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">23</a></td><td class="rcWeekend" title="Saturday, October 24, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">24</a></td>
+		</tr><tr class="rcRow">
+			<th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_rs_5" scope="row">44</th><td class="rcWeekend" title="Sunday, October 25, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">25</a></td><td title="Monday, October 26, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">26</a></td><td title="Tuesday, October 27, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">27</a></td><td title="Wednesday, October 28, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">28</a></td><td title="Thursday, October 29, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">29</a></td><td title="Friday, October 30, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">30</a></td><td class="rcWeekend" title="Saturday, October 31, 2026"><a href="https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx#">31</a></td>
+		</tr><tr class="rcRow">
+			<th id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_Top_rs_6" scope="row">45</th><td class="rcOutOfRange"><span>1</span></td><td class="rcOutOfRange"><span>2</span></td><td class="rcOutOfRange"><span>3</span></td><td class="rcOutOfRange"><span>4</span></td><td class="rcOutOfRange"><span>5</span></td><td class="rcOutOfRange"><span>6</span></td><td class="rcOutOfRange"><span>7</span></td>
+		</tr>
+	</tbody>
+</table></td>
+	</tr>
+</tbody>
+											</table><input type="hidden" name="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_SD" id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_SD" value="[]"><input type="hidden" name="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_AD" id="ctl00_DefaultContent_InvoiceDateRadDatePicker_calendar_AD" value="[[2026,10,1],[2026,10,31],[2026,10,3]]">
+										</div></td>
+									</tr>
+								</tbody>
+							</table><input id="ctl00_DefaultContent_InvoiceDateRadDatePicker_ClientState" name="ctl00_DefaultContent_InvoiceDateRadDatePicker_ClientState" type="hidden" value="{&quot;minDateStr&quot;:&quot;2026-10-01-00-00-00&quot;,&quot;maxDateStr&quot;:&quot;2026-10-31-00-00-00&quot;}" autocomplete="off">
+						</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <span id="DefaultContent_EntryInvoiceNumberLabel">Invoice #</span>
+                                                            <div class="row">
+                                                                <div class="col-sm-12 form-group">
+                                                                    <span id="ctl00_DefaultContent_InvoiceNumberTextBox_wrapper" class="RadInput RadInput_Bootstrap" style="width:100%;"><input id="ctl00_DefaultContent_InvoiceNumberTextBox" name="ctl00$DefaultContent$InvoiceNumberTextBox" size="20" maxlength="50" class="riTextBox riEnabled" tabindex="6" type="text" value=""><input id="ctl00_DefaultContent_InvoiceNumberTextBox_ClientState" name="ctl00_DefaultContent_InvoiceNumberTextBox_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;lastSetTextBoxValue&quot;:&quot;&quot;}"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource.axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(1).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(2).axd"><link class="Telerik_stylesheet" type="text/css" rel="stylesheet" href="./ATD ProRewards - Submit Claim_files/WebResource(3).axd"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <span id="DefaultContent_ProductComboBoxLabel">Eligible Product List</span>
+                                                            <div class="row">
+                                                                <div class="col-sm-12 form-group" style="margin-left: 0px;">
+                                                                    <select name="ctl00$DefaultContent$ProductDropdownList" id="DefaultContent_ProductDropdownList" tabindex="-1" class="chosen-select" title="Select Product" style="background-color: white; width: 100%; display: none;">
+							<option value="0">Select One</option>
+							<option value="1933">ATD Custom Wheels</option>
+							<option value="1932">ATD Steel Wheels</option>
+							<option value="2571">Continental SecureContact AW - Passenger Tires</option>
+							<option value="1098">Continental Terrain Contact H/T - Light Truck Tires</option>
+							<option value="386">Continental TerrainContact A/T - Light Truck Tires</option>
+							<option value="2658">Continental TerrainContact A/T 2 - Light Truck Tires</option>
+							<option value="1811">Continental TrueContact Tour 54 - Passenger Tires</option>
+							<option value="1059">Continental VanContactWinter - Light Truck Tires</option>
+							<option value="1122">Continental Viking Contact 7 - Passenger Tires</option>
+							<option value="2481">Continental Viking Contact 8 - Passenger Tires</option>
+							<option value="1728">Falken Aklimate - Passenger Tires</option>
+							<option value="1483">Falken F-ICE - Passenger Tires</option>
+							<option value="1545">Falken Rubitrek A/T - Light Truck Tires</option>
+							<option value="371">Falken Sincera SN250 A/S - Passenger Tires</option>
+							<option value="1115">Falken Wildpeak A/T Trail - Light Truck Tires</option>
+							<option value="1772">Falken Wildpeak A/T4W - Light Truck Tires</option>
+							<option value="1454">General Altimax 365AW - Passenger Tires</option>
+							<option value="909">General Altimax Arctic 12 - Passenger Tires</option>
+							<option value="1537">General Altimax RT45 - Passenger Tires</option>
+							<option value="1699">General G-Max AS-07 - Passenger Tires</option>
+							<option value="698">General G-Max RS - Passenger Tires</option>
+							<option value="478">General Grabber A/TX - Light Truck Tires</option>
+							<option value="466">General Grabber APT - Light Truck Tires</option>
+							<option value="622">General Grabber Arctic - Passenger Tires</option>
+							<option value="1058">General Grabber Arctic LT - Light Truck Tires</option>
+							<option value="1815">General Grabber H/T - Light Truck Tires</option>
+							<option value="620">Hercules Avalanche RT - Passenger Tires</option>
+							<option value="1622">Hercules Raptis R-T6 - Passenger Tires</option>
+							<option value="1623">Hercules Raptis R-T6X - Passenger Tires</option>
+							<option value="1486">Hercules Strong Guard ST Trailer - BOAT TRAILER TIRES</option>
+							<option value="1853">Hercules TIS Offroad RT1 - Light Truck Tires</option>
+							<option value="1574">Hercules TIS Offroad TT1 - Light Truck Tires</option>
+							<option value="339">Hercules Terra Trac A/T - Light Truck Tires</option>
+							<option value="1672">Hercules Terra Trac Cross-V AW - Light Truck Tires</option>
+							<option value="1783">Nitto Motivo 365 - Passenger Tires</option>
+							<option value="1637">Nitto Nomad Grappler - Light Truck Tires</option>
+							<option value="1641">Nitto Recon Grappler A/T - Light Truck Tires</option>
+							<option value="1807">Nitto Terra Grappler G3 - Light Truck Tires</option>
+							<option value="2602">Nokian Hakkapeliitta 01 - Light Truck Tires</option>
+							<option value="2603">Nokian Hakkapeliitta R5 - Passenger Tires</option>
+							<option value="2563">Nokian Hakkapeliitta R5 EV - Passenger Tires</option>
+							<option value="2559">Nokian Hakkapeliitta R5 SUV - Light Truck Tires</option>
+							<option value="2403">Nokian One HT - Light Truck Tires</option>
+							<option value="2428">Nokian Outpost Apt - Light Truck Tires</option>
+							<option value="2429">Nokian Outpost nAT - Light Truck Tires</option>
+							<option value="2435">Nokian Remedy WRG5 - Passenger Tires</option>
+							<option value="1594">Pirelli Cinturato Weatheractive - Passenger Tires</option>
+							<option value="1588">Pirelli P4 Persist AS Plus - Passenger Tires</option>
+							<option value="1494">Pirelli P7 All Season Plus 3 - Passenger Tires</option>
+							<option value="1162">Pirelli PZero All Season Plus - Passenger Tires</option>
+							<option value="2667">Pirelli Scorpion AS 4 - Light Truck Tires</option>
+							<option value="1458">Pirelli Scorpion All Season Plus 3 - Light Truck Tires</option>
+							<option value="1158">Pirelli Scorpion All Terrain Plus - Light Truck Tires</option>
+							<option value="1595">Pirelli Scorpion Weatheractive - Light Truck Tires</option>
+							<option value="1906">Pirelli Scorpion XTM AT - Light Truck Tires</option>
+							<option value="1744">Pirelli Scorpion Zero All Season Plus 3 - Light Truck Tires</option>
+							<option value="1186">Pirelli W210 Sottozero Series II - Passenger Tires</option>
+							<option value="1145">Pirelli Winter Cinturato - Passenger Tires</option>
+							<option value="2683">Pirelli Winter Cinturato 2 - Passenger Tires</option>
+							<option value="1167">Pirelli Winter Ice Zero FR - Passenger Tires</option>
+							<option value="1206">Pirelli Winter SottoZero Series 3 - Passenger Tires</option>
+							<option value="1625">Toyo Celsius II - Passenger Tires</option>
+							<option value="1105">Toyo Extensa A/S II - Passenger Tires</option>
+							<option value="908">Toyo Observe G3 ICE - Passenger Tires</option>
+							<option value="2684">Toyo Observe G3 ICE Studded - Passenger Tires</option>
+							<option value="1404">Toyo Observe GSI-6 - Passenger Tires</option>
+							<option value="2685">Toyo Observe GSI-6 HP - Passenger Tires</option>
+							<option value="2686">Toyo Observe GSI-6 LS - Passenger Tires</option>
+							<option value="1243">Toyo Open Country A/T III - Light Truck Tires</option>
+							<option value="364">Toyo Open Country M/T - Light Truck Tires</option>
+							<option value="462">Toyo Open Country Q/T - Light Truck Tires</option>
+							<option value="382">Toyo Open Country R/T - Light Truck Tires</option>
+							<option value="1930">Toyo Open Country R/T Pro - Light Truck Tires</option>
+							<option value="1589">Toyo Open Country R/T Trail - Light Truck Tires</option>
+							<option value="630">Toyo Open Country WLT1 - Light Truck Tires</option>
+							<option value="2677">Toyo Proxes G-Tour - Passenger Tires</option>
+							<option value="1814">Toyo Proxes Sport A/S+ - Passenger Tires</option>
+
+						</select><div class="chosen-container chosen-container-single" title="Select Product" id="DefaultContent_ProductDropdownList_chosen" style="width: 100%"><a class="chosen-single">
+  <span>Select One</span>
+  <div><b></b></div>
+</a>
+<div class="chosen-drop">
+  <div class="chosen-search">
+    <input class="chosen-search-input" type="text" autocomplete="off" tabindex="6">
+  </div>
+  <ul class="chosen-results"><li class="active-result" data-option-array-index="69">Toyo Open Country <em>A/T I</em>II - Light Truck Tires</li></ul>
+</div></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-1">
+                                                            <span id="DefaultContent_QtyClaimedLabel">Qty</span>
+                                                            <div class="row">
+                                                                <div class="col-sm-12 form-group">
+                                                                    <div id="ctl00_DefaultContent_QtyClaimedRadNumericTextBox_wrapper" class="RadInput RadInput_Bootstrap" style="width:100%;">
+							<input id="ctl00_DefaultContent_QtyClaimedRadNumericTextBox" name="ctl00$DefaultContent$QtyClaimedRadNumericTextBox" maxlength="3" class="riTextBox riEnabled" tabindex="6" type="text"><input id="ctl00_DefaultContent_QtyClaimedRadNumericTextBox_ClientState" name="ctl00_DefaultContent_QtyClaimedRadNumericTextBox_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;minValue&quot;:0,&quot;maxValue&quot;:70368744177664,&quot;lastSetTextBoxValue&quot;:&quot;&quot;}">
+						</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="col-sm-1">
+                                                            <span id="DefaultContent_AddProductLinkButtonLabel"></span>
+                                                            <div class="row" style="margin-top: 18px;">
+                                                                <div class="col-sm-12 form-group">
+                                                                    <a id="DefaultContent_AddProductLinkButton" tabindex="6" class="btn btn-danger btn-sm" href="javascript:__doPostBack('ctl00$DefaultContent$AddProductLinkButton','')" style="display:inline-block;color:White;width:55px;">Add</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+					</div>
+                                                <div class="clearfix isRow" style="padding-bottom: 5px;">
+                                                    <br>
+                                                </div>
+                                                <div id="DefaultContent_ProductRadGridDiv" style="margin-left: -5px !important;">
+                                                    <div id="DefaultContent_SelectedProductsPanel" class="clearfix">
+						
+                                                        <div class="clearfix isRow">
+                                                            <div style="width: 200px; font-weight: bold; margin-left: 5px;">
+                                                                Cumulative Sale(s) List
+                                                            </div>
+                                                        </div>
+                                                        <div style="padding-left: 5px;">
+                                                            <p class="hidden-lg hidden-md hidden-sm">
+                                                                The below grid can be scrolled: <span class="glyphicon glyphicon-arrow-right"></span>
+                                                                <br>
+                                                            </p>
+                                                            <div id="ctl00_DefaultContent_ProductRadGrid" class="RadGrid RadGrid_Default MyGridClass" style="height:100%;" tabindex="0">
+
+							<div id="ctl00_DefaultContent_ProductRadGrid_GridData" class="rgDataDiv" style="overflow-x:auto;overflow-y:auto;width:100%;height:300px;">
+
+						<table class="rgMasterTable" id="ctl00_DefaultContent_ProductRadGrid_ctl00" style="width:100%;table-layout:auto;empty-cells:show;">
+							<colgroup>
+		<col>
+		<col>
+		<col>
+		<col>
+		<col>
+	</colgroup>
+<thead>
+								<tr>
+									<th scope="col" class="rgHeader" valign="top" style="font-size:12px;font-weight:bold;">Action</th><th scope="col" class="rgHeader" valign="top" style="font-size:12px;font-weight:bold;">Sale Date</th><th scope="col" class="rgHeader" valign="top" style="font-size:12px;font-weight:bold;">Invoice Number</th><th scope="col" class="rgHeader" valign="top" style="font-size:12px;font-weight:bold;">Product</th><th scope="col" class="rgHeader" valign="top" style="font-size:12px;font-weight:bold;">Qty Claimed</th>
+								</tr>
+							</thead><tbody>
+							<tr class="rgNoRecords">
+								<td colspan="5" style="text-align:left;">
+                                                                        <div style="font-family: Arial; font-style: italic; color: Red; margin-top: 5px; margin-left: 5px; margin-bottom: 5px;">
+                                                                            No Sales Information has been added
+                                                                        </div>
+                                                                    </td>
+							</tr>
+							</tbody>
+
+						</table>	</div>
+						<div id="ctl00_DefaultContent_ProductRadGrid_SharedCalendarContainer" style="display:none;">
+
+						</div><div id="ctl00_DefaultContent_ProductRadGrid_ctl00_ColumnViewctl00" class="rgMobileMenu rgMobileColumnForm">
+							<div class="rgCommandRow"><button title="Back" onclick="return false;" class="t-button rgActionButton rgBack"><span class="t-font-icon rgIcon rgBackIcon"></span><span class="t-text rgButtonText">Back</span></button><button title="Cancel" onclick="return false;" class="t-button rgActionButton rgCancel" style="display:none;"><span class="t-font-icon rgIcon rgCancelIcon"></span><span class="t-text rgButtonText">Cancel</span></button><strong></strong><button title="Done" onclick="return false;" class="t-button rgActionButton rgDone" style="display:none;"><span class="t-font-icon rgIcon rgDoneIcon"></span><span class="t-text rgButtonText">Done</span></button></div><div class="rgMobileForm"><span class="rgButton rgButtonGroup"></span></div>
+						</div><div id="ctl00_DefaultContent_ProductRadGrid_ctl00_ColumnsViewctl00" class="rgMobileMenu">
+							<div class="rgCommandRow"><button title="Back" onclick="return false;" class="t-button rgActionButton rgBack"><span class="t-font-icon rgIcon rgBackIcon"></span><span class="t-text rgButtonText">Back</span></button><button title="Cancel" onclick="return false;" class="t-button rgActionButton rgCancel" style="display:none;"><span class="t-font-icon rgIcon rgCancelIcon"></span><span class="t-text rgButtonText">Cancel</span></button><strong>Columns Display</strong><button title="Done" onclick="return false;" class="t-button rgActionButton rgDone" style="display:none;"><span class="t-font-icon rgIcon rgDoneIcon"></span><span class="t-text rgButtonText">Done</span></button></div><div class="rgMobileForm"><strong>Show/Hide Columns and Drag the Icon to Reorder</strong><label class="rgLabel rgColumnItem">Action</label><label class="rgLabel rgColumnItem">Sale Date</label><label class="rgLabel rgColumnItem">Invoice Number</label><label class="rgLabel rgColumnItem">Product</label><label class="rgLabel rgColumnItem">Qty Claimed</label></div>
+						</div><div id="ctl00_DefaultContent_ProductRadGrid_ctl00_FilterViewctl00" class="rgMobileMenu rgMobileFilterForm">
+							<div class="rgCommandRow"><button title="Back" onclick="return false;" class="t-button rgActionButton rgBack"><span class="t-font-icon rgIcon rgBackIcon"></span><span class="t-text rgButtonText">Back</span></button><button title="Cancel" onclick="return false;" class="t-button rgActionButton rgCancel" style="display:none;"><span class="t-font-icon rgIcon rgCancelIcon"></span><span class="t-text rgButtonText">Cancel</span></button><strong></strong><button title="Done" onclick="return false;" class="t-button rgActionButton rgDone" style="display:none;"><span class="t-font-icon rgIcon rgDoneIcon"></span><span class="t-text rgButtonText">Done</span></button></div><div class="rgMobileForm"><strong>Show rows with value that</strong><label class="rgLabel ">Options</label><select name="ctl00$DefaultContent$ProductRadGrid$ctl46" class="rgValue">
+								<option value="NoFilter">NoFilter</option>
+								<option value="Contains">Contains</option>
+								<option value="DoesNotContain">DoesNotContain</option>
+								<option value="StartsWith">StartsWith</option>
+								<option value="EndsWith">EndsWith</option>
+								<option value="EqualTo">EqualTo</option>
+								<option value="NotEqualTo">NotEqualTo</option>
+								<option value="GreaterThan">GreaterThan</option>
+								<option value="LessThan">LessThan</option>
+								<option value="GreaterThanOrEqualTo">GreaterThanOrEqualTo</option>
+								<option value="LessThanOrEqualTo">LessThanOrEqualTo</option>
+								<option value="Between">Between</option>
+								<option value="NotBetween">NotBetween</option>
+								<option value="IsEmpty">IsEmpty</option>
+								<option value="NotIsEmpty">NotIsEmpty</option>
+								<option value="IsNull">IsNull</option>
+								<option value="NotIsNull">NotIsNull</option>
+								<option value="Custom">Custom</option>
+							</select><label class="rgLabel ">Value</label><input class="rgValue"><strong>And</strong><label class="rgLabel ">Options</label><select name="ctl00$DefaultContent$ProductRadGrid$ctl51" class="rgValue">
+								<option value="NoFilter">NoFilter</option>
+								<option value="Contains">Contains</option>
+								<option value="DoesNotContain">DoesNotContain</option>
+								<option value="StartsWith">StartsWith</option>
+								<option value="EndsWith">EndsWith</option>
+								<option value="EqualTo">EqualTo</option>
+								<option value="NotEqualTo">NotEqualTo</option>
+								<option value="GreaterThan">GreaterThan</option>
+								<option value="LessThan">LessThan</option>
+								<option value="GreaterThanOrEqualTo">GreaterThanOrEqualTo</option>
+								<option value="LessThanOrEqualTo">LessThanOrEqualTo</option>
+								<option value="Between">Between</option>
+								<option value="NotBetween">NotBetween</option>
+								<option value="IsEmpty">IsEmpty</option>
+								<option value="NotIsEmpty">NotIsEmpty</option>
+								<option value="IsNull">IsNull</option>
+								<option value="NotIsNull">NotIsNull</option>
+								<option value="Custom">Custom</option>
+							</select><label class="rgLabel ">Value</label><input class="rgValue"><span class="rgButton rgClear">Clear</span></div>
+						</div><div id="ctl00_DefaultContent_ProductRadGrid_ctl00_ExportViewctl00" class="rgMobileMenu rgMobileExportForm">
+							<div class="rgCommandRow"><button title="Back" onclick="return false;" class="t-button rgActionButton rgBack"><span class="t-font-icon rgIcon rgBackIcon"></span><span class="t-text rgButtonText">Back</span></button><button title="Cancel" onclick="return false;" class="t-button rgActionButton rgCancel" style="display:none;"><span class="t-font-icon rgIcon rgCancelIcon"></span><span class="t-text rgButtonText">Cancel</span></button><strong>Export</strong><button title="Done" onclick="return false;" class="t-button rgActionButton rgDone" style="display:none;"><span class="t-font-icon rgIcon rgDoneIcon"></span><span class="t-text rgButtonText">Done</span></button></div><div class="rgMobileForm"></div>
+						</div><input id="ctl00_DefaultContent_ProductRadGrid_ClientState" name="ctl00_DefaultContent_ProductRadGrid_ClientState" type="hidden" autocomplete="off">	</div>
+						
+                                                        </div>
+                                                    
+					</div>
+                                                </div>
+                                            </div>
+                                        
+				</div>
+                                    
+			</div>
+                            </div>
+                        
+		</div>
+                    
+	</div>
+
+
+                    
+                    <div class="isRow">
+                        &nbsp;
+                    </div>
+                
+</div>
+            </div>
+        <div id="DefaultContent_DocumentUploadUpdatePanel">
+                <div id="DefaultContent_DocumentsPanel">
+	
+                    <div class="isRow">
+                        <br>
+                    </div>
+                    <div class="divShadow" style="margin-top: 0px !important; padding-top: 5px !important;">
+                        <div class="clearfix formSubTitle">
+                            <span id="DefaultContent_SupportingDocumentsLabel">Upload Supporting Invoice Documentation</span>
+                        </div>
+                        <div class="formField">
+                            <div id="DefaultContent_FileUploadErrorUpdatePanel">
+		
+                                    
+                                
+	</div>
+                        </div>
+                        <div class="clearfix skinnedPanelSpacer">
+                            <div id="DefaultContent_DocumentsUploadPanel">
+		
+                                <div class="clearfix instructionalText" style="margin-left: 0px;">
+                                    <span id="DefaultContent_SupportingDocumentsInstructionalTextLabel">
+                                        <ul>
+                                            <li id="DefaultContent_MultipleFileUploads">You may attach multiple scanned file / images. 500 file max limit.</li><li id="DefaultContent_CanMailDocumentation">Note: If you do not have a scanned image
+                                                you do have the option to print and mail your invoice documentation.
+                                                <br>
+                                                <span id="DefaultContent_UploadRateMessageLabel" style="color:Red;">If you choose to mail in your invoice(s) you will be paid at the mailed-in payout rate.<br>Uploading your supporting invoice documentation will pay at the e-claim rate.</span>
+                                            </li>
+                                        </ul>
+                                    </span>
+                                </div>
+                                <div id="FileUploadDiv" style="margin-left: 5px;">
+                                    <script type="text/javascript">
+                                        Telerik.Web.UI.RadAsyncUpload.Modules.Silverlight.isAvailable = function () { return false; };
+                                    </script>
+                                    <div class="formLabel">
+                                        <span id="DefaultContent_UploadFilesLabel">Click 'Select' to find and upload your file(s).  Allowed file extensions are (.bmp .gif .jpg .jpeg .png .pdf) <br>Max limit of 500 files can be uploaded.</span>
+                                        <div class="hidden-xs">
+                                            <span id="DefaultContent_UploadMultipleFilesLabel" style="color:Red;font-style:italic;">* To upload multiple files at the same time, hold down the Shift or Ctrl key while clicking on your files.</span>
+                                        </div>
+                                    </div>
+                                    <div class="aquaRoundedBox">
+                                        <div style="padding-left: 5px; padding-right: 5px; padding-top: 10px; padding-bottom: 5px;">
+                                            <div id="ctl00_DefaultContent_FileUploadRadAsyncUpload" class="RadAsyncUpload RadUpload RadUpload_Default">
+			<input id="ctl00_DefaultContent_FileUploadRadAsyncUpload_ClientState" name="ctl00_DefaultContent_FileUploadRadAsyncUpload_ClientState" type="hidden" autocomplete="off">
+		<ul class="ruInputs" id="ctl00_DefaultContent_FileUploadRadAsyncUploadListContainer"><li class="ruSelectWrap" id="ctl00_DefaultContent_FileUploadRadAsyncUploadrow0"><span class="ruFileWrap ruStyled"><span tabindex="-1" class="ruFakeInput"></span><span tabindex="-1" class="ruButton ruBrowse">Select</span><input type="file" tabindex="0" class="ruFileInput" multiple="multiple" name="ctl00_DefaultContent_FileUploadRadAsyncUploadfile0" id="ctl00_DefaultContent_FileUploadRadAsyncUploadfile0" size="23"><label for="ctl00_DefaultContent_FileUploadRadAsyncUploadfile0" style="display:none">label</label></span><div class="ruDropZone"><span>Drop files here</span></div></li></ul></div>
+                                            <div style="color: #000000; font-family: arial; margin-left: 5px; margin-bottom: 5px; font-size: 86%; margin-top: 5px;">
+                                                * If after selecting your file you see a yellow blinking circle for an extended
+                                                period of time.
+                                                <br>
+                                                Click 'Cancel', then 'Remove' and re-try.<br>
+                                                Make sure your file is not open in another app and is an allowed file extension.
+                                                <br>
+                                            </div>
+                                        </div>
+                                        <span style="color: Red;">* It is recommended to keep copies of all materials submitted
+                                            for your records.</span>
+                                    </div>
+                                </div>
+                            
+	</div>
+                            <div id="DefaultContent_UploadedFilesPanel" style="Display:none;">
+		
+                                <div id="CurrentFilesDiv" class="isRow">
+                                    <div id="DefaultContent_Div113" class="isRow" style="margin-left: 10px; margin-top: 10px; font-weight: bold; color: Black;">
+                                        Your currently attached documentation
+                                        <span id="DefaultContent_Label8" style="color:Red;"><br>* File name(s) have been renamed to make them unique.</span>
+                                    </div>
+                                    <div id="DefaultContent_CurrentFilesUpdatePanel">
+			
+                                            <div style="margin-bottom: 5px; margin-left: 10px;">
+                                                <div class="clearfix">
+                                                    <div id="ctl00_DefaultContent_FilesRadGrid" class="RadGrid RadGrid_Default MyGridClass" style="height:100%;">
+
+			<input id="ctl00_DefaultContent_FilesRadGrid_ClientState" name="ctl00_DefaultContent_FilesRadGrid_ClientState" type="hidden" autocomplete="off">	</div>
+			
+                                                </div>
+                                            </div>
+                                        
+		</div>
+                                </div>
+                            
+	</div>
+                        </div>
+                    </div>
+                
+</div>
+                
+            </div>
+        <input type="hidden" name="ctl00$DefaultContent$StatusSelectedHiddenField" id="DefaultContent_StatusSelectedHiddenField">
+        <div id="DefaultContent_StepThreeButtonsUpdatePanel">
+                <!-- the below 2 hidden fields need to be here because they are used during ValidateStepThree which is caused by the GoToStepFourLinkButtonClick event inside this updatepanel -->
+                <input type="hidden" name="ctl00$DefaultContent$SelectedProgramIDHiddendField" id="DefaultContent_SelectedProgramIDHiddendField" value="157">
+                <input type="hidden" name="ctl00$DefaultContent$SelectedDealershipIDHiddenField" id="DefaultContent_SelectedDealershipIDHiddenField" value="268537">
+                <div id="DefaultContent_StepThreeButtonPanel" class="clearfix buttonRowUnder">
+	
+                    <div style="margin-top: 15px;">
+                        <div class="buttonContainer" style="margin-left: 0px;">
+                            <a id="DefaultContent_BackToStepTwoLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$BackToStepTwoLinkButton','')" style="display:inline-block;color:White;width:70px;">Back</a>
+                        </div>
+                        <div class="buttonContainer buttonInRow" style="margin-left: 15px;">
+                            <a onclick="ScrollToTop();" id="DefaultContent_GoToStepFourLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$GoToStepFourLinkButton','')" style="display:inline-block;color:White;width:70px;">Next</a>
+                        </div>
+                    </div>
+                
+</div>
+            </div>
+        <div id="DefaultContent_StepFourUpdatePanel">
+                
+            </div>
+        <div id="DefaultContent_ValidationPopupPanel" style="display: none; position: fixed; left: 760.5px; top: 395.5px;">
+	
+            <div id="DefaultContent_ValidateUpdatePanel">
+		
+                    <div class="modal">
+                        <div class="site-modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body" style="padding: 5px !important;">
+                                    <div class="modalTitle" style="margin-bottom: 10px;">
+                                        <span id="DefaultContent_PopupPanelLabel">Validation</span>
+                                    </div>
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    <div id="DefaultContent_DuplicatesInformationPanel">
+			
+                                        <br>
+                                        <span id="DefaultContent_NumberOfDuplicatesLabel">You have stated that this claim is a duplicate of </span>
+                                        <span id="DefaultContent_DuplicatesCountLabel"></span>
+                                        <br>
+                                        <br>
+                                        <span id="DefaultContent_ChooseAnActionBelowLabel" style="color:Black;font-weight:bold;">Please select one of the options below.</span>
+                                    
+		</div>
+                                    <div class="clearfix" style="margin-top: 15px;">
+                                        <div id="DefaultContent_ValidationPopupButtonPanel">
+			
+                                            <div class="buttonContainer" style="margin-left: 5px; margin-bottom: 5px;">
+                                                
+                                                
+                                                <a onclick="HideSubmitDuplicatesLinkButton();" id="DefaultContent_SubmitDuplicatesLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$SubmitDuplicatesLinkButton','')" style="display:inline-block;color:White;width:70px;">Submit</a>
+                                            </div>
+                                            <div id="DefaultContent_SubmittedDuplicatesButtonPanel" class="buttonContainer" style="margin-left: 5px; margin-bottom: 5px;">
+				
+                                                <div class="buttonContainer buttonInRow">
+                                                    <a id="DefaultContent_DenyLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$DenyLinkButton','')" style="display:inline-block;color:White;width:100px;">Deny Claim</a>
+                                                </div>
+                                            
+			</div>
+                                            <div id="DefaultContent_NoDuplicatesButtonPanel">
+				
+                                                <div class="buttonContainer" style="margin-left: 5px; margin-bottom: 5px;">
+                                                    <a id="DefaultContent_PostClaimDuplicatesLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$PostClaimDuplicatesLinkButton','')" style="display:inline-block;color:White;width:120px;">Save Claim</a>
+                                                </div>
+                                                <div class="buttonContainer" style="margin-left: 10px; margin-bottom: 5px; margin-right: 5px;">
+                                                    <a onclick="HideAuditPopupPanel();" id="DefaultContent_ReturnToClaimLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$ReturnToClaimLinkButton','')" style="display:inline-block;color:White;width:120px;">Return to Claim</a>
+                                                </div>
+                                            
+			</div>
+                                            <div id="DefaultContent_ReturnPanel" style="margin-left: 5px; margin-right: 5px;">
+				
+                                                <div class="buttonContainer" style="margin-left: 5px; margin-bottom: 5px;">
+                                                    <a id="DefaultContent_ReturnPossDupesListLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$ReturnPossDupesListLinkButton','')" style="display:inline-block;color:White;width:200px;">Return to possible duplicates list</a>
+                                                </div>
+                                            
+			</div>
+                                        
+		</div>
+                                    </div>
+                                    <div>
+                                        
+                                        
+                                        <div id="DefaultContent_OkLinkButtonPanel" class="buttonContainer">
+			
+                                            <div style="float: left; width: 50px; margin-left: 5px;">
+                                                <a onclick="HideAuditPopupPanel();" id="DefaultContent_ValidationPopupPanelOkLinkButton" class="btn btn-danger btn-sm btn-block" href="javascript:__doPostBack('ctl00$DefaultContent$ValidationPopupPanelOkLinkButton','')" style="display:inline-block;color:White;width:60px;">OK</a>
+                                            </div>
+                                        
+		</div>
+                                        
+                                        <br style="clear: left;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+	</div>
+        
+</div>
+        
+        <div style="display: none;">
+            <input type="submit" name="ctl00$DefaultContent$ValidationPopupPanelDummyButton" value="" id="DefaultContent_ValidationPopupPanelDummyButton">
+        </div>
+        <div style="display: none;">
+            <input type="submit" name="ctl00$DefaultContent$DummyButton" value="" id="DefaultContent_DummyButton">
+        </div>
+        
+        <div id="DefaultContent_AdminEntrySearchPopupPanel" class="modal-content" style="display: none; position: fixed; left: 760.5px; top: 395.5px;">
+	
+            <div id="DefaultContent_AdminEntryUpdatePanel">
+		
+                    <div class="modal">
+                        <div class="site-modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div style="text-align: right;">
+                                        <a onclick="javascript:HideAdminEntryPopupPanel();return false;" id="DefaultContent_CloseLinkButton" class="bareButton" href="javascript:__doPostBack('ctl00$DefaultContent$CloseLinkButton','')" style="display:inline-block;width:15px;">x</a>
+                                    </div>
+                                    <div style="color: #000000; font-size: 14px; font-weight: bold; margin-top: 15px; margin-top: 15px; margin-bottom: 15px;">
+                                        <h1>Salesperson Search</h1>
+                                    </div>
+                                    <div id="DefaultContent_AdminEntrySearchPanel" onkeypress="javascript:return WebForm_FireDefaultButton(event, 'DefaultContent_AdminEntrySearchLinkButton')">
+			
+                                        <div style="color: #000000; font-weight: normal; margin-top: 15px; margin-top: 15px; margin-bottom: 15px;">
+                                            Select the search options and click search.<br>
+                                            <br>
+                                        </div>
+                                        <div style="color: red; font-weight: normal; margin-top: 15px; margin-bottom: 15px;">
+                                            <div id="DefaultContent_ValidationSummary1" class="validationSummary" style="font-family:Arial;font-size:9pt;display:none;">
+
+			</div>
+                                            <span id="DefaultContent_AdminEntrySearchErrorMessageLabel"></span>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-3">
+                                                <span id="DefaultContent_PersonCodeLabel">PID:</span>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <!-- 2021.2.616.40 --><span id="ctl00_DefaultContent_AdminEntryPIDTextBox_wrapper" class="RadInput RadInput_Bootstrap" style="width:100%;"><input id="ctl00_DefaultContent_AdminEntryPIDTextBox" name="ctl00$DefaultContent$AdminEntryPIDTextBox" size="20" maxlength="10" class="riTextBox riEnabled" type="text" value=""><input id="ctl00_DefaultContent_AdminEntryPIDTextBox_ClientState" name="ctl00_DefaultContent_AdminEntryPIDTextBox_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;lastSetTextBoxValue&quot;:&quot;&quot;}"></span>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-3">
+                                                <span id="DefaultContent_Label13">First Name:</span>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <span id="ctl00_DefaultContent_AdminEntryFirstNameTextBox_wrapper" class="RadInput RadInput_Bootstrap" style="width:100%;"><input id="ctl00_DefaultContent_AdminEntryFirstNameTextBox" name="ctl00$DefaultContent$AdminEntryFirstNameTextBox" size="20" maxlength="50" class="riTextBox riEnabled" type="text" value=""><input id="ctl00_DefaultContent_AdminEntryFirstNameTextBox_ClientState" name="ctl00_DefaultContent_AdminEntryFirstNameTextBox_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;lastSetTextBoxValue&quot;:&quot;&quot;}"></span>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-3">
+                                                <span id="DefaultContent_Label14">Last Name:</span>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <span id="ctl00_DefaultContent_AdminEntryLastNameTextBox_wrapper" class="RadInput RadInput_Bootstrap" style="width:100%;"><input id="ctl00_DefaultContent_AdminEntryLastNameTextBox" name="ctl00$DefaultContent$AdminEntryLastNameTextBox" size="20" maxlength="50" class="riTextBox riEnabled" type="text" value=""><input id="ctl00_DefaultContent_AdminEntryLastNameTextBox_ClientState" name="ctl00_DefaultContent_AdminEntryLastNameTextBox_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;lastSetTextBoxValue&quot;:&quot;&quot;}"></span>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-3">
+                                                <span id="DefaultContent_Label15">Email:</span>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <span id="ctl00_DefaultContent_AdminEntryEmailTextBox_wrapper" class="RadInput RadInput_Bootstrap" style="width:100%;"><input id="ctl00_DefaultContent_AdminEntryEmailTextBox" name="ctl00$DefaultContent$AdminEntryEmailTextBox" size="20" maxlength="50" class="riTextBox riEnabled" type="text" value=""><input id="ctl00_DefaultContent_AdminEntryEmailTextBox_ClientState" name="ctl00_DefaultContent_AdminEntryEmailTextBox_ClientState" type="hidden" autocomplete="off" value="{&quot;enabled&quot;:true,&quot;emptyMessage&quot;:&quot;&quot;,&quot;validationText&quot;:&quot;&quot;,&quot;valueAsString&quot;:&quot;&quot;,&quot;lastSetTextBoxValue&quot;:&quot;&quot;}"></span>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-3">
+                                                <span id="DefaultContent_Label16">Dealership:</span>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <div id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox" class="RadComboBox RadComboBox_Bootstrap" style="width:100%;white-space:normal;z-index: 10000000">
+				<span class="rcbInner"><input name="ctl00$DefaultContent$PayeeOrganizationIDSearchFieldRadComboBox" type="text" class="rcbInput radPreventDecorate rcbEmptyMessage" id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_Input" value="Select One" autocomplete="off"><button class="rcbActionButton" tabindex="-1" type="button"><span id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_Arrow" class="p-icon p-i-arrow-60-down"></span><span class="rcbButtonText">select</span></button></span><div class="rcbSlide" style="z-index: 100002; display: none; height: 300px;"><div id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_DropDown" class="RadComboBoxDropDown RadComboBoxDropDown_Bootstrap " style="height: 300px;"><div class="rcbScroll rcbWidth"></div><div class="rcbMoreResults" id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_MoreResultsBox"><a id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_MoreResultsBoxImage" title="Show more results"><span class="p-icon p-i-arrow-60-down"></span></a><span></span></div></div></div><input id="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_ClientState" name="ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_ClientState" type="hidden" autocomplete="off">
+			</div>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-3">
+                                                &nbsp;
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <a id="DefaultContent_AdminEntrySearchLinkButton" class="btn btn-danger btn-sm" href="javascript:__doPostBack('ctl00$DefaultContent$AdminEntrySearchLinkButton','')" style="display:inline-block;color:White;width:70px;">Search</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <a onclick="javascript:HideAdminEntryPopupPanel(); return false;" id="DefaultContent_CancelAdminEntryLinkButton" class="btn btn-danger btn-sm" href="javascript:__doPostBack('ctl00$DefaultContent$CancelAdminEntryLinkButton','')" style="display:inline-block;color:White;width:70px;">Cancel</a>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div style="margin-top: 20px; margin-bottom: 5px;">
+                                            <span id="DefaultContent_AdminEntrySearchResultsLabel" style="color:Red;"></span>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-2">
+                                                Search Results:
+                                            </div>
+                                            <div class="col-sm-8 form-group">
+                                                <div id="ctl00_DefaultContent_AdminEntryPersonRadComboBox" class="RadComboBox RadComboBox_Bootstrap" style="width:100%;white-space:normal;z-index: 10000000">
+				<span class="rcbInner rcbReadOnly"><input name="ctl00$DefaultContent$AdminEntryPersonRadComboBox" type="text" class="rcbInput radPreventDecorate rcbEmptyMessage" id="ctl00_DefaultContent_AdminEntryPersonRadComboBox_Input" value="Select One" readonly="readonly" autocomplete="off"><button class="rcbActionButton" tabindex="-1" type="button"><span id="ctl00_DefaultContent_AdminEntryPersonRadComboBox_Arrow" class="p-icon p-i-arrow-60-down"></span><span class="rcbButtonText">select</span></button></span><div class="rcbSlide" style="z-index: 100002; display: none; height: 200px;"><div id="ctl00_DefaultContent_AdminEntryPersonRadComboBox_DropDown" class="RadComboBoxDropDown RadComboBoxDropDown_Bootstrap " style="height: 200px;"><div class="rcbScroll rcbWidth"></div></div></div><input id="ctl00_DefaultContent_AdminEntryPersonRadComboBox_ClientState" name="ctl00_DefaultContent_AdminEntryPersonRadComboBox_ClientState" type="hidden" autocomplete="off">
+			</div>
+                                            </div>
+                                            <div class="col-sm-2 form-group">
+                                                <a id="DefaultContent_SelectPersonLinkButton" class="btn btn-danger btn-sm" href="javascript:__doPostBack('ctl00$DefaultContent$SelectPersonLinkButton','')" style="display:inline-block;color:White;width:70px;">Select</a>
+                                            </div>
+                                        </div>
+                                        <div class="isRow">
+                                            <br>
+                                        </div>
+                                    
+		</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+	</div>
+        
+</div>
+        
+        <div style="display: none;">
+            <input type="submit" name="ctl00$DefaultContent$DummyButton3" value="" id="DefaultContent_DummyButton3">
+        </div>
+        <div id="DefaultContent_UpdateProfilePopupPanel" class="popUpPanel" style="display: none; position: fixed; left: 760.5px; top: 395.5px;">
+	
+            <div class="clearfix modalContainer">
+                <div class="modalTitle">
+                    <span id="DefaultContent_PopUpValidationLabel">Edit Profile Required</span>
+                </div>
+                <div id="DefaultContent_UpdateBatchDatesSuccessPanel" class="errorLiteral">
+		
+                    <div class="clearfix modalFormWrapper">
+                        <span id="DefaultContent_UpdateBatchDatesSuccessLabel">Attention!</span>
+                        <div>
+                            <div id="DefaultContent_UpdateProfileRequiredMessagePanel">
+			
+                                <div style="font-family: arial; font-size: 12px; color: black;">
+                                    <span id="DefaultContent_UpdateProfileRequiredMessageLabel"></span>
+                                </div>
+                            
+		</div>
+                        </div>
+                    </div>
+                
+	</div>
+            </div>
+            <div class="clearfix buttonRowUnder">
+                <div class="buttonContainer">
+                    <a id="DefaultContent_EditProfileHyperLink" class="submitButton" href="https://prorewards.acbrewards.com/Authorized/EditProfile.aspx">Edit My Profile Information</a>
+                </div>
+            </div>
+        
+</div>
+        
+        <div style="display: none;">
+            <input type="submit" name="ctl00$DefaultContent$Button1" value="" id="DefaultContent_Button1">
+        </div>
+        <div id="DefaultContent_DuplicateLineItemMessagePopupPanel" style="display: none; position: fixed; left: 760.5px; top: 395.5px;">
+	
+            <div id="DefaultContent_DuplicateLineItemMessageUpdatePanel">
+		
+                    <div id="SubmitConfirmPopup" tabindex="-1" role="dialog" aria-hidden="false">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="exampleModalLongTitle">Confirm - Duplicate Line Item Entered</h4>
+                                </div>
+                                <div class="modal-body">
+                                    The line item (Sale Date, Invoice #, Product) has already been entered on this claim.<br>
+                                    Click <b>'Yes'</b> to continue and 'Add' the line item.
+                                    <br>
+                                    <br>
+                                    Click <b>'No'</b> to return and edit the line item.
+                                </div>
+                                <div class="modal-footer" style="text-align: left !important;">
+                                    <a onclick="ScrollToTop();" id="DefaultContent_YesLinkButton" class="btn btn-danger btn-sm" href="javascript:__doPostBack('ctl00$DefaultContent$YesLinkButton','')" style="color:White;">Yes</a>&nbsp;&nbsp;
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="javascript:HideDuplicateLineItemMessagePopupPanel(); return false;">
+                                        No</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                
+	</div>
+        
+<div id="ValidationModalPopupExtender_backgroundElement" class="popUpBackgroundDarker" style="display: none; position: fixed; left: 0px; top: 0px; width: 1521px; height: 3199px;"></div><div id="AdminEntryModalPopupExtender_backgroundElement" class="popUpBackgroundDarker" style="display: none; position: fixed; left: 0px; top: 0px; width: 1521px; height: 3199px;"></div><div id="EditProfileModalPopupExtender_backgroundElement" class="popUpBackground" style="display: none; position: fixed; left: 0px; top: 0px; width: 1521px; height: 3199px;"></div><div id="DuplicateLineItemMessageModalPopupExtender_backgroundElement" class="popUpBackground" style="display: none; position: fixed; left: 0px; top: 0px; width: 1521px; height: 3199px;"></div></div>
+        
+        <div style="display: none;">
+            <input type="submit" name="ctl00$DefaultContent$DupDummyButton" value="" id="DefaultContent_DupDummyButton">
+        </div>
+    <span style="display: none !important;"><input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value=""></span><span style="display: none !important;"><input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value=""></span><span style="display: none !important;"><input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTM3MzI3Njk4MA9kFgJmD2QWBAIDD2QWAgIBDxYCHgRUZXh0BacLPGxpPjxhIGhyZWY9Ii9BdXRob3JpemVkL0hvbWUuYXNweCI+SG9tZTwvYT48L2xpPjxsaSBjbGFzcz0iZHJvcGRvd24iPjxhIGhyZWY9IiMiIGNsYXNzPSJkcm9wZG93bi10b2dnbGUiIGRhdGEtdG9nZ2xlPSJkcm9wZG93biIgcm9sZT0iYnV0dG9uIiBhcmlhLWhhc3BvcHVwPSJ0cnVlIiBhcmlhLWV4cGFuZGVkPSJmYWxzZSI+TXkgUHJvZmlsZTxzcGFuIGNsYXNzPSJjYXJldCI+PC9zcGFuPjwvYT48dWwgY2xhc3M9ImRyb3Bkb3duLW1lbnUgZHJvcGRvd24tbWVudS1hcnJvdyI+PGxpPjxhIGhyZWY9Ii9BdXRob3JpemVkL0NoYW5nZVBhc3N3b3JkLmFzcHgiPkNoYW5nZSBQYXNzd29yZDwvYT48L2xpPjxsaT48YSBocmVmPSIvQXV0aG9yaXplZC9FZGl0UHJvZmlsZS5hc3B4Ij5FZGl0IFByb2ZpbGU8L2E+PC9saT48L3VsPjwvbGk+PGxpIGNsYXNzPSJkcm9wZG93biI+PGEgaHJlZj0iIyIgY2xhc3M9ImRyb3Bkb3duLXRvZ2dsZSIgZGF0YS10b2dnbGU9ImRyb3Bkb3duIiByb2xlPSJidXR0b24iIGFyaWEtaGFzcG9wdXA9InRydWUiIGFyaWEtZXhwYW5kZWQ9ImZhbHNlIj5DbGFpbXM8c3BhbiBjbGFzcz0iY2FyZXQiPjwvc3Bhbj48L2E+PHVsIGNsYXNzPSJkcm9wZG93bi1tZW51IGRyb3Bkb3duLW1lbnUtYXJyb3ciPjxsaT48YSBocmVmPSIvQXV0aG9yaXplZC9DbGFpbXMvQ2xhaW1TZWFyY2guYXNweCI+Q2xhaW0gU2VhcmNoPC9hPjwvbGk+PGxpPjxhIGhyZWY9Ii9hdXRob3JpemVkL2NsYWltcy9zdWJtaXRzYWxlLmFzcHgiPlN1Ym1pdCBTYWxlPC9hPjwvbGk+PC91bD48L2xpPjxsaT48YSBocmVmPSIvQXV0aG9yaXplZC9UZXJtc0FuZENvbmRpdGlvbnMuYXNweCI+VGVybXMgJiBDb25kaXRpb25zPC9hPjwvbGk+PGxpIGNsYXNzPSJkcm9wZG93biI+PGEgaHJlZj0iIyIgY2xhc3M9ImRyb3Bkb3duLXRvZ2dsZSIgZGF0YS10b2dnbGU9ImRyb3Bkb3duIiByb2xlPSJidXR0b24iIGFyaWEtaGFzcG9wdXA9InRydWUiIGFyaWEtZXhwYW5kZWQ9ImZhbHNlIj5GQVE8c3BhbiBjbGFzcz0iY2FyZXQiPjwvc3Bhbj48L2E+PHVsIGNsYXNzPSJkcm9wZG93bi1tZW51IGRyb3Bkb3duLW1lbnUtYXJyb3ciPjxsaT48YSBocmVmPSIvVXNlclVwbG9hZHMvQXR0YWNobWVudHMvUmV3YXJkc1NjaGVkdWxlNjM4OTI0MjA5OTY2NTc4MDM1LnBuZyIgdGFyZ2V0PSJfYmxhbmsiPlBheW91dCBTY2hlZHVsZTwvYT48L2xpPjxsaT48YSBocmVmPSIvVXNlclVwbG9hZHMvQXR0YWNobWVudHMvUHJvUmV3YXJkc0ZBUTYxNzIwMjVfdjA0NjM4OTgxMjY4NTg3NzEyOTUxLnBkZiIgdGFyZ2V0PSJfYmxhbmsiPlBybyBSZXdhcmRzIEZBUSdzPC9hPjwvbGk+PC91bD48L2xpPjxsaT48YSBocmVmPSIvQXV0aG9yaXplZC9Db250YWN0VXMuYXNweCI+Q29udGFjdDwvYT48L2xpPjxsaT48YSBocmVmPSIvQXV0aG9yaXplZC9Mb2dPdXQuYXNweCI+TG9nIE91dDwvYT48L2xpPmQCBQ9kFgICAw9kFhQCAQ9kFgJmD2QWAgIBDw8WAh4HVmlzaWJsZWhkZAICD2QWAmYPZBYCAgEPDxYCHwFoZBYGAgEPDxYCHwFoZBYCAgMPFCsAAzwrAAgABQsjIyMtIyMtIyMjI2VkAgMPDxYCHwFnZBYGAgEPDxYCHwFoZGQCAw8PFgIfAWhkZAIHDxAPFgYeDURhdGFUZXh0RmllbGQFC1Byb2dyYW1OYW1lHg5EYXRhVmFsdWVGaWVsZAUJUHJvZ3JhbUlEHgtfIURhdGFCb3VuZGdkEBUDClNlbGVjdCBPbmUYT2N0b2JlciAyMDI2IFBybyBSZXdhcmRzGlNlcHRlbWJlciAyMDI2IFBybyBSZXdhcmRzFQMBMAMxNTcDMTU2FCsDA2dnZxYBAgFkAgUPDxYCHwFoZGQCAw9kFgJmD2QWAgIBDw8WAh8BaGQWBAIFDxQrAAIPFgofAwUOT3JnYW5pemF0aW9uSUQfAGUfAgUQT3JnYW5pemF0aW9uTmFtZR4TY2FjaGVkU2VsZWN0ZWRWYWx1ZWQfBGdkDxQrAAEUKwACDxYEHwAFDkpEIFRJUkUgMSwgTExDHgVWYWx1ZQUGMjY4NTM3ZGQPFCsBAWYWAQV3VGVsZXJpay5XZWIuVUkuUmFkQ29tYm9Cb3hJdGVtLCBUZWxlcmlrLldlYi5VSSwgVmVyc2lvbj0yMDIxLjIuNjE2LjQwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPTEyMWZhZTc4MTY1YmEzZDQWBmYPDxYEHghDc3NDbGFzcwUJcmNiSGVhZGVyHgRfIVNCAgJkZAIBDw8WBB8HBQlyY2JGb290ZXIfCAICZGQCAg8PFgQfAAUOSkQgVElSRSAxLCBMTEMfBgUGMjY4NTM3ZBYGZg8VAQ5KRCBUSVJFIDEsIExMQ2QCAQ9kFgJmDxUBJlRJUkUgUFJPUyAmIFdIRUVMIEVYUEVSVFMgLSBTVElMTFdBVEVSZAIDD2QWAmYPFQQPMTQ0NDcgNjBUSCBTVCBOClNUSUxMV0FURVICTU4FNTUwODJkAgcPDxYCHwFoZGQCBA9kFgJmD2QWAgIBDw8WAh8BaGQWEgIDD2QWAgIDDw8WAh8ABRhPY3RvYmVyIDIwMjYgUHJvIFJld2FyZHNkZAIJDw8WAh8BaGQWBAIFD2QWBGYPPCsACABkAgIPPCsADQEADxYCBQ9SZW5kZXJJbnZpc2libGVnZGQCCQ88KwAIAGQCCw8PFgIfAWhkZAINDw8WAh8BaGQWAgIDDzwrAAgAZAIPDw8WAh8BaGQWAgIDDzwrAAgAZAIRDw8WAh8BaGQWAgIDDzwrAAgAZAITDw8WAh8BaGQWCgIDDzwrAAgAZAIHDzwrAAgAZAILDzwrAAgAZAIPDxQrAAIPFgofAGUfAgURU3RhdGVQcm92aW5jZU5hbWUfAwUZU3RhdGVQcm92aW5jZUFiYnJldmlhdGlvbh8EZx8FZGQPFCsAQhQrAAIPFgQfAAUKU2VsZWN0IE9uZR4IU2VsZWN0ZWRnZGQUKwACDxYGHwAFHkFsYWJhbWEgICAgICAgICAgICAgICAgICAgICAgIB8GBQJBTB8JaGRkFCsAAg8WBh8ABR5BbGFza2EgICAgICAgICAgICAgICAgICAgICAgICAfBgUCQUsfCWhkZBQrAAIPFgYfAAUeQWxiZXJ0YSAgICAgICAgICAgICAgICAgICAgICAgHwYFAkFCHwloZGQUKwACDxYGHwAFHkFyaXpvbmEgICAgICAgICAgICAgICAgICAgICAgIB8GBQJBWh8JaGRkFCsAAg8WBh8ABR5BcmthbnNhcyAgICAgICAgICAgICAgICAgICAgICAfBgUCQVIfCWhkZBQrAAIPFgYfAAUQQnJpdGlzaCBDb2x1bWJpYR8GBQJCQx8JaGRkFCsAAg8WBh8ABR5DYWxpZm9ybmlhICAgICAgICAgICAgICAgICAgICAfBgUCQ0EfCWhkZBQrAAIPFgYfAAUeQ29sb3JhZG8gICAgICAgICAgICAgICAgICAgICAgHwYFAkNPHwloZGQUKwACDxYGHwAFHkNvbm5lY3RpY3V0ICAgICAgICAgICAgICAgICAgIB8GBQJDVB8JaGRkFCsAAg8WBh8ABR5EZWxhd2FyZSAgICAgICAgICAgICAgICAgICAgICAfBgUCREUfCWhkZBQrAAIPFgYfAAUeRGlzdHJpY3Qgb2YgQ29sdW1iaWEgICAgICAgICAgHwYFAkRDHwloZGQUKwACDxYGHwAFHkZsb3JpZGEgICAgICAgICAgICAgICAgICAgICAgIB8GBQJGTB8JaGRkFCsAAg8WBh8ABR5HZW9yZ2lhICAgICAgICAgICAgICAgICAgICAgICAfBgUCR0EfCWhkZBQrAAIPFgYfAAUeSGF3YWlpICAgICAgICAgICAgICAgICAgICAgICAgHwYFAkhJHwloZGQUKwACDxYGHwAFHklkYWhvICAgICAgICAgICAgICAgICAgICAgICAgIB8GBQJJRB8JaGRkFCsAAg8WBh8ABR5JbGxpbm9pcyAgICAgICAgICAgICAgICAgICAgICAfBgUCSUwfCWhkZBQrAAIPFgYfAAUeSW5kaWFuYSAgICAgICAgICAgICAgICAgICAgICAgHwYFAklOHwloZGQUKwACDxYGHwAFHklvd2EgICAgICAgICAgICAgICAgICAgICAgICAgIB8GBQJJQR8JaGRkFCsAAg8WBh8ABR5LYW5zYXMgICAgICAgICAgICAgICAgICAgICAgICAfBgUCS1MfCWhkZBQrAAIPFgYfAAUeS2VudHVja3kgICAgICAgICAgICAgICAgICAgICAgHwYFAktZHwloZGQUKwACDxYGHwAFHkxvdWlzaWFuYSAgICAgICAgICAgICAgICAgICAgIB8GBQJMQR8JaGRkFCsAAg8WBh8ABR5NYWluZSAgICAgICAgICAgICAgICAgICAgICAgICAfBgUCTUUfCWhkZBQrAAIPFgYfAAUeTWFuaXRvYmEgICAgICAgICAgICAgICAgICAgICAgHwYFAk1CHwloZGQUKwACDxYGHwAFHk1hcnlsYW5kICAgICAgICAgICAgICAgICAgICAgIB8GBQJNRB8JaGRkFCsAAg8WBh8ABR5NYXNzYWNodXNldHRzICAgICAgICAgICAgICAgICAfBgUCTUEfCWhkZBQrAAIPFgYfAAUeTWljaGlnYW4gICAgICAgICAgICAgICAgICAgICAgHwYFAk1JHwloZGQUKwACDxYGHwAFHk1pbm5lc290YSAgICAgICAgICAgICAgICAgICAgIB8GBQJNTh8JaGRkFCsAAg8WBh8ABR5NaXNzaXNzaXBwaSAgICAgICAgICAgICAgICAgICAfBgUCTVMfCWhkZBQrAAIPFgYfAAUeTWlzc291cmkgICAgICAgICAgICAgICAgICAgICAgHwYFAk1PHwloZGQUKwACDxYGHwAFHk1vbnRhbmEgICAgICAgICAgICAgICAgICAgICAgIB8GBQJNVB8JaGRkFCsAAg8WBh8ABR5OZWJyYXNrYSAgICAgICAgICAgICAgICAgICAgICAfBgUCTkUfCWhkZBQrAAIPFgYfAAUeTmV2YWRhICAgICAgICAgICAgICAgICAgICAgICAgHwYFAk5WHwloZGQUKwACDxYGHwAFHk5ldyBCcnVuc3dpY2sgICAgICAgICAgICAgICAgIB8GBQJOQh8JaGRkFCsAAg8WBh8ABR5OZXcgSGFtcHNoaXJlICAgICAgICAgICAgICAgICAfBgUCTkgfCWhkZBQrAAIPFgYfAAUeTmV3IEplcnNleSAgICAgICAgICAgICAgICAgICAgHwYFAk5KHwloZGQUKwACDxYGHwAFHk5ldyBNZXhpY28gICAgICAgICAgICAgICAgICAgIB8GBQJOTR8JaGRkFCsAAg8WBh8ABR5OZXcgWW9yayAgICAgICAgICAgICAgICAgICAgICAfBgUCTlkfCWhkZBQrAAIPFgYfAAUeTmV3Zm91bmRsYW5kICAgICAgICAgICAgICAgICAgHwYFAk5GHwloZGQUKwACDxYGHwAFGU5ld2ZvdW5kbGFuZCBhbmQgTGFicmFkb3IfBgUCTkwfCWhkZBQrAAIPFgYfAAUeTm9ydGggQ2Fyb2xpbmEgICAgICAgICAgICAgICAgHwYFAk5DHwloZGQUKwACDxYGHwAFHk5vcnRoIERha290YSAgICAgICAgICAgICAgICAgIB8GBQJORB8JaGRkFCsAAg8WBh8ABRVOb3J0aHdlc3QgVGVycml0b3JpZXMfBgUCTlQfCWhkZBQrAAIPFgYfAAUeTm92YSBTY290aWEgICAgICAgICAgICAgICAgICAgHwYFAk5THwloZGQUKwACDxYGHwAFB051bmF2dXQfBgUCTlUfCWhkZBQrAAIPFgYfAAUeT2hpbyAgICAgICAgICAgICAgICAgICAgICAgICAgHwYFAk9IHwloZGQUKwACDxYGHwAFHk9rbGFob21hICAgICAgICAgICAgICAgICAgICAgIB8GBQJPSx8JaGRkFCsAAg8WBh8ABQdPbnRhcmlvHwYFAk9OHwloZGQUKwACDxYGHwAFHk9yZWdvbiAgICAgICAgICAgICAgICAgICAgICAgIB8GBQJPUh8JaGRkFCsAAg8WBh8ABR5QZW5uc3lsdmFuaWEgICAgICAgICAgICAgICAgICAfBgUCUEEfCWhkZBQrAAIPFgYfAAUUUHJpbmNlIEVkd2FyZCBJc2xhbmQfBgUCUEUfCWhkZBQrAAIPFgYfAAUGUXVlYmVjHwYFAlFDHwloZGQUKwACDxYGHwAFHlJob2RlIElzbGFuZCAgICAgICAgICAgICAgICAgIB8GBQJSSR8JaGRkFCsAAg8WBh8ABR5TYXNrYXRjaGV3YW4gICAgICAgICAgICAgICAgICAfBgUCU0sfCWhkZBQrAAIPFgYfAAUeU291dGggQ2Fyb2xpbmEgICAgICAgICAgICAgICAgHwYFAlNDHwloZGQUKwACDxYGHwAFHlNvdXRoIERha290YSAgICAgICAgICAgICAgICAgIB8GBQJTRB8JaGRkFCsAAg8WBh8ABR5UZW5uZXNzZWUgICAgICAgICAgICAgICAgICAgICAfBgUCVE4fCWhkZBQrAAIPFgYfAAUeVGV4YXMgICAgICAgICAgICAgICAgICAgICAgICAgHwYFAlRYHwloZGQUKwACDxYGHwAFHlV0YWggICAgICAgICAgICAgICAgICAgICAgICAgIB8GBQJVVB8JaGRkFCsAAg8WBh8ABR5WZXJtb250ICAgICAgICAgICAgICAgICAgICAgICAfBgUCVlQfCWhkZBQrAAIPFgYfAAUeVmlyZ2luaWEgICAgICAgICAgICAgICAgICAgICAgHwYFAlZBHwloZGQUKwACDxYGHwAFHldhc2hpbmd0b24gICAgICAgICAgICAgICAgICAgIB8GBQJXQR8JaGRkFCsAAg8WBh8ABR5XZXN0IFZpcmdpbmlhICAgICAgICAgICAgICAgICAfBgUCV1YfCWhkZBQrAAIPFgYfAAUeV2lzY29uc2luICAgICAgICAgICAgICAgICAgICAgHwYFAldJHwloZGQUKwACDxYGHwAFHld5b21pbmcgICAgICAgICAgICAgICAgICAgICAgIB8GBQJXWR8JaGRkFCsAAg8WBh8ABQVZdWtvbh8GBQJZVB8JaGRkDxQrAUJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYWAQV3VGVsZXJpay5XZWIuVUkuUmFkQ29tYm9Cb3hJdGVtLCBUZWxlcmlrLldlYi5VSSwgVmVyc2lvbj0yMDIxLjIuNjE2LjQwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPTEyMWZhZTc4MTY1YmEzZDQWiAFmDw8WBB8HBQlyY2JIZWFkZXIfCAICZGQCAQ8PFgQfBwUJcmNiRm9vdGVyHwgCAmRkAgIPDxYEHwAFClNlbGVjdCBPbmUfCWdkZAIDDw8WBh8ABR5BbGFiYW1hICAgICAgICAgICAgICAgICAgICAgICAfBgUCQUwfCWhkZAIEDw8WBh8ABR5BbGFza2EgICAgICAgICAgICAgICAgICAgICAgICAfBgUCQUsfCWhkZAIFDw8WBh8ABR5BbGJlcnRhICAgICAgICAgICAgICAgICAgICAgICAfBgUCQUIfCWhkZAIGDw8WBh8ABR5Bcml6b25hICAgICAgICAgICAgICAgICAgICAgICAfBgUCQVofCWhkZAIHDw8WBh8ABR5BcmthbnNhcyAgICAgICAgICAgICAgICAgICAgICAfBgUCQVIfCWhkZAIIDw8WBh8ABRBCcml0aXNoIENvbHVtYmlhHwYFAkJDHwloZGQCCQ8PFgYfAAUeQ2FsaWZvcm5pYSAgICAgICAgICAgICAgICAgICAgHwYFAkNBHwloZGQCCg8PFgYfAAUeQ29sb3JhZG8gICAgICAgICAgICAgICAgICAgICAgHwYFAkNPHwloZGQCCw8PFgYfAAUeQ29ubmVjdGljdXQgICAgICAgICAgICAgICAgICAgHwYFAkNUHwloZGQCDA8PFgYfAAUeRGVsYXdhcmUgICAgICAgICAgICAgICAgICAgICAgHwYFAkRFHwloZGQCDQ8PFgYfAAUeRGlzdHJpY3Qgb2YgQ29sdW1iaWEgICAgICAgICAgHwYFAkRDHwloZGQCDg8PFgYfAAUeRmxvcmlkYSAgICAgICAgICAgICAgICAgICAgICAgHwYFAkZMHwloZGQCDw8PFgYfAAUeR2VvcmdpYSAgICAgICAgICAgICAgICAgICAgICAgHwYFAkdBHwloZGQCEA8PFgYfAAUeSGF3YWlpICAgICAgICAgICAgICAgICAgICAgICAgHwYFAkhJHwloZGQCEQ8PFgYfAAUeSWRhaG8gICAgICAgICAgICAgICAgICAgICAgICAgHwYFAklEHwloZGQCEg8PFgYfAAUeSWxsaW5vaXMgICAgICAgICAgICAgICAgICAgICAgHwYFAklMHwloZGQCEw8PFgYfAAUeSW5kaWFuYSAgICAgICAgICAgICAgICAgICAgICAgHwYFAklOHwloZGQCFA8PFgYfAAUeSW93YSAgICAgICAgICAgICAgICAgICAgICAgICAgHwYFAklBHwloZGQCFQ8PFgYfAAUeS2Fuc2FzICAgICAgICAgICAgICAgICAgICAgICAgHwYFAktTHwloZGQCFg8PFgYfAAUeS2VudHVja3kgICAgICAgICAgICAgICAgICAgICAgHwYFAktZHwloZGQCFw8PFgYfAAUeTG91aXNpYW5hICAgICAgICAgICAgICAgICAgICAgHwYFAkxBHwloZGQCGA8PFgYfAAUeTWFpbmUgICAgICAgICAgICAgICAgICAgICAgICAgHwYFAk1FHwloZGQCGQ8PFgYfAAUeTWFuaXRvYmEgICAgICAgICAgICAgICAgICAgICAgHwYFAk1CHwloZGQCGg8PFgYfAAUeTWFyeWxhbmQgICAgICAgICAgICAgICAgICAgICAgHwYFAk1EHwloZGQCGw8PFgYfAAUeTWFzc2FjaHVzZXR0cyAgICAgICAgICAgICAgICAgHwYFAk1BHwloZGQCHA8PFgYfAAUeTWljaGlnYW4gICAgICAgICAgICAgICAgICAgICAgHwYFAk1JHwloZGQCHQ8PFgYfAAUeTWlubmVzb3RhICAgICAgICAgICAgICAgICAgICAgHwYFAk1OHwloZGQCHg8PFgYfAAUeTWlzc2lzc2lwcGkgICAgICAgICAgICAgICAgICAgHwYFAk1THwloZGQCHw8PFgYfAAUeTWlzc291cmkgICAgICAgICAgICAgICAgICAgICAgHwYFAk1PHwloZGQCIA8PFgYfAAUeTW9udGFuYSAgICAgICAgICAgICAgICAgICAgICAgHwYFAk1UHwloZGQCIQ8PFgYfAAUeTmVicmFza2EgICAgICAgICAgICAgICAgICAgICAgHwYFAk5FHwloZGQCIg8PFgYfAAUeTmV2YWRhICAgICAgICAgICAgICAgICAgICAgICAgHwYFAk5WHwloZGQCIw8PFgYfAAUeTmV3IEJydW5zd2ljayAgICAgICAgICAgICAgICAgHwYFAk5CHwloZGQCJA8PFgYfAAUeTmV3IEhhbXBzaGlyZSAgICAgICAgICAgICAgICAgHwYFAk5IHwloZGQCJQ8PFgYfAAUeTmV3IEplcnNleSAgICAgICAgICAgICAgICAgICAgHwYFAk5KHwloZGQCJg8PFgYfAAUeTmV3IE1leGljbyAgICAgICAgICAgICAgICAgICAgHwYFAk5NHwloZGQCJw8PFgYfAAUeTmV3IFlvcmsgICAgICAgICAgICAgICAgICAgICAgHwYFAk5ZHwloZGQCKA8PFgYfAAUeTmV3Zm91bmRsYW5kICAgICAgICAgICAgICAgICAgHwYF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RCBpcyB5b3VyIFByaW1hcnkgRGlzdHJpYnV0b3IgZm9yIHRoYXQgcHJvZ3JhbTsgTUFTVCBBbGxpYW5jZSAoQklCIDI1MCAtIDM1MDAgLCBDb250aW5lbnRhbCBHT0xELCBIYW5rb29rIE9ORSwgS3VtaG8gUHJlbWl1bSBGVUVMLCBGYWxrZW4gRkFOQVRJQywgTmV4ZW4gTkVYVCBMRVZFTCwgVG95byBEUklWRU4sIE1pY2tleSBUaG9tcHNvbiBNVE1BLCBDb29wZXIgTUVEQUxMSU9OLCBNYXN0ZXJjcmFmdCBDRU5UVVJZLCBQaXJlbGxpIEZhc1RyYWNrIGFuZCBIZXJjdWxlcyBQb3dlciBQcm9ncmFtLmRkAgsPZBYCZg9kFgICAQ9kFgQCAw9kFgoCAw8PFg4eDFNlbGVjdGVkRGF0ZWQeHEVuYWJsZUVtYmVkZGVkQmFzZVN0eWxlc2hlZXRnHgdNaW5EYXRlBgDAve9OH98IHhFfc2tpcE1NVmFsaWRhdGlvbmgeB01heERhdGUGAEAi6OE23wgeElJlc29sdmVkUmVuZGVyTW9kZQspclRlbGVyaWsuV2ViLlVJLlJlbmRlck1vZGUsIFRlbGVyaWsuV2ViLlVJLCBWZXJzaW9uPTIwMjEuMi42MTYuNDAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MTIxZmFlNzgxNjViYTNkNAEeFUVuYWJsZUVtYmVkZGVkU2NyaXB0c2dkFgRmDxQrAAgPFhQeDUxhYmVsQ3NzQ2xhc3MFB3JpTGFiZWwfAGQeF0VuYWJsZUFqYXhTa2luUmVuZGVyaW5naB8OBgDAve9OH98IHxAGAEAi6OE23wgfDWcfEQsrBAEfEmceBFNraW4FBU1ldHJvHhFFbmFibGVBcmlhU3VwcG9ydGhkFgweCUZvbnRfU2l6ZSgqIlN5c3RlbS5XZWIuVUkuV2ViQ29udHJvbHMuRm9udFVuaXQEMTJweB4LRm9udF9JdGFsaWNoHgVXaWR0aBsAAAAAAABZQAcAAAAeClJlc2l6ZU1vZGULKXJUZWxlcmlrLldlYi5VSS5SZXNpemVNb2RlLCBUZWxlcmlrLldlYi5VSSwgVmVyc2lvbj0yMDIxLjIuNjE2LjQwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPTEyMWZhZTc4MTY1YmEzZDQAHwcFEXJpVGV4dEJveCByaUhvdmVyHwgCgioWDB8XKCsFBDEycHgfGGgfGRsAAAAAAABZQAcAAAAfGgsrBgAfBwURcmlUZXh0Qm94IHJpRXJyb3IfCAKCKhYMHxcoKwUEMTJweB8YaB8ZGwAAAAAAAFlABwAAAB8aCysGAB8HBRNyaVRleHRCb3ggcmlGb2N1c2VkHwgCgioWCh8XKCsFBDEycHgfGGgfGRsAAAAAAABZQAcAAAAfBwUTcmlUZXh0Qm94IHJpRW5hYmxlZB8IAoIqFgwfFygrBQQxMnB4HxhoHxkbAAAAAAAAWUAHAAAAHxoLKwYAHwcFFHJpVGV4dEJveCByaURpc2FibGVkHwgCgioWDB8XKCsFBDEycHgfGGgfGRsAAAAAAABZQAcAAAAfGgsrBgAfBwURcmlUZXh0Qm94IHJpRW1wdHkfCAKCKhYMHxcoKwUEMTJweB8YaB8ZGwAAAAAAAFlABwAAAB8aCysGAB8HBRByaVRleHRCb3ggcmlSZWFkHwgCgipkAgIPFCsADQ8WDAUNU2VsZWN0ZWREYXRlcw8FjwFUZWxlcmlrLldlYi5VSS5DYWxlbmRhci5Db2xsZWN0aW9ucy5EYXRlVGltZUNvbGxlY3Rpb24sIFRlbGVyaWsuV2ViLlVJLCBWZXJzaW9uPTIwMjEuMi42MTYuNDAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MTIxZmFlNzgxNjViYTNkNBQrAAAFEUVuYWJsZU11bHRpU2VsZWN0aAUPUmVuZGVySW52aXNpYmxlZwULU3BlY2lhbERheXMPBZIBVGVsZXJpay5XZWIuVUkuQ2FsZW5kYXIuQ29sbGVjdGlvbnMuQ2FsZW5kYXJEYXlDb2xsZWN0aW9uLCBUZWxlcmlrLldlYi5VSSwgVmVyc2lvbj0yMDIxLjIuNjE2LjQwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPTEyMWZhZTc4MTY1YmEzZDQUKwAABQRNaW5EBgDAve9OH98IBQRNYXhEBgBAIujhNt8IDxYMHxJnHw1nHxZoHxUFBU1ldHJvHxELKwQBHxRoZGQWBB8HBQtyY01haW5UYWJsZR8IAgIWBB8HBQxyY090aGVyTW9udGgfCAICZBYEHwcFCnJjU2VsZWN0ZWQfCAICZBYEHwcFCnJjRGlzYWJsZWQfCAICFgQfBwUMcmNPdXRPZlJhbmdlHwgCAhYEHwcFCXJjV2Vla2VuZB8IAgIWBB8HBQdyY0hvdmVyHwgCAhYEHwcFL1JhZENhbGVuZGFyTW9udGhWaWV3IFJhZENhbGVuZGFyTW9udGhWaWV3X01ldHJvHwgCAhYEHwcFCXJjVmlld1NlbB8IAgJkAgcPFCsACA8WDB8TBQdyaUxhYmVsHxJnHwBlHxELKwQCHw1nHxRoZBYIHxkbAAAAAAAAWUAHAAAAHxoLKwYAHwcFEXJpVGV4dEJveCByaUhvdmVyHwgCggIWCB8ZGwAAAAAAAFlABwAAAB8aCysGAB8HBRFyaVRleHRCb3ggcmlFcnJvch8IAoICFggfGRsAAAAAAABZQAcAAAAfGgsrBgAfBwUTcmlUZXh0Qm94IHJpRm9jdXNlZB8IAoICFggfGgsrBgAfGRsAAAAAAABZQAcAAAAfBwUTcmlUZXh0Qm94IHJpRW5hYmxlZB8IAoICFggfGRsAAAAAAABZQAcAAAAfGgsrBgAfBwUUcmlUZXh0Qm94IHJpRGlzYWJsZWQfCAKCAhYIHxkbAAAAAAAAWUAHAAAAHxoLKwYAHwcFEXJpVGV4dEJveCByaUVtcHR5HwgCggIWCB8ZGwAAAAAAAFlABwAAAB8aCysGAB8HBRByaVRleHRCb3ggcmlSZWFkHwgCggJkAgsPEA8WCh8IAgIfBwUNY2hvc2VuLXNlbGVjdB8CBRJQcm9kdWN0RGVzY3JpcHRpb24fAwUJUHJvZHVjdElEHwRnZBAVTgpTZWxlY3QgT25lEUFURCBDdXN0b20gV2hlZWxzEEFURCBTdGVlbCBXaGVlbHMuQ29udGluZW50YWwgU2VjdXJlQ29udGFjdCBBVyAtIFBhc3NlbmdlciBUaXJlczNDb250aW5lbnRhbCBUZXJyYWluIENvbnRhY3QgSC9UIC0gTGlnaHQgVHJ1Y2sgVGlyZXMyQ29udGluZW50YWwgVGVycmFpbkNvbnRhY3QgQS9UIC0gTGlnaHQgVHJ1Y2sgVGlyZXM0Q29udGluZW50YWwgVGVycmFpbkNvbnRhY3QgQS9UIDIgLSBMaWdodCBUcnVjayBUaXJlczFDb250aW5lbnRhbCBUcnVlQ29udGFjdCBUb3VyIDU0IC0gUGFzc2VuZ2VyIFRpcmVzMENvbnRpbmVudGFsIFZhbkNvbnRhY3RXaW50ZXIgLSBMaWdodCBUcnVjayBUaXJlcy5Db250aW5lbnRhbCBWaWtpbmcgQ29udGFjdCA3IC0gUGFzc2VuZ2VyIFRpcmVzLkNvbnRpbmVudGFsIFZpa2luZyBDb250YWN0IDggLSBQYXNzZW5nZXIgVGlyZXMhRmFsa2VuIEFrbGltYXRlIC0gUGFzc2VuZ2VyIFRpcmVzHkZhbGtlbiBGLUlDRSAtIFBhc3NlbmdlciBUaXJlcydGYWxrZW4gUnViaXRyZWsgQS9UIC0gTGlnaHQgVHJ1Y2sgVGlyZXMqRmFsa2VuIFNpbmNlcmEgU04yNTAgQS9TIC0gUGFzc2VuZ2VyIFRpcmVzLUZhbGtlbiBXaWxkcGVhayBBL1QgVHJhaWwgLSBMaWdodCBUcnVjayBUaXJlcylGYWxrZW4gV2lsZHBlYWsgQS9UNFcgLSBMaWdodCBUcnVjayBUaXJlcydHZW5lcmFsIEFsdGltYXggMzY1QVcgLSBQYXNzZW5nZXIgVGlyZXMrR2VuZXJhbCBBbHRpbWF4IEFyY3RpYyAxMiAtIFBhc3NlbmdlciBUaXJlcyZHZW5lcmFsIEFsdGltYXggUlQ0NSAtIFBhc3NlbmdlciBUaXJlcyVHZW5lcmFsIEctTWF4IEFTLTA3IC0gUGFzc2VuZ2VyIFRpcmVzIkdlbmVyYWwgRy1NYXggUlMgLSBQYXNzZW5nZXIgVGlyZXMoR2VuZXJhbCBHcmFiYmVyIEEvVFggLSBMaWdodCBUcnVjayBUaXJlcydHZW5lcmFsIEdyYWJiZXIgQVBUIC0gTGlnaHQgVHJ1Y2sgVGlyZXMoR2VuZXJhbCBHcmFiYmVyIEFyY3RpYyAtIFBhc3NlbmdlciBUaXJlcy1HZW5lcmFsIEdyYWJiZXIgQXJjdGljIExUIC0gTGlnaHQgVHJ1Y2sgVGlyZXMnR2VuZXJhbCBHcmFiYmVyIEgvVCAtIExpZ2h0IFRydWNrIFRpcmVzJ0hlcmN1bGVzIEF2YWxhbmNoZSBSVCAtIFBhc3NlbmdlciBUaXJlcyZIZXJjdWxlcyBSYXB0aXMgUi1UNiAtIFBhc3NlbmdlciBUaXJlcydIZXJjdWxlcyBSYXB0aXMgUi1UNlggLSBQYXNzZW5nZXIgVGlyZXM1SGVyY3VsZXMgU3Ryb25nIEd1YXJkIFNUIFRyYWlsZXIgLSBCT0FUIFRSQUlMRVIgVElSRVMsSGVyY3VsZXMgVElTIE9mZnJvYWQgUlQxIC0gTGlnaHQgVHJ1Y2sgVGlyZXMsSGVyY3VsZXMgVElTIE9mZnJvYWQgVFQxIC0gTGlnaHQgVHJ1Y2sgVGlyZXMrSGVyY3VsZXMgVGVycmEgVHJhYyBBL1QgLSBMaWdodCBUcnVjayBUaXJlczJIZXJjdWxlcyBUZXJyYSBUcmFjIENyb3NzLVYgQVcgLSBMaWdodCBUcnVjayBUaXJlcyJOaXR0byBNb3Rpdm8gMzY1IC0gUGFzc2VuZ2VyIFRpcmVzKE5pdHRvIE5vbWFkIEdyYXBwbGVyIC0gTGlnaHQgVHJ1Y2sgVGlyZXMsTml0dG8gUmVjb24gR3JhcHBsZXIgQS9UIC0gTGlnaHQgVHJ1Y2sgVGlyZXMrTml0dG8gVGVycmEgR3JhcHBsZXIgRzMgLSBMaWdodCBUcnVjayBUaXJlcytOb2tpYW4gSGFra2FwZWxpaXR0YSAwMSAtIExpZ2h0IFRydWNrIFRpcmVzKU5va2lhbiBIYWtrYXBlbGlpdHRhIFI1IC0gUGFzc2VuZ2VyIFRpcmVzLE5va2lhbiBIYWtrYXBlbGlpdHRhIFI1IEVWIC0gUGFzc2VuZ2VyIFRpcmVzL05va2lhbiBIYWtrYXBlbGlpdHRhIFI1IFNVViAtIExpZ2h0IFRydWNrIFRpcmVzIU5va2lhbiBPbmUgSFQgLSBMaWdodCBUcnVjayBUaXJlcyZOb2tpYW4gT3V0cG9zdCBBcHQgLSBMaWdodCBUcnVjayBUaXJlcyZOb2tpYW4gT3V0cG9zdCBuQVQgLSBMaWdodCBUcnVjayBUaXJlcyROb2tpYW4gUmVtZWR5IFdSRzUgLSBQYXNzZW5nZXIgVGlyZXMxUGlyZWxsaSBDaW50dXJhdG8gV2VhdGhlcmFjdGl2ZSAtIFBhc3NlbmdlciBUaXJlcyxQaXJlbGxpIFA0IFBlcnNpc3QgQVMgUGx1cyAtIFBhc3NlbmdlciBUaXJlcy5QaXJlbGxpIFA3IEFsbCBTZWFzb24gUGx1cyAzIC0gUGFzc2VuZ2VyIFRpcmVzL1BpcmVsbGkgUFplcm8gQWxsIFNlYXNvbiBQbHVzIC0gUGFzc2VuZ2VyIFRpcmVzKVBpcmVsbGkgU2NvcnBpb24gQVMgNCAtIExpZ2h0IFRydWNrIFRpcmVzNlBpcmVsbGkgU2NvcnBpb24gQWxsIFNlYXNvbiBQbHVzIDMgLSBMaWdodCBUcnVjayBUaXJlczVQaXJlbGxpIFNjb3JwaW9uIEFsbCBUZXJyYWluIFBsdXMgLSBMaWdodCBUcnVjayBUaXJlczJQaXJlbGxpIFNjb3JwaW9uIFdlYXRoZXJhY3RpdmUgLSBMaWdodCBUcnVjayBUaXJlcytQaXJlbGxpIFNjb3JwaW9uIFhUTSBBVCAtIExpZ2h0IFRydWNrIFRpcmVzO1BpcmVsbGkgU2NvcnBpb24gWmVybyBBbGwgU2Vhc29uIFBsdXMgMyAtIExpZ2h0IFRydWNrIFRpcmVzMlBpcmVsbGkgVzIxMCBTb3R0b3plcm8gU2VyaWVzIElJIC0gUGFzc2VuZ2VyIFRpcmVzKlBpcmVsbGkgV2ludGVyIENpbnR1cmF0byAtIFBhc3NlbmdlciBUaXJlcyxQaXJlbGxpIFdpbnRlciBDaW50dXJhdG8gMiAtIFBhc3NlbmdlciBUaXJlcyxQaXJlbGxpIFdpbnRlciBJY2UgWmVybyBGUiAtIFBhc3NlbmdlciBUaXJlczNQaXJlbGxpIFdpbnRlciBTb3R0b1plcm8gU2VyaWVzIDMgLSBQYXNzZW5nZXIgVGlyZXMhVG95byBDZWxzaXVzIElJIC0gUGFzc2VuZ2VyIFRpcmVzJVRveW8gRXh0ZW5zYSBBL1MgSUkgLSBQYXNzZW5nZXIgVGlyZXMlVG95byBPYnNlcnZlIEczIElDRSAtIFBhc3NlbmdlciBUaXJlcy1Ub3lvIE9ic2VydmUgRzMgSUNFIFN0dWRkZWQgLSBQYXNzZW5nZXIgVGlyZXMkVG95byBPYnNlcnZlIEdTSS02IC0gUGFzc2VuZ2VyIFRpcmVzJ1RveW8gT2JzZXJ2ZSBHU0ktNiBIUCAtIFBhc3NlbmdlciBUaXJlcydUb3lvIE9ic2VydmUgR1NJLTYgTFMgLSBQYXNzZW5nZXIgVGlyZXMtVG95byBPcGVu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BwUQcmdXcmFwIHJnQWR2UGFydB8IAgJkFgICAQ8UKwACDxYYHhlSZWdpc3RlcldpdGhTY3JpcHRNYW5hZ2VyZx4MVGFibGVTdW1tYXJ5BRtQYWdlIFNpemUgRHJvcCBEb3duIENvbnRyb2wfEmcfDWceDFRhYmxlQ2FwdGlvbgUQUGFnZVNpemVDb21ib0JveB4KSW5wdXRUaXRsZWUfJ2ceHU9uQ2xpZW50U2VsZWN0ZWRJbmRleENoYW5naW5nBTBUZWxlcmlrLldlYi5VSS5HcmlkLkNoYW5naW5nUGFnZVNpemVDb21ib0hhbmRsZXIfBWQfBGcfFmgeHE9uQ2xpZW50U2VsZWN0ZWRJbmRleENoYW5nZWQFLlRlbGVyaWsuV2ViLlVJLkdyaWQuQ2hhbmdlUGFnZVNpemVDb21ib0hhbmRsZXJkDxQrAAMUKwACDxYGHwAFAjEwHwYFAjEwHwlnFgIeEG93bmVyVGFibGVWaWV3SWQFUWN0bDAwX0RlZmF1bHRDb250ZW50X1Bvc3NpYmxlRHVwbGljYXRlQ29udHJvbF9Qb3NzaWJsZUR1cGxpY2F0ZUNsYWltUmFkR3JpZF9jdGwwMGQUKwACDxYGHwAFAjIwHwYFAjIwHwloFgIfLwVRY3RsMDBfRGVmYXVsdENvbnRlbnRfUG9zc2libGVEdXBsaWNhdGVDb250cm9sX1Bvc3NpYmxlRHVwbGljYXRlQ2xhaW1SYWRHcmlkX2N0bDAwZBQrAAIPFgYfAAUCNTAfBgUCNTAfCWgWAh8vBVFjdGwwMF9EZWZhdWx0Q29udGVudF9Qb3NzaWJsZUR1cGxpY2F0ZUNvbnRyb2xfUG9zc2libGVEdXBsaWNhdGVDbGFpbVJhZEdyaWRfY3RsMDBkDxQrAQNmZmYWAQV3VGVsZXJpay5XZWIuVUkuUmFkQ29tYm9Cb3hJdGVtLCBUZWxlcmlrLldlYi5VSSwgVmVyc2lvbj0yMDIxLjIuNjE2LjQwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPTEyMWZhZTc4MTY1YmEzZDQWCmYPDxYEHwcFCXJjYkhlYWRlch8IAgJkZAIBDw8WBB8HBQlyY2JGb290ZXIfCAICZGQCAg8PFgYfAAUCMTAfBgUCMTAfCWcWAh8vBVFjdGwwMF9EZWZhdWx0Q29udGVudF9Qb3NzaWJsZUR1cGxpY2F0ZUNvbnRyb2xfUG9zc2libGVEdXBsaWNhdGVDbGFpbVJhZEdyaWRfY3RsMDBkAgMPDxYGHwAFAjIwHwYFAjIwHwloFgIfLwVRY3RsMDBfRGVmYXVsdENvbnRlbnRfUG9zc2libGVEdXBsaWNhdGVDb250cm9sX1Bvc3NpYmxlRHVwbGljYXRlQ2xhaW1SYWRHcmlkX2N0bDAwZAIEDw8WBh8ABQI1MB8GBQI1MB8JaBYCHy8FUWN0bDAwX0RlZmF1bHRDb250ZW50X1Bvc3NpYmxlRHVwbGljYXRlQ29udHJvbF9Qb3NzaWJsZUR1cGxpY2F0ZUNsYWltUmFkR3JpZF9jdGwwMGQCAQ9kFghmDw8WAh8ABQYmbmJzcDtkZAIBDw8WAh8ABQYmbmJzcDtkZAICDw8WAh8ABQYmbmJzcDtkZAIDDw8WAh8ABQxJcyBEdXBsaWNhdGVkZAIBD2QWBGYPZBYYZg8PFgIfAAUGJm5ic3A7ZGQCAQ8PFgIfAAUGJm5ic3A7ZGQCAg8PFgIfAAUGJm5ic3A7ZGQCAw8PFgIfAAUGJm5ic3A7ZGQCBA8PFgIfAAUGJm5ic3A7ZGQCBQ8PFgIfAAUGJm5ic3A7ZGQCBg8PFgIfAAUGJm5ic3A7ZGQCBw8PFgIfAAUGJm5ic3A7ZGQCCA8PFgIfAAUGJm5ic3A7ZGQCCQ8PFgIfAAUGJm5ic3A7ZGQCCg8PFgIfAAUGJm5ic3A7ZGQCCw8PFgIfAAUGJm5ic3A7ZGQCAQ8PFgIfAWhkFgJmDw8WBh8lAggfBwULcmdQYWdlckNlbGwfCAICZBYCZg9kFgICAw8PFgQfBwUQcmdXcmFwIHJnQWR2UGFydB8IAgJkFgICAQ8UKwACDxYYHylnHyoFG1BhZ2UgU2l6ZSBEcm9wIERvd24gQ29udHJvbB8SZx8NZx8rBRBQYWdlU2l6ZUNvbWJvQm94HyxlHydnHy0FMFRlbGVyaWsuV2ViLlVJLkdyaWQuQ2hhbmdpbmdQYWdlU2l6ZUNvbWJvSGFuZGxlch8FZB8EZx8WaB8uBS5UZWxlcmlrLldlYi5VSS5HcmlkLkNoYW5nZVBhZ2VTaXplQ29tYm9IYW5kbGVyZA8UKwADFCsAAg8WBh8ABQIxMB8GBQIxMB8JZxYCHy8FUWN0bDAwX0RlZmF1bHRDb250ZW50X1Bvc3NpYmxlRHVwbGljYXRlQ29udHJvbF9Qb3NzaWJsZUR1cGxpY2F0ZUNsYWltUmFkR3JpZF9jdGwwMGQUKwACDxYGHwAFAjIwHwYFAjIwHwloFgIfLwVRY3RsMDBfRGVmYXVsdENvbnRlbnRfUG9zc2libGVEdXBsaWNhdGVDb250cm9sX1Bvc3NpYmxlRHVwbGljYXRlQ2xhaW1SYWRHcmlkX2N0bDAwZBQrAAIPFgYfAAUCNTAfBgUCNTAfCWgWAh8vBVFjdGwwMF9EZWZhdWx0Q29udGVudF9Qb3NzaWJsZUR1cGxpY2F0ZUNvbnRyb2xfUG9zc2libGVEdXBsaWNhdGVDbGFpbVJhZEdyaWRfY3RsMDBkDxQrAQNmZmYWAQV3VGVsZXJpay5XZWIuVUkuUmFkQ29tYm9Cb3hJdGVtLCBUZWxlcmlrLldlYi5VSSwgVmVyc2lvbj0yMDIxLjIuNjE2LjQwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPTEyMWZhZTc4MTY1YmEzZDQWCmYPDxYEHwcFCXJjYkhlYWRlch8IAgJkZAIBDw8WBB8HBQlyY2JGb290ZXIfCAICZGQCAg8PFgYfAAUCMTAfBgUCMTAfCWcWAh8vBVFjdGwwMF9EZWZhdWx0Q29udGVudF9Qb3NzaWJsZUR1cGxpY2F0ZUNvbnRyb2xfUG9zc2libGVEdXBsaWNhdGVDbGFpbVJhZEdyaWRfY3RsMDBkAgMPDxYGHwAFAjIwHwYFAjIwHwloFgIfLwVRY3RsMDBfRGVmYXVsdENvbnRlbnRfUG9zc2libGVEdXBsaWNhdGVDb250cm9sX1Bvc3NpYmxlRHVwbGljYXRlQ2xhaW1SYWRHcmlkX2N0bDAwZAIEDw8WBh8ABQI1MB8GBQI1MB8JaBYCHy8FUWN0bDAwX0RlZmF1bHRDb250ZW50X1Bvc3NpYmxlRHVwbGljYXRlQ29udHJvbF9Qb3NzaWJsZUR1cGxpY2F0ZUNsYWltUmFkR3JpZF9jdGwwMGQCAg9kFgICAg8PFgIfJQIIFgIfJgUQdGV4dC1hbGlnbjpsZWZ0O2QCAQ8PZBYCHyYFDWRpc3BsYXk6bm9uZTsWAmYPPCsADQEADxYEBRtVc2VDb2x1bW5I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aUVuYWJsZWQfCAKCAhYIHxkbAAAAAAAAWUAHAAAAHxoLKwYAHwcFFHJpVGV4dEJveCByaURpc2FibGVkHwgCggIWCB8ZGwAAAAAAAFlABwAAAB8aCysGAB8HBRFyaVRleHRCb3ggcmlFbXB0eR8IAoICFggfGRsAAAAAAABZQAcAAAAfGgsrBgAfBwUQcmlUZXh0Qm94IHJpUmVhZB8IAoICZAIXDxQrAAIPFgofEmcfAGUfEQsrBAIfFGgfDWdkZBYEZg8PFgQfBwUJcmNiSGVhZGVyHwgCAmRkAgEPDxYEHwcFCXJjYkZvb3Rlch8IAgJkZAIfDxQrAAIPFgofFGgfEQsrBAIfAGUfDWcfEmdkZBYEZg8PFgQfBwUJcmNiSGVhZGVyHwgCAmRkAgEPDxYEHwcFCXJjYkZvb3Rlch8IAgJkZBgHBW5jdGwwMCREZWZhdWx0Q29udGVudCRQb3NzaWJsZUR1cGxpY2F0ZUNvbnRyb2wkUG9zc2libGVEdXBsaWNhdGVDbGFpbVJhZEdyaWQkY3RsMDAkY3RsMDMkY3RsMDEkUGFnZVNpemVDb21ib0JveA8UKwACZQUCMTBkBUdjdGwwMCREZWZhdWx0Q29udGVudCRTb2xkVG9Mb2NhdGlvblN0YXRlUHJvdmluY2VBYmJyZXZpYXRpb25SYWRDb21ib0JveA8UKwACZWVkBT5jdGwwMCREZWZhdWx0Q29udGVudCRQYXllZU9yZ2FuaXphdGlvbklEU2VhcmNoRmllbGRSYWRDb21ib0JveA8UKwACZWVkBW5jdGwwMCREZWZhdWx0Q29udGVudCRQb3NzaWJsZUR1cGxpY2F0ZUNvbnRyb2wkUG9zc2libGVEdXBsaWNhdGVDbGFpbVJhZEdyaWQkY3RsMDAkY3RsMDIkY3RsMDAkUGFnZVNpemVDb21ib0JveA8UKwACZQUCMTBkBSpjdGwwMCREZWZhdWx0Q29udGVudCREZWFsZXJzaGlwUmFkQ29tYm9Cb3gPFCsAAmVlZAUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFggFLWN0bDAwJERlZmF1bHRDb250ZW50JEludm9pY2VEYXRlUmFkRGF0ZVBpY2tlcgU2Y3RsMDAkRGVmYXVsdENvbnRlbnQkSW52b2ljZURhdGVSYWREYXRlUGlja2VyJGNhbGVuZGFyBTZjdGwwMCREZWZhdWx0Q29udGVudCRJbnZvaWNlRGF0ZVJhZERhdGVQaWNrZXIkY2FsZW5kYXIFI2N0bDAwJERlZmF1bHRDb250ZW50JFByb2R1Y3RSYWRHcmlkBS1jdGwwMCREZWZhdWx0Q29udGVudCRGaWxlVXBsb2FkUmFkQXN5bmNVcGxvYWQFIWN0bDAwJERlZmF1bHRDb250ZW50JEZpbGVzUmFkR3JpZAU+Y3RsMDAkRGVmYXVsdENvbnRlbnQkUGF5ZWVPcmdhbml6YXRpb25JRFNlYXJjaEZpZWxkUmFkQ29tYm9Cb3gFMGN0bDAwJERlZmF1bHRDb250ZW50JEFkbWluRW50cnlQZXJzb25SYWRDb21ib0JveAUwY3RsMDAkRGVmYXVsdENvbnRlbnQkQWRtaW5FbnRyeVBlcnNvblJhZENvbWJvQm94DxQrAAJlZWRFomgVp9d7AoXqtkE05z0x4E1bJ2m8cXc24UrjZLypng=="></span><span style="display: none !important;"><input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="0BCBB419"></span><span style="display: none !important;"><input type="hidden" name="__SCROLLPOSITIONX" id="__SCROLLPOSITIONX" value="0"></span><span style="display: none !important;"><input type="hidden" name="__SCROLLPOSITIONY" id="__SCROLLPOSITIONY" value="0"></span><span style="display: none !important;"><input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="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"></span></form></div>
+    <script type="text/javascript">
+        function keepSessionAlive() {
+            $.post("../../Ping.aspx");
+        }
+
+        $(function () {
+            // every 9 minutes ping the server by calling ping.aspx to keep the session alive.
+            $.ajaxSetup({ cache: false });
+            window.setInterval(keepSessionAlive, 540000);
+        });
+    </script>
+    <script type="text/javascript" language="javascript">
+
+        function pageLoad() {
+            $(document).ready(function () {
+                // setup the dropdowns with the "chosen" style and make them screen resizeable.
+                $('.chosen-select').chosen();
+                resizeChosen();
+                jQuery(window).on('resize', resizeChosen);
+
+                try {
+                    var txt = $find("ctl00_DefaultContent_InvoiceDateRadDatePicker");
+                    if (txt != null) {
+                        var invoiceDateHiddenFieldId = ('DefaultContent_SetFocusToInvoiceDateRadDatePickerHiddenField');
+                        if (invoiceDateHiddenFieldId != null) {
+
+                            var hiddenValue = $('#' + invoiceDateHiddenFieldId).val();
+                            //alert(hiddenValue);
+                            if (hiddenValue == '1') {
+                                txt.get_dateInput().focus();
+
+                                // now set the hidden value to 0 so it won't set focus anymore, unless it is set back to a '1'.
+                                $("#DefaultContent_SetFocusToInvoiceDateRadDatePickerHiddenField").val("0");
+                            }
+                        }
+                    }
+                } catch (err) {
+                    //alert(err);
+                }
+            });
+        }
+
+        function resizeChosen() {
+            $(".chosen-container").each(function () {
+                $(this).attr('style', 'width: 100%');
+            });
+        }
+
+        function stopBodyScrolling() {
+
+            $('body').addClass('stop-scrolling');
+        }
+        function startBodyScrolling() {
+
+            $('body').removeClass('stop-scrolling');
+        }
+
+        function HideDuplicateLineItemMessagePopupPanel() {
+            $find('DuplicateLineItemMessageModalPopupExtender').hide();
+        }
+
+        function HideFinishButtonDiv() {
+            $("#FinishButtonDiv").hide();
+        }
+
+        function HideAdminEntryPopupPanel() {
+            $find('AdminEntryModalPopupExtender').hide();
+        }
+        function ShowAdminEntryPopupPanel() {
+            $find('AdminEntryModalPopupExtender').show();
+        }
+
+        function ShowAuditPopupPanel() {
+            $find('ValidationModalPopupExtender').show();
+        }
+        function HideAuditPopupPanel() {
+            $find('ValidationModalPopupExtender').hide();
+
+            //alert('start body scrolling');
+            startBodyScrolling();
+        }
+
+        function SetUploadVisibility(controlClicked) {
+            if (controlClicked.value == 'inprocess' && controlClicked.checked) {
+                document.getElementById('fileUploadDiv').style.display = 'block';
+            }
+            if (controlClicked.value == 'awaitinginvoices' && controlClicked.checked) {
+                document.getElementById('fileUploadDiv').style.display = 'none';
+            }
+            document.getElementById('DefaultContent_StatusSelectedHiddenField').value = controlClicked.value;
+        }
+
+        function OnFilesSelected(sender, args) {
+            var selectedFilesCount = args.get_count();
+            //alert(selectedFilesCount);
+
+            var filesRadGridCount = (GetFilesRadGridCount() * 1); // make sure it is a number
+            if ((selectedFilesCount + filesRadGridCount) > 500) {
+                args.set_cancel(true);
+                alert('The maximum number of file(s) to upload is: ' + sender._maxFileCount);
+            } else {
+                if ((sender._uploadedFiles.length + args.get_count()) > sender._maxFileCount) {
+                    args.set_cancel(true);
+                    alert('The maximum number of file(s) to upload is: ' + sender._maxFileCount);
+                }
+            }
+        }
+
+        function OnFileUploaded(sender, args) {
+            var filesRadGridCount = (GetFilesRadGridCount() * 1); // make sure it is a number
+            var upload = $find("ctl00_DefaultContent_FileUploadRadAsyncUpload");
+            if ((upload._uploadedFiles.length + filesRadGridCount) > 500) {
+                alert("Maximum of 500 file attachments may be submitted.");
+                //sender.deleteFileInputAt(0);
+                var inputs = upload.getUploadedFiles();
+                upload.deleteFileInputAt(inputs.length - 1);
+            }
+        }
+        function OnFileUploadRemoved(sender, args) {
+
+        }
+        function GetFilesRadGridCount() {
+            var itemsCount = 0;
+            var grid = $find("ctl00_DefaultContent_FilesRadGrid");
+            var tableView = $find("ctl00_DefaultContent_FilesRadGrid").get_masterTableView();
+
+            try {
+                var items = tableView.get_dataItems();
+                itemsCount = (items.length * 1); // convert to a number.
+            }
+            catch (err) { }
+
+            //alert(itemsCount);
+            return itemsCount;
+        }
+
+        function validationFailed(sender, eventArgs) {
+            alert("Upload failed! Your file size may be too large or is the wrong file extension!  Allowed File Extensions: bmp,gif,jpg,jpeg,png,pdf");
+            var upload = $find("ctl00_DefaultContent_FileUploadRadAsyncUpload");
+            var inputs = upload.getUploadedFiles();
+            upload.deleteFileInputAt(inputs.length);
+            //fileStatus = "";
+        }
+        function BlockUI() {
+            // empty text
+            $.blockUI({ message: '' });
+        }
+        function ScrollToTop() {
+            window.scrollTo(0, 0);
+        }
+
+    </script>
+    <style>
+        .stop-scrolling {
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+    
+        <script type="text/javascript">
+            var fileStatus;
+            function ExcelOnClientFileUploading(sender, args) {
+                //alert("Excel On Client File Uploading");
+                //var fileName = args.get_fileName();
+                var currentFileName = args.get_fileName().substring(args.get_fileName().lastIndexOf("\\") + 1); // currently selected RadAsyncUpload file name.
+                //alert(currentFileName);
+                //if (currentFileName !== "BulkSales.xlsx") {
+                if (currentFileName.toLowerCase().indexOf(".xlsx") < 0) {
+                    alert("Invalid file, so cancelling");
+                    args.set_cancel(true);
+                }
+            }
+
+
+            function ExcelOnFileSelected(sender, args) {
+                // alert("File Selected");
+                fileStatus = "selected";
+                // check the current file list and see if the selected file already exists. if so then delete the selected file.
+                var currentFileName = args.get_fileName().substring(args.get_fileName().lastIndexOf("\\") + 1); // currently selected RadAsyncUpload file name.
+                //alert(currentFileName);
+
+                // if the filename does not contain .xlsx then don't allow it to be uploaded.  Remove it.
+                if (currentFileName.toLowerCase().indexOf(".xlsx") < 0) {
+                    alert('"' + currentFileName + '" is an  Invalid filename!  Your file must have a .xlsx extension.');
+                    sender.deleteFileInputAt(args.get_rowIndex());
+                    sender.deleteFileInputAt(currentFileName);
+                } else {
+                    var upload = $find("ctl00_DefaultContent_ExcelFileUploadRadAsyncUpload");
+                    //alert(upload._uploadedFiles.length);
+
+                    if ((upload._uploadedFiles.length) === 1) {
+                        alert("Maximum of 1 file attachment may be selected.\n\nYou can remove your current selected file and try again.");
+
+                        //sender.deleteFileInputAt(args.get_rowIndex());
+                        //sender.deleteFileInputAt(currentFileName);
+                        //sender.deleteFileInputAt(1);
+                    }
+                }
+            }
+
+            function ExcelOnFileUploaded(sender, args) {
+                //alert("OnFileUploaded");
+                fileStatus = "";
+
+                var upload = $find("ctl00_DefaultContent_ExcelFileUploadRadAsyncUpload");
+                //alert(upload._uploadedFiles.length);
+
+                if ((upload._uploadedFiles.length) > 1) {
+                    var inputs = upload.getUploadedFiles();
+                    upload.deleteFileInputAt(inputs.length - 1);
+                }
+                else {
+                    fileStatus = "";
+                    // Show or Hide the Upload button.  If there is 1 file they show the Upload Button.
+                    if ((upload._uploadedFiles.length) === 1) {
+                        $("#ExcelUploadButtonDiv").show();
+                        //$("#SaveProgramProductsDiv").hide(); // hides the RadGrid and Save Button divs until the user clicks "Validate"
+                        //alert("show validate");
+                    } else {
+                        $("#ExcelUploadButtonDiv").hide();
+                        alert("hide validate");
+                    }
+                }
+            }
+
+            function ExcelOnFileUploadRemoved(sender, args) {
+                //alert("ExcelOnFileUploadRemoved");
+                var upload = $find("ctl00_DefaultContent_ExcelFileUploadRadAsyncUpload");
+                //alert(upload._uploadedFiles.length);
+                // Show or Hide the Upload button.  If there is 1 file they show the Upload Button.
+
+                if ((upload._uploadedFiles.length) === 1) {
+                    $("#ExcelUploadButtonDiv").show();
+                    //$("#SaveProgramProductsDiv").hide(); // hides the RadGrid and Save Button divs until the user clicks "Validate"
+                } else {
+                    $("#ExcelUploadButtonDiv").hide();
+                }
+                fileStatus = "";
+            }
+            function ExcelValidationFailed(sender, eventArgs) {
+                // alert("Upload failed! Your file size may be too large or is the wrong file extension!  Allowed File Extension is .xlsx");
+                var upload = $find("ctl00_DefaultContent_ExcelFileUploadRadAsyncUpload");
+                var inputs = upload.getUploadedFiles();
+                upload.deleteFileInputAt(inputs.length);
+                fileStatus = "";
+            }
+            function ExcelValidateUpload(source, arguments) {
+                var upload = $find("ctl00_DefaultContent_ExcelFileUploadRadAsyncUpload");
+                if (upload._uploadedFiles.length > 0) {
+                    arguments.IsValid = true;
+                } else { // no files in RadAsyncUpload and no files in FilesRadGrid.  This is okay as they are not required to upload anything
+                    arguments.IsValid = true; //  false;
+                }
+            }
+
+            function ExelValidateFileSelectedAndUploadedSuccessfully(source, arguments) {
+                // if user selects a file but it does not finish uploading, ie: it hangs then give failure message.
+                // happens when uploading a file, clicking next, coming back, clicking the same file, then removing from grid, then selecting same file.  it will hang.
+                //alert("ExelValidateFileSelectedAndUploadedSuccessfully");
+                if (fileStatus === "selected") {
+                    arguments.IsValid = false;
+                } else {
+                    arguments.IsValid = true;
+                }
+            }
+
+            function fileUploaded(sender, args) {
+                //alert("FileUploaded");
+                var name = args.get_fileName();
+                var $ = $telerik.$;
+            }
+
+            function deleting(sender, args) {
+                //alert("Deleting");
+                args.set_cancel(true);
+                var index = args.get_rowIndex();
+                Array.removeAt(sender._uploadedFiles, index);
+                sender.deleteFileInputAt(index, true);
+                sender.updateClientState();
+            }
+        </script>
+    
+    <div id="DefaultContent_MainUpdateProgress" style="display: none;" role="status" aria-hidden="true">
+	
+            <div class="processingIndicator">
+                <span class="processingMessage">
+                    <img src="./ATD ProRewards - Submit Claim_files/ajax-loader.gif"></span>
+            </div>
+        
+</div>
+
+                    <script src="./ATD ProRewards - Submit Claim_files/bootstrap.min.js.download" type="text/javascript"></script>
+                    <script src="./ATD ProRewards - Submit Claim_files/chosen.jquery.js.download" type="text/javascript"></script>
+                    
+<script type="text/javascript">
+//<![CDATA[
+var Page_ValidationSummaries =  new Array(document.getElementById("DefaultContent_ValidationSummary1"));
+//]]>
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+var DefaultContent_ValidationSummary1 = document.all ? document.all["DefaultContent_ValidationSummary1"] : document.getElementById("DefaultContent_ValidationSummary1");
+DefaultContent_ValidationSummary1.validationGroup = "AdminEntry";
+//]]>
+</script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+
+(function(id) {
+    var e = document.getElementById(id);
+    if (e) {
+        e.dispose = function() {
+            Array.remove(Page_ValidationSummaries, document.getElementById(id));
+        }
+        e = null;
+    }
+})('DefaultContent_ValidationSummary1');
+
+theForm.oldSubmit = theForm.submit;
+theForm.submit = WebForm_SaveScrollPositionSubmit;
+
+theForm.oldOnSubmit = theForm.onsubmit;
+theForm.onsubmit = WebForm_SaveScrollPositionOnSubmit;
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"popUpBackgroundDarker","PopupControlID":"DefaultContent_ValidationPopupPanel","dynamicServicePath":"/authorized/claims/submitsale.aspx","id":"ValidationModalPopupExtender"}, null, null, $get("DefaultContent_ValidationPopupPanelDummyButton"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTextBox, {"_displayText":"","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$DefaultContent$AdminEntryPIDTextBox\\\u0027,\\\u0027\\\u0027)\", 0)","_renderMode":2,"_skin":"Bootstrap","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_AdminEntryPIDTextBox_ClientState","enabled":true,"styles":{HoveredStyle: ["width:100%;", "riTextBox riHover"],InvalidStyle: ["width:100%;", "riTextBox riError"],DisabledStyle: ["width:100%;", "riTextBox riDisabled"],FocusedStyle: ["width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["width:100%;", "riTextBox riRead"],EnabledStyle: ["width:100%;", "riTextBox riEnabled"]}}, null, null, $get("ctl00_DefaultContent_AdminEntryPIDTextBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTextBox, {"_displayText":"","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$DefaultContent$AdminEntryFirstNameTextBox\\\u0027,\\\u0027\\\u0027)\", 0)","_renderMode":2,"_skin":"Bootstrap","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_AdminEntryFirstNameTextBox_ClientState","enabled":true,"styles":{HoveredStyle: ["width:100%;", "riTextBox riHover"],InvalidStyle: ["width:100%;", "riTextBox riError"],DisabledStyle: ["width:100%;", "riTextBox riDisabled"],FocusedStyle: ["width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["width:100%;", "riTextBox riRead"],EnabledStyle: ["width:100%;", "riTextBox riEnabled"]}}, null, null, $get("ctl00_DefaultContent_AdminEntryFirstNameTextBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTextBox, {"_displayText":"","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$DefaultContent$AdminEntryLastNameTextBox\\\u0027,\\\u0027\\\u0027)\", 0)","_renderMode":2,"_skin":"Bootstrap","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_AdminEntryLastNameTextBox_ClientState","enabled":true,"styles":{HoveredStyle: ["width:100%;", "riTextBox riHover"],InvalidStyle: ["width:100%;", "riTextBox riError"],DisabledStyle: ["width:100%;", "riTextBox riDisabled"],FocusedStyle: ["width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["width:100%;", "riTextBox riRead"],EnabledStyle: ["width:100%;", "riTextBox riEnabled"]}}, null, null, $get("ctl00_DefaultContent_AdminEntryLastNameTextBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTextBox, {"_displayText":"","_focused":false,"_initialValueAsText":"","_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$DefaultContent$AdminEntryEmailTextBox\\\u0027,\\\u0027\\\u0027)\", 0)","_renderMode":2,"_skin":"Bootstrap","_validationText":"","clientStateFieldID":"ctl00_DefaultContent_AdminEntryEmailTextBox_ClientState","enabled":true,"styles":{HoveredStyle: ["width:100%;", "riTextBox riHover"],InvalidStyle: ["width:100%;", "riTextBox riError"],DisabledStyle: ["width:100%;", "riTextBox riDisabled"],FocusedStyle: ["width:100%;", "riTextBox riFocused"],EmptyMessageStyle: ["width:100%;", "riTextBox riEmpty"],ReadOnlyStyle: ["width:100%;", "riTextBox riRead"],EnabledStyle: ["width:100%;", "riTextBox riEnabled"]}}, null, null, $get("ctl00_DefaultContent_AdminEntryEmailTextBox"));
+});
+
+var callBackFrameUrl='/WebResource.axd?d=oWI8EG32qIWXepl6XMomVtPbz5ztXuNYtc_V1FEnowGB6TGR0NIv-B7x6rGOiCbAEhmjz_lXKSiIXfZdk04ijS4SpjTdBnDozmHheeB76Rw1&t=638285827360000000';
+WebForm_InitCallback();Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadComboBox, {"_dropDownWidth":0,"_height":300,"_renderMode":2,"_showMoreResultsBox":true,"_skin":"Bootstrap","_uniqueId":"ctl00$DefaultContent$PayeeOrganizationIDSearchFieldRadComboBox","_virtualScroll":true,"attributes":{},"clientStateFieldID":"ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox_ClientState","collapseAnimation":"{\"duration\":450}","emptyMessage":"Select One","enableLoadOnDemand":true,"expandAnimation":"{\"duration\":450}","itemData":[],"localization":"{\"AllItemsCheckedString\":\"All items checked\",\"ItemsCheckedString\":\"items checked\",\"CheckAllString\":\"Check All\"}"}, {"dropDownOpening":ComboFocused}, null, $get("ctl00_DefaultContent_PayeeOrganizationIDSearchFieldRadComboBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadComboBox, {"_dropDownWidth":0,"_height":200,"_isTemplated":true,"_renderMode":2,"_skin":"Bootstrap","_uniqueId":"ctl00$DefaultContent$AdminEntryPersonRadComboBox","attributes":{},"clientStateFieldID":"ctl00_DefaultContent_AdminEntryPersonRadComboBox_ClientState","collapseAnimation":"{\"duration\":450}","emptyMessage":"Select One","expandAnimation":"{\"duration\":450}","highlightTemplatedItems":true,"itemData":[],"localization":"{\"AllItemsCheckedString\":\"All items checked\",\"ItemsCheckedString\":\"items checked\",\"CheckAllString\":\"Check All\"}"}, {"dropDownOpening":ComboFocused}, null, $get("ctl00_DefaultContent_AdminEntryPersonRadComboBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"popUpBackgroundDarker","PopupControlID":"DefaultContent_AdminEntrySearchPopupPanel","dynamicServicePath":"/authorized/claims/submitsale.aspx","id":"AdminEntryModalPopupExtender"}, null, null, $get("DefaultContent_DummyButton3"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"popUpBackground","PopupControlID":"DefaultContent_UpdateProfilePopupPanel","dynamicServicePath":"/authorized/claims/submitsale.aspx","id":"EditProfileModalPopupExtender"}, null, null, $get("DefaultContent_DummyButton"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"popUpBackground","PopupControlID":"DefaultContent_DuplicateLineItemMessagePopupPanel","dynamicServicePath":"/authorized/claims/submitsale.aspx","id":"DuplicateLineItemMessageModalPopupExtender"}, null, null, $get("DefaultContent_DupDummyButton"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.UI._UpdateProgress, {"associatedUpdatePanelId":null,"displayAfter":0,"dynamicLayout":true}, null, null, $get("DefaultContent_MainUpdateProgress"));
+});
+//]]>
+</script>
+
+                </div>
+            </div>
+            
+            <div align="center">
+                <a href="https://www.acbcoop.com/PrivacyPolicy.aspx" target="_blank">ACB Privacy Statement</a>
+            </div>
+        </div>
+    
+<script type="module" src="./ATD ProRewards - Submit Claim_files/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;31440e20b6ea4f76bb04ce25c86db0eb&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+
+
+</body></html>

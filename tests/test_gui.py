@@ -417,10 +417,12 @@ def test_window_remembers_its_size_and_last_month(app, invoice_folder):
     app.root.deiconify()
     app.root.geometry("1180x700+50+50")
     app.root.update()
+    # A small screen (like a CI runner) can clamp the size, so compare with what the window really is.
+    actual = f"{app.root.winfo_width()}x{app.root.winfo_height()}"
     app.close()
     saved = Settings.load()
     assert saved.get("last_workspace") == "2026-09"
-    assert saved.get("window_geometry") == "1180x700"
+    assert saved.get("window_geometry") == actual
 
 
 def test_restoring_the_last_month_on_start(app, invoice_folder, brands, noise):

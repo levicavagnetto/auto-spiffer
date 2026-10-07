@@ -40,7 +40,7 @@ The program ships as a Windows `.exe` (a folder built with PyInstaller).
 
 **Non-goals**
 - Clicking Next, Save Claim, Submit, or "Yes" on a duplicate warning. The human commits.
-- Storing the user's password. Login is done by the person (MFA and CAPTCHA included).
+- Keeping the password anywhere but Windows Credential Manager. Saving a login is optional. The app tries the login once and never retries. MFA and CAPTCHA are left to the person.
 - Guessing. A tire the app is not sure about is not entered.
 - OCR of scanned PDFs, or an LLM matching fallback (possible later, not built).
 
@@ -54,8 +54,8 @@ Everything happens in one desktop window with a left sidebar (section 5.10).
    "Read files and continue". Copies go into `data\months\<month>\`; originals are never touched.
 4. **Review**: every sale with its matched tire and a status. Resolve amber rows by picking the right tire
    (the choice can be remembered), exclude rows, export a CSV. Continue when nothing is left amber.
-5. **Run**: "Open claim site", log in, go to "Submit a Sales Claim" for the right program, "I'm on the page,
-   start". The app checks the page, enters each line with live progress, uploads PDFs if any, and stops.
+5. **Run**: "Open claim site" (with a saved login the app logs in, opens the claim page and picks the month's
+   program; otherwise the person does that), "I'm on the page, start". The app checks the page, enters each line with live progress, uploads PDFs if any, and stops.
 6. The person reviews the Cumulative Sale(s) List on the website, uploads the invoice PDFs themselves if they
    did not give them to the app, and clicks Next/Submit.
 
@@ -356,7 +356,7 @@ neither Chrome nor Edge is installed.
 - Only confident matches are entered; uncertain ones are held and asked once, then remembered.
 - Split quantities (same invoice, same tire) are merged.
 - Months must match: the report's month decides which ClaimForm to load (a September list for September sales).
-- The person logs in and navigates to the claim page; MFA and CAPTCHA are therefore not an issue.
+- With a saved login the app logs in and navigates once. If that fails or is unclear (wrong password, MFA, CAPTCHA, no matching program) it stops and the person finishes by hand. Without one, the person does it all.
 - Invoice file names do not matter; the number inside the PDF is used.
 - Nothing is submitted by the app, ever.
 - The live trial on the real site (September 2026) passed.

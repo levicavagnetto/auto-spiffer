@@ -65,7 +65,7 @@ def test_run_page_enters_everything_in_test_mode(app, invoice_folder):
     run = to_run_page(app, invoice_folder)
     try:
         open_or_skip(app, run)
-        assert run.start_button.instate(["!disabled"]) and run.open_button.instate(["disabled"])
+        assert run.start_button.instate(["!disabled"]) and run.open_button.instate(["!disabled"])
         assert "SAVED page" in log_text(run)
         run.start_run()
         assert run.running and run.pause_button.instate(["!disabled"]) and run.stop_button.instate(["!disabled"])
@@ -234,3 +234,28 @@ def test_run_without_invoice_pdfs_enters_sales_only(app):
         assert app.session.counts()["entered"][0] == 3
     finally:
         run.shutdown()
+
+
+def test_open_button_stays_available_and_notices_a_closed_window(app, invoice_folder):
+    run = to_run_page(app, invoice_folder)
+    open_or_skip(app, run)
+    assert run.open_button.instate(["!disabled"]) and run.start_button.instate(["!disabled"])
+    run.browser.call(lambda b: b.page.close())  # the person closes the window
+    for _ in range(60):
+        run._watch_window()
+        if run.browser is None:
+            break
+        time.sleep(0.2)
+    assert run.browser is None and run.start_button.instate(["disabled"])
+    assert run.open_button.instate(["!disabled"])
+    assert "window was closed" in log_text(run)
+    run.open_site()  # step 1 again, any time
+    assert run.browser_open()
+
+
+def test_clicking_open_again_replaces_the_open_window(app, invoice_folder):
+    run = to_run_page(app, invoice_folder)
+    open_or_skip(app, run)
+    first = run.browser
+    run.open_site()
+    assert run.browser is not first and run.browser_open() and not first.is_open

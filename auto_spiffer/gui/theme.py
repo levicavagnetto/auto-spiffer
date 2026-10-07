@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 import tkinter as tk
 from pathlib import Path
+from typing import Optional
 from tkinter import ttk
 
 FONT = "Segoe UI"
@@ -39,14 +40,21 @@ STATUS_TEXT = {
 CARD_COLORS = {"ready": GOOD, "attention": "#b8860b", "not_eligible": "#777777", "problem": BAD}
 
 
-def set_window_icon(root: tk.Tk) -> None:
-    """Use assets/icon.png as the window and taskbar icon (it is bundled next to the code in the .exe)."""
+def load_image(name: str) -> Optional[tk.PhotoImage]:
+    """An image from the assets folder (bundled next to the code in the .exe), or None if it is missing.
+    The caller must keep the returned image alive, or Tk drops it."""
     base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent.parent))
-    icon = base / "assets" / "icon.png"
     try:
-        root.iconphoto(True, tk.PhotoImage(file=str(icon)))
+        return tk.PhotoImage(file=str(base / "assets" / name))
     except tk.TclError:
-        pass  # a missing icon is never worth stopping for
+        return None  # a missing picture is never worth stopping for
+
+
+def set_window_icon(root: tk.Tk) -> None:
+    """Use assets/icon.png as the window and taskbar icon."""
+    icon = load_image("icon.png")
+    if icon is not None:
+        root.iconphoto(True, icon)
 
 
 def apply_theme(root: tk.Tk) -> None:

@@ -26,6 +26,10 @@ from auto_spiffer.models import ClaimRow, format_page_date
 from auto_spiffer.state import State
 
 
+TYPE_DELAY_MS = 5      # pause between typed characters
+SETTLE_SECONDS = 0.6   # how long to wait for the page to reformat a box after Tab
+
+
 class FillError(Exception):
     """Something went wrong while entering. The message is written for the person using the app."""
 
@@ -49,7 +53,8 @@ class LoginConfig:
     username: str = "input[type='email'], input[type='text']"
     password: str = "input[type='password']"
     submit: str = "input[type='submit'], button[type='submit']"
-    program_items: str = "select option, a"
+    program_items: str = "select option"
+    program_prompt: str = r"^\s*Select One\s*$"
     program_go: str = ""
     form_wait: float = 6.0
     login_wait: float = 20.0
@@ -256,31 +261,46 @@ class ClaimPage:
                         self.counts())
 
     # ----------------------------------------------------------------- typing
-    def _type(self, key: str, text: str) -> str:
-        """Click the box, replace what is in it, type like a person, leave the box. Returns what it shows."""
+    def _type(self, key: str, text: str, accept: Optional[Callable[[str], bool]] = None) -> str:
+        """Put text in a box and leave it with Tab. Returns what the box shows.
+
+        The text goes in all at once, like a paste. If the page does not accept that (it sometimes only
+        reacts to key presses), it is typed key by key instead."""
         box = self.loc(key).first
         timeout = self.cfg.timeouts["action"] * 1000
-        box.click(timeout=timeout)
-        self.page.keyboard.press("Control+A")
-        self.page.keyboard.press("Delete")
-        self.page.keyboard.type(text, delay=25)
-        self.page.keyboard.press("Tab")
-        time.sleep(0.15)
-        return box.input_value(timeout=timeout)
+        shown = ""
+        for paste in (True, False):
+            box.click(timeout=timeout)
+            self.page.keyboard.press("Control+A")
+            self.page.keyboard.press("Delete")
+            if paste:
+                self.page.keyboard.insert_text(text)
+            else:
+                self.page.keyboard.type(text, delay=TYPE_DELAY_MS)
+            self.page.keyboard.press("Tab")
+            shown = box.input_value(timeout=timeout)
+            deadline = time.monotonic() + SETTLE_SECONDS
+            while accept is not None and not accept(shown) and time.monotonic() < deadline:
+                time.sleep(0.03)
+                shown = box.input_value(timeout=timeout)
+            if accept is None or accept(shown):
+                break
+        return shown
 
     def set_date(self, text: str) -> None:
-        shown = self._type("date", text)
-        if _parse_page_date(shown) != _parse_page_date(text):
+        want = _parse_page_date(text)
+        shown = self._type("date", text, lambda v: _parse_page_date(v) == want)
+        if _parse_page_date(shown) != want:
             raise FillError(f"The date box shows '{shown}' instead of {text}. Is the date inside the "
                             "program's dates?")
 
     def set_invoice(self, invoice: str) -> None:
-        shown = self._type("invoice", invoice)
+        shown = self._type("invoice", invoice, lambda v: v.strip() == invoice)
         if shown.strip() != invoice:
             raise FillError(f"The invoice box shows '{shown}' instead of {invoice}.")
 
     def set_qty(self, qty: int) -> None:
-        shown = self._type("qty", str(qty))
+        shown = self._type("qty", str(qty), lambda v: re.sub(r"\D", "", v) == str(qty))
         if re.sub(r"\D", "", shown) != str(qty):
             raise FillError(f"The quantity box shows '{shown}' instead of {qty}.")
 
@@ -288,22 +308,50 @@ class ClaimPage:
         return self.loc("product_select").first.evaluate(
             "s => s.selectedIndex >= 0 ? s.options[s.selectedIndex].text.trim() : ''")
 
-    def select_product(self, label: str) -> None:
-        """Pick the product by its exact name: through the visible search list like a person, and
-        if that does not take, straight on the hidden list."""
-        try:
-            chosen = self.page.locator(self.sel("product_chosen")).first
-            chosen.locator("a.chosen-single").click(timeout=3000)
-            search = chosen.locator("input.chosen-search-input")
-            search.press_sequentially(label, delay=10, timeout=3000)
-            time.sleep(0.2)
-            items = chosen.locator("ul.chosen-results li.active-result")
-            for i in range(items.count()):
-                if _squash(items.nth(i).inner_text()) == label:
-                    items.nth(i).click(timeout=3000)
-                    break
-        except Exception:
-            pass
+    def _search_product(self, text: str, then_tab: bool, label: str) -> None:
+        """Open the product list, type into its search box, and pick the match (Tab, or a click on the
+        exact name). Any failure is ignored: the caller checks what ended up selected."""
+        chosen = self.page.locator(self.sel("product_chosen")).first
+        if chosen.evaluate("e => e.classList.contains('chosen-with-drop')"):
+            self.page.keyboard.press("Escape")  # a list left open by the last try would close on click
+        chosen.locator("a.chosen-single").click(timeout=3000)
+        search = chosen.locator("input.chosen-search-input")
+        items = chosen.locator("ul.chosen-results li.active-result")
+        for paste in (True, False):
+            if paste:  # all at once, then one harmless key press so the list filters itself
+                search.focus()
+                self.page.keyboard.insert_text(text)
+                self.page.keyboard.press("End")
+            else:
+                search.press_sequentially(text, delay=0, timeout=3000)
+            deadline = time.monotonic() + 1.0
+            while items.count() == 0 and time.monotonic() < deadline:
+                time.sleep(0.03)
+            if items.count():
+                break
+            search.fill("")
+        if then_tab:
+            search.press("Tab", timeout=3000)
+            return
+        for i in range(items.count()):
+            if _squash(items.nth(i).inner_text()) == label:
+                items.nth(i).click(timeout=3000)
+                break
+
+    def select_product(self, label: str, model: str = "") -> None:
+        """Pick the product by its exact name. Fast way first: type just the model and press Tab (what a
+        person does). If that did not land on the exact name, search by the full name and click it, and
+        if that does not take either, set the hidden list directly."""
+        if model:
+            try:
+                self._search_product(model, True, label)
+            except Exception:
+                pass
+        if self._selected_product() != label:
+            try:
+                self._search_product(label, False, label)
+            except Exception:
+                pass
         if self._selected_product() != label:
             found = self.loc("product_select").first.evaluate(
                 """(s, label) => {
@@ -325,7 +373,7 @@ class ClaimPage:
         before = self.grid_rows()
         self.set_date(row.sale_date_str)
         self.set_invoice(row.invoice)
-        self.select_product(row.product_text)
+        self.select_product(row.product_text, row.model)
         self.set_qty(row.qty)
         self._click("add")
         return self._wait_for_add(row, before)

@@ -157,6 +157,7 @@ def _claim_row(m: MatchedRow, *, check_pdf: bool, state: Optional[State],
     # Ready: a settled tire. Now make sure it is safe to enter.
     assert m.status == READY and item is not None
     row.product_text, row.item_id, row.unit_value = item.site_text, item.id, item.unit_value
+    row.model = item.model
     problems = []
     if window[0] and window[1] and not (window[0] <= m.sale_date <= window[1]):
         problems.append(f"sale date {format_page_date(m.sale_date)} is outside the program dates "

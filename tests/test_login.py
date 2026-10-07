@@ -148,3 +148,82 @@ def test_no_month_loaded_waits_at_the_picker(site):
     page, cfg, _ = site
     result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "")
     assert not result.ok and page.locator("#prog").count() == 1
+
+
+# ------------------------------------------- program names and a dropdown that opens on click
+def test_program_name_from_the_tire_list_is_matched_first():
+    options = ["Select One", "September 2026 Pro Rewards", "October 2026 Pro Rewards"]
+    assert login.pick_program(options, "2026-09", "September 2026 Pro Rewards") == 1
+    assert login.pick_program(["Select One", "Fall Spiff Sep"], "2026-09", "Fall Spiff Sep") == 1
+    assert login.pick_program(["Select One", "Fall Spiff Sep"], "2026-09") is None
+
+
+STYLED_PICKER = """<div id=box>Select One</div><ul id=list style="display:none">
+<li>August 2026 Pro Rewards</li><li>September 2026 Pro Rewards</li></ul><div id=chosen></div>
+<script>box.onclick=()=>{list.style.display='block'};
+list.querySelectorAll('li').forEach(li=>li.onclick=()=>{chosen.textContent=li.textContent;list.style.display='none'})</script>"""
+
+
+@pytest.fixture
+def styled_site(site):
+    page, cfg, state = site
+    page.context.unroute("http://fake.test/**")
+
+    def handler(route):
+        url = route.request.url
+        if "/attempt" in url:
+            state["attempts"] += 1
+            good = f"p={state['password']}" in url
+            state["logged_in"] = state["logged_in"] or good
+            route.fulfill(body="ok" if good else "no", content_type="text/plain")
+        elif "submitsale" in url:
+            route.fulfill(body=STYLED_PICKER if state["logged_in"] else LOGIN_PAGE, content_type="text/html")
+        else:
+            route.fulfill(body=LOGIN_PAGE, content_type="text/html")
+
+    page.context.route("http://fake.test/**", handler)
+    page.goto("http://fake.test/")
+    return page, cfg, state
+
+
+def test_styled_dropdown_is_opened_and_the_month_clicked(styled_site):
+    page, cfg, _ = styled_site
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert result.ok and "September 2026 Pro Rewards" in result.message
+    assert page.locator("#chosen").inner_text() == "September 2026 Pro Rewards"
+
+
+def test_styled_dropdown_without_the_month_waits_and_saves_the_page(styled_site, app_home):
+    page, cfg, _ = styled_site
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-11",
+                                      "November 2026 Pro Rewards")
+    assert not result.ok and "Pick the program yourself" in result.message
+    assert page.locator("#chosen").inner_text() == ""
+    assert (app_home / "output" / "picker_page.html").is_file()
+
+
+# ------------------------------------------------------- the login never holds up step 2
+def test_the_login_runs_in_the_background_and_reports_when_done(app_home, monkeypatch):
+    import threading
+    from auto_spiffer import browser as browser_module
+    from auto_spiffer.browser import BrowserSession
+    release = threading.Event()
+    monkeypatch.setattr(browser_module, "login_and_navigate",
+                        lambda *a, **k: (release.wait(10), login.LoginResult(False, "slow login done"))[1])
+    cfg = load_config()
+    session = BrowserSession(cfg, test_mode=True, headless=True, credentials=login.Credentials("u", "p"))
+    try:
+        session.start()
+    except Exception as exc:
+        pytest.skip(f"no browser available: {exc}")
+    try:
+        assert session.begin_login() is True
+        assert session.is_open and session.login_note() is None  # still logging in, window already usable
+        release.set()
+        session.call(lambda s: None, timeout=10)  # anything asked of the browser waits behind the login
+        assert session.login_note() == "slow login done"
+        assert session.login_note() is None  # reported once
+    finally:
+        release.set()
+        session.close()

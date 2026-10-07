@@ -563,3 +563,47 @@ def test_run_without_any_pdf_enters_sales_only(page, tmp_path):
     assert sum("only the sales are entered" in m for m in messages) == 1  # said once, not per invoice
     assert not any("no PDF to upload" in m for m in messages)
     assert page.call(lambda s: stub(s, "window.__stub.files.length")) == 0
+
+
+# ----------------------------------------------------- the quick ways to type
+def test_model_only_then_tab_picks_the_exact_tire(page):
+    def job(claim, _s):
+        claim.select_product(ALTIMAX, "Altimax RT45")
+        return claim._selected_product()
+    assert on_page(page, job) == ALTIMAX
+
+
+def test_a_model_that_lands_on_the_wrong_tire_falls_back_to_the_exact_name(page):
+    def job(claim, _s):
+        claim.select_product(TOYO, "Altimax RT45")  # Tab would pick the Altimax: wrong, so redo by name
+        return claim._selected_product()
+    assert on_page(page, job) == TOYO
+
+
+def test_a_model_that_matches_nothing_still_selects_by_name(page):
+    def job(claim, _s):
+        claim.select_product(NOKIAN, "no such model")
+        return claim._selected_product()
+    assert on_page(page, job) == NOKIAN
+
+
+def test_boxes_are_filled_by_pasting_and_fall_back_to_typing(page):
+    def job(claim, _s):
+        pasted, typed = [], []
+        kb = claim.page.keyboard
+        insert, type_ = kb.insert_text, kb.type
+        kb.insert_text = lambda t, *a, **k: (pasted.append(t), insert(t, *a, **k))[1]
+        kb.type = lambda t, *a, **k: (typed.append(t), type_(t, *a, **k))[1]
+        claim.set_invoice("214341")
+        claim.set_qty(3)
+        return pasted, typed
+    pasted, typed = on_page(page, job)
+    assert pasted == ["214341", "3"] and typed == []
+
+
+def test_a_box_that_ignores_pasting_is_typed_instead(page):
+    def job(claim, _s):
+        claim.page.keyboard.insert_text = lambda *a, **k: None  # a page that only reacts to key presses
+        claim.set_invoice("777888")
+        return claim.loc("invoice").first.input_value()
+    assert on_page(page, job) == "777888"

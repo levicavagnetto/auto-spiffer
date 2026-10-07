@@ -63,6 +63,7 @@ class ClaimRow:
     item_id: Optional[str] = None  # the matched tire's id on the tire list
     unit_value: float = 0.0        # payout per tire from the tire list
     merged_from: int = 1           # how many report rows were added together
+    model: str = ""                # the tire's model name, typed alone to find it quickly on the page
 
     @property
     def estimated_payout(self) -> float:

@@ -26,6 +26,7 @@ def build() -> int:
         "--onedir",
         "--icon", str(ROOT / "assets" / "icon.ico"),   # the .exe file's own icon
         "--add-data", f"{ROOT / 'assets' / 'icon.png'}{separator}assets",  # the window icon
+        "--add-data", f"{ROOT / 'assets' / 'icon_sidebar.png'}{separator}assets",  # logo by the title
         "--distpath", str(ROOT / "dist"),
         "--workpath", str(ROOT / "build"),
         "--specpath", str(ROOT / "build"),

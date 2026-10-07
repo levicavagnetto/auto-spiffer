@@ -48,6 +48,7 @@ class App:
 
         theme.apply_theme(root)
         root.title("Auto Spiffer")
+        theme.set_window_icon(root)
         root.geometry(self.settings.get("window_geometry"))
         root.minsize(1100, 640)
         self._build_sidebar()

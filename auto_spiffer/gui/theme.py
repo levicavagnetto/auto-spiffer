@@ -1,7 +1,9 @@
 """Colors, fonts, and ttk styling shared by every page (taken from the approved sidebar mockup)."""
 from __future__ import annotations
 
+import sys
 import tkinter as tk
+from pathlib import Path
 from tkinter import ttk
 
 FONT = "Segoe UI"
@@ -35,6 +37,16 @@ STATUS_TEXT = {
     "already_entered": "Already entered", "excluded": "Excluded", "entered": "Entered", "failed": "Failed",
 }
 CARD_COLORS = {"ready": GOOD, "attention": "#b8860b", "not_eligible": "#777777", "problem": BAD}
+
+
+def set_window_icon(root: tk.Tk) -> None:
+    """Use assets/icon.png as the window and taskbar icon (it is bundled next to the code in the .exe)."""
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent.parent))
+    icon = base / "assets" / "icon.png"
+    try:
+        root.iconphoto(True, tk.PhotoImage(file=str(icon)))
+    except tk.TclError:
+        pass  # a missing icon is never worth stopping for
 
 
 def apply_theme(root: tk.Tk) -> None:

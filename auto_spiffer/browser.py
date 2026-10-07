@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 from auto_spiffer.fill import ClaimPage, FillConfig, FillError
+from auto_spiffer.login import Credentials, login_and_navigate
 from auto_spiffer.page_stub import install_stub
 
 FIXTURE_PAGE = "ATD ProRewards - Submit Claim.html"
@@ -82,12 +83,16 @@ class BrowserSession:
     """Owns the browser. `call(fn)` runs fn(self) on the browser thread and returns its result."""
 
     def __init__(self, cfg: FillConfig, *, test_mode: bool = False, headless: bool = False,
-                 test_window: Optional[tuple[str, str]] = None, test_page: str = ""):
+                 test_window: Optional[tuple[str, str]] = None, test_page: str = "",
+                 credentials: Optional[Credentials] = None, month: str = ""):
         self.cfg = cfg
         self.test_mode = test_mode
         self.headless = headless
         self.test_window = test_window
         self.test_page = test_page
+        self.credentials = credentials
+        self.month = month
+        self.login_note = ""  # what the automatic login did, for the Run log ("" when none was tried)
         self.context = None
         self.page = None
         self._jobs: "queue.Queue[Optional[tuple[Future, Callable]]]" = queue.Queue()
@@ -95,6 +100,7 @@ class BrowserSession:
         self._error: Optional[BaseException] = None
         self._thread: Optional[threading.Thread] = None
         self._closed = False
+        self._window_closed = False  # the person closed the browser window themselves
 
     # --------------------------------------------------------------- lifecycle
     def start(self) -> "BrowserSession":
@@ -108,7 +114,8 @@ class BrowserSession:
 
     @property
     def is_open(self) -> bool:
-        return self._thread is not None and self._thread.is_alive() and not self._closed
+        return (self._thread is not None and self._thread.is_alive() and not self._closed
+                and not self._window_closed)
 
     def submit(self, fn: Callable[["BrowserSession"], Any]) -> Future:
         future: Future = Future()
@@ -150,6 +157,8 @@ class BrowserSession:
                 install_stub(self.page, self.test_window)
             else:
                 self.page.goto(self.cfg.live_url, wait_until="domcontentloaded")
+                if self.credentials is not None:
+                    self.login_note = login_and_navigate(self.page, self.cfg, self.credentials, self.month).message
         except BaseException as exc:  # reported to whoever called start()
             self._error = exc
             self._ready.set()
@@ -158,7 +167,13 @@ class BrowserSession:
         self._ready.set()
 
         while True:
-            job = self._jobs.get()
+            try:
+                job = self._jobs.get(timeout=0.5)
+            except queue.Empty:
+                if self._window_gone():
+                    self._window_closed = True
+                    break
+                continue
             if job is None:
                 break
             future, fn = job
@@ -169,6 +184,14 @@ class BrowserSession:
             except BaseException as exc:
                 future.set_exception(_friendly(exc))
         self._shutdown(playwright, browser)
+
+    def _window_gone(self) -> bool:
+        """True once every browser tab is closed. Runs on the browser thread when it is idle."""
+        try:
+            self.page.wait_for_timeout(1)  # lets Playwright notice tabs that were closed
+            return not any(not p.is_closed() for p in self.context.pages)
+        except Exception:
+            return True  # the browser itself went away
 
     @staticmethod
     def _shutdown(playwright, browser) -> None:

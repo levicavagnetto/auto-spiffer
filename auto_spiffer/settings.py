@@ -16,6 +16,7 @@ DEFAULTS: dict[str, Any] = {
     "run_test_mode": False,     # the Run page uses the saved page instead of the real website
     "run_limit": 0,             # only the first N lines (0 = all), for a first trial
     "allow_missing_pdf": False,  # treat sales with no invoice PDF as ready anyway
+    "login_user": "",            # saved site username (the password is in Windows Credential Manager)
     "use_invoice_pdfs": True,    # False: ignore invoice PDFs entirely (you upload them yourself)
 }
 

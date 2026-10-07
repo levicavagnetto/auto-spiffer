@@ -39,6 +39,20 @@ class FillConfig:
     selectors: dict[str, str]
     never_click: set[str]
     upload_done: list[str]
+    login: "LoginConfig" = field(default_factory=lambda: LoginConfig())
+
+
+@dataclass
+class LoginConfig:
+    """Where things are on the login page and the program list (CSS selectors), from [login]."""
+    claim_url: str = "https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx"
+    username: str = "input[type='email'], input[type='text']"
+    password: str = "input[type='password']"
+    submit: str = "input[type='submit'], button[type='submit']"
+    program_items: str = "select option, a"
+    program_go: str = ""
+    form_wait: float = 6.0
+    login_wait: float = 20.0
 
 
 def load_config(path: Optional[Path] = None) -> FillConfig:
@@ -53,8 +67,10 @@ def load_config(path: Optional[Path] = None) -> FillConfig:
             selectors=dict(data["selectors"]),
             never_click=set(data.get("never_click", {}).get("selectors", [])),
             upload_done=list(data.get("upload", {}).get("done_selectors", [])),
+            login=LoginConfig(**{k: v for k, v in data.get("login", {}).items()
+                                 if k in LoginConfig.__dataclass_fields__}),
         )
-    except (OSError, KeyError, ValueError, tomllib.TOMLDecodeError) as exc:
+    except (OSError, KeyError, ValueError, TypeError, tomllib.TOMLDecodeError) as exc:
         raise FillError(f"config.toml could not be read ({exc.__class__.__name__}: {exc}). "
                         "Delete it from the data folder to get a fresh copy.") from exc
 

@@ -10,6 +10,7 @@ from typing import Optional
 
 from auto_spiffer import paths
 from auto_spiffer.browser import BrowserSession
+from auto_spiffer.login import load_credentials
 from auto_spiffer.fill import (FillError, Filler, PageCheck, RunControl, RunSummary, check_page,
                                load_config)
 from auto_spiffer.gui import theme
@@ -34,6 +35,8 @@ class RunPage(ttk.Frame):
         self.future = None
         self.events: "queue.Queue[dict]" = queue.Queue()
         self.running = False
+        self.opening = False
+        self.after(1000, self._watch_window)
         self.last_report = None
 
         ttk.Label(self, text="Run", style="Title.TLabel").pack(anchor="w")
@@ -129,8 +132,9 @@ class RunPage(ttk.Frame):
 
     # ------------------------------------------------------------------ step 1
     def open_site(self) -> None:
-        if self.running or (self.browser is not None and self.browser.is_open):
+        if self.running or self.opening:
             return
+        old, self.browser = self.browser, None  # a window that is still open is replaced by a fresh one
         try:
             cfg = load_config()
         except FillError as exc:
@@ -141,27 +145,41 @@ class RunPage(ttk.Frame):
         if rows:
             dates = [r.sale_date for r in rows]
             window = (format_page_date(min(dates)), format_page_date(max(dates)))
-        session = BrowserSession(cfg, test_mode=bool(self.test_var.get()),
-                                 headless=self.app.browser_headless, test_window=window)
+        test_mode = bool(self.test_var.get())
+        workspace = self.session.workspace
+        session = BrowserSession(cfg, test_mode=test_mode, headless=self.app.browser_headless,
+                                 test_window=window,
+                                 credentials=None if test_mode else load_credentials(self.app.settings),
+                                 month=workspace.month if workspace is not None else "")
         self.status.config(text="Opening the browser...")
-        self.open_button.state(["disabled"])
+        self.opening = True
+        self.refresh()
+
+        def start() -> BrowserSession:
+            if old is not None:
+                old.close()
+            return session.start()
 
         def opened(_value) -> None:
+            self.opening = False
             self.browser = session
             self.status.config(text="")
             if session.test_mode:
                 self.write("Browser opened on the SAVED page (test mode). Click step 2 to start.")
+            elif session.login_note:
+                self.write(f"Browser opened. {session.login_note} Then click step 2.")
             else:
                 self.write(f"Browser opened at {cfg.live_url}. Log in, go to Claims > Submit a Sales Claim "
                            "for the right program, then click step 2.")
             self.refresh()
 
         def failed(exc: Exception) -> None:
+            self.opening = False
             self.browser = None
             self.refresh()
             self.app.report_exception(exc, "Could not open the claim site")
 
-        self.app.worker.run(session.start, opened, failed)
+        self.app.worker.run(start, opened, failed)
 
     # ------------------------------------------------------------------ step 2
     def start_run(self) -> None:
@@ -330,10 +348,22 @@ class RunPage(ttk.Frame):
     def on_show(self) -> None:
         self.refresh()
 
+    def _watch_window(self) -> None:
+        """Notice when the person closes the browser window, so step 1 and step 2 reflect it."""
+        if self.browser is not None and not self.browser.is_open and not self.opening and not self.running:
+            self.browser = None
+            self.status.config(text="")
+            self.write("The browser window was closed. Click step 1 to open it again.")
+            self.refresh()
+        try:
+            self.after(1000, self._watch_window)
+        except tk.TclError:
+            pass
+
     def refresh(self) -> None:
         busy = self.running
         open_ = self.browser_open()
-        self.open_button.state(["!disabled"] if not busy and not open_ else ["disabled"])
+        self.open_button.state(["!disabled"] if not busy and not self.opening else ["disabled"])
         self.start_button.state(["!disabled"] if open_ and not busy else ["disabled"])
         self.pause_button.state(["!disabled"] if busy else ["disabled"])
         self.stop_button.state(["!disabled"] if busy else ["disabled"])

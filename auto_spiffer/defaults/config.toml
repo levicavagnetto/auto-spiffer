@@ -46,3 +46,17 @@ done_selectors = [
   "#DefaultContent_UploadedFilesPanel table tbody tr",
   ".ruUploadSuccess",
 ]
+
+# Automatic login and navigation (used only when a login is saved in Settings).
+# These are best guesses until checked against the real pages. Fix them here if login stops working.
+[login]
+claim_url = "https://prorewards.acbrewards.com/authorized/claims/submitsale.aspx"
+username = "input[type='email'], input[type='text']"
+password = "input[type='password']"
+submit = "input[type='submit'], button[type='submit']"
+# The choices on the claim page that name each month's program (an option in a list, or a link).
+program_items = "select option, a"
+# A button to click after choosing from a list, if the page needs one (leave empty if not).
+program_go = ""
+form_wait = 6
+login_wait = 20

@@ -5,7 +5,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 
-from auto_spiffer import paths
+from auto_spiffer import login, paths
 from auto_spiffer.fill import BROWSER_CHOICES, FillError, load_config, update_config
 from auto_spiffer.gui import theme
 
@@ -25,7 +25,7 @@ class SettingsDialog:
 
         self.top = tk.Toplevel(app.root)
         self.top.title("Settings")
-        width, height = 660, 470
+        width, height = 660, 640
         x = app.root.winfo_rootx() + max(0, (app.root.winfo_width() - width) // 2)
         y = app.root.winfo_rooty() + max(0, (app.root.winfo_height() - height) // 3)
         self.top.geometry(f"{width}x{height}+{x}+{y}")
@@ -54,6 +54,21 @@ class SettingsDialog:
         ttk.Checkbutton(frame, text="Test mode: use the saved page, nothing reaches the real website",
                         variable=self.test_var).pack(anchor="w", pady=(6, 10))
 
+        ttk.Label(frame, text="Saved login (the app logs in and opens the claim page for you)").pack(anchor="w")
+        login_row = ttk.Frame(frame)
+        login_row.pack(fill="x", pady=(2, 0))
+        self.user_var = tk.StringVar(value=login.saved_username(app.settings))
+        self.pass_var = tk.StringVar()
+        ttk.Label(login_row, text="Username").pack(side="left")
+        ttk.Entry(login_row, textvariable=self.user_var, width=22).pack(side="left", padx=(4, 10))
+        ttk.Label(login_row, text="Password").pack(side="left")
+        ttk.Entry(login_row, textvariable=self.pass_var, show="*", width=18).pack(side="left", padx=4)
+        ttk.Button(login_row, text="Save login", command=self.save_login).pack(side="left", padx=(6, 0))
+        ttk.Button(login_row, text="Forget", command=self.forget_login).pack(side="left", padx=4)
+        self.login_status = ttk.Label(frame, style="Subtle.TLabel")
+        self.login_status.pack(anchor="w", pady=(2, 10))
+        self.refresh_login_status()
+
         ttk.Label(frame, text="Where the app keeps its files").pack(anchor="w")
         row = ttk.Frame(frame)
         row.pack(fill="x", pady=(2, 0))
@@ -66,6 +81,30 @@ class SettingsDialog:
         buttons.pack(side="bottom", fill="x", pady=(14, 0))
         ttk.Button(buttons, text="Cancel", command=self.close).pack(side="right")
         ttk.Button(buttons, text="Save", command=self.save).pack(side="right", padx=6)
+
+    def refresh_login_status(self) -> None:
+        if login.load_credentials(self.app.settings) is not None:
+            text = f"Saved login: yes ({login.saved_username(self.app.settings)}). The password is kept in Windows."
+        elif not login.storage_available():
+            text = "Saved login: unavailable (Windows Credential Manager was not found)."
+        else:
+            text = "Saved login: no. You log in by hand each time."
+        self.login_status.config(text=text)
+
+    def save_login(self) -> None:
+        try:
+            login.save_credentials(self.app.settings, self.user_var.get(), self.pass_var.get())
+        except ValueError as exc:
+            self.app.error("Saved login", str(exc))
+            return
+        self.pass_var.set("")
+        self.refresh_login_status()
+
+    def forget_login(self) -> None:
+        login.forget_credentials(self.app.settings)
+        self.user_var.set("")
+        self.pass_var.set("")
+        self.refresh_login_status()
 
     def browser_value(self) -> str:
         label = self.browser_var.get()

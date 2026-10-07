@@ -32,6 +32,7 @@ def build() -> int:
         "--collect-all", "pdfminer",       # PDF reading needs its character-map data files
         "--collect-all", "pypdfium2",
         "--collect-submodules", "auto_spiffer",
+        "--collect-submodules", "keyring",   # the Windows Credential Manager backend is found at run time
     ])
 
     # Things that live next to the program, not inside it.

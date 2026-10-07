@@ -549,3 +549,25 @@ def test_reenter_is_not_offered_during_a_run(app, invoice_folder):
         assert run.reenter_button.instate(["disabled"]) and run.reenter_month() is False
     finally:
         run.running = False
+
+
+# ------------------------------------------------- saved login
+def test_settings_saved_login_never_shows_the_password(app, monkeypatch):
+    from auto_spiffer import login
+    store = {}
+
+    class Fake:
+        set_password = staticmethod(lambda s, u, p: store.__setitem__((s, u), p))
+        get_password = staticmethod(lambda s, u: store.get((s, u)))
+        delete_password = staticmethod(lambda s, u: store.pop((s, u), None))
+
+    monkeypatch.setattr(login, "_keyring", lambda: Fake)
+    dialog = app.open_settings()
+    assert "no" in dialog.login_status.cget("text")
+    dialog.user_var.set("shop")
+    dialog.pass_var.set("pw-123")
+    dialog.save_login()
+    assert dialog.pass_var.get() == "" and "yes (shop)" in dialog.login_status.cget("text")
+    assert "pw-123" not in Settings.load().path.read_text(encoding="utf-8")
+    dialog.forget_login()
+    assert store == {} and "no" in dialog.login_status.cget("text")

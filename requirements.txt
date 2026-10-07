@@ -2,6 +2,7 @@
 pdfplumber>=0.11          # read Material-Sales.pdf, invoice PDFs, ClaimForm.pdf
 rapidfuzz>=3.10           # fuzzy tire-name matching
 playwright>=1.49          # drive the ATD ProRewards claim page
+keyring>=25.0             # keep the saved site password in Windows Credential Manager
 
 # Build and test (dev only)
 pyinstaller>=6.11         # package the app as an .exe

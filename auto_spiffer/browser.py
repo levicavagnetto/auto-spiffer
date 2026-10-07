@@ -93,6 +93,7 @@ class BrowserSession:
         self.credentials = credentials
         self.month = month
         self.program = program
+        self._stop_login = threading.Event()  # set when the person starts the run: the login steps aside
         self.login_future: Optional[Future] = None  # the automatic login, running on the browser thread
         self.context = None
         self.page = None
@@ -119,8 +120,12 @@ class BrowserSession:
         if self.credentials is None:
             return False
         self.login_future = self.submit(lambda s: login_and_navigate(
-            s.page, s.cfg, s.credentials, s.month, s.program))
+            s.page, s.cfg, s.credentials, s.month, s.program, s._stop_login.is_set))
         return True
+
+    def cancel_login(self) -> None:
+        """The person is taking over. End the automatic login now so nothing waits behind it."""
+        self._stop_login.set()
 
     def login_note(self) -> Optional[str]:
         """What the automatic login did, once it has finished, else None."""
@@ -129,7 +134,7 @@ class BrowserSession:
             return None
         self.login_future = None
         try:
-            return future.result().message
+            return future.result().message or None  # None: it stepped aside quietly
         except Exception as exc:
             return f"The automatic login stopped ({exc}). Finish by hand."
 

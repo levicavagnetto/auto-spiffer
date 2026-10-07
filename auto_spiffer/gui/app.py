@@ -242,16 +242,13 @@ class App:
             dialog.show_modal()
         return dialog
 
-    def apply_settings(self, allow_missing_pdf: bool, test_mode: bool, use_pdfs: bool = True) -> None:
+    def apply_settings(self, allow_missing_pdf: bool, use_pdfs: bool = True) -> None:
         """Take the Settings window's choices into effect now."""
         self.settings.set("use_invoice_pdfs", bool(use_pdfs))
         self.session.use_pdfs = bool(use_pdfs)
         self.settings.set("allow_missing_pdf", bool(allow_missing_pdf))
-        self.settings.set("run_test_mode", bool(test_mode))
         self.settings.save()
         self.session.allow_missing_pdf = bool(allow_missing_pdf)
-        self.pages["run"].test_var.set(bool(test_mode))
-        self.pages["run"]._options_changed()
         if self.session.workspace is not None and self.session.result is not None:
             try:
                 self.session.analyze()

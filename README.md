@@ -70,23 +70,20 @@ The app never clicks Next or Submit. If you run it again, it will not add anythi
 on the page are skipped, and lines recorded as entered are left out. A run can be stopped and started
 again to carry on.
 
-**Only the first N lines** (on the Run page) is for a first trial: set it to 1, check that line on the
-website, then set it back to 0 and run the rest.
-
 A CSV report of every run is saved in the `output` folder.
 
 ## Trying it out safely
 
-Tick **Test mode** on the Run page (or in Settings). The app then uses a saved copy of the claim page,
-blocks all web access, and pretends to be the website for Add and uploads. Nothing real is entered, and
-test mode keeps its own record (`data\state_test.json`), so it never makes a real run think something was
-already entered.
+Test mode is not in the window. It is for developers and runs from the command line
+(`python -m auto_spiffer fill-all`, which also has `--limit N` to enter only the first N lines). It uses a saved copy of the claim page, blocks all web access, and pretends
+to be the website for Add and uploads. Nothing real is entered, and test mode keeps its own record
+(`data\state_test.json`), so it never makes a real run think something was already entered.
 
 ## Settings
 
 Click **Settings** in the left menu to change the website address, the browser (Automatic, Chrome or Edge),
 whether to use invoice PDFs at all (*I upload the invoice PDFs myself*), whether sales with no PDF are still
-entered when some PDFs are loaded, and Test mode. It also shows where the app keeps its files.
+entered when some PDFs are loaded. It also shows where the app keeps its files.
 
 ## If something goes wrong
 

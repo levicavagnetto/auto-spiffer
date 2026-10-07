@@ -259,3 +259,93 @@ def test_waiting_for_the_login_box_to_go_ignores_a_page_that_is_mid_navigation()
     page = Page()
     assert login._wait_gone(page, "input[type='password']", 5) is True
     assert page.asked == 4  # three errors were waited out, not counted as "the box is gone"
+
+
+# ----------------------------------------- the person taking over never waits on the login
+def test_the_login_steps_aside_quickly_when_the_person_takes_over(site):
+    import time
+    page, cfg, _ = site
+    page.set_content("<html><body>nothing to log in to</body></html>")  # no login box: it would wait
+    cfg.login.form_wait = 30
+    started = time.monotonic()
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      stop=lambda: time.monotonic() - started > 0.5)
+    assert not result.ok and result.message == ""
+    assert time.monotonic() - started < 3
+
+
+def test_nothing_to_do_when_already_on_the_claim_page(app_home):
+    from auto_spiffer.browser import BrowserSession, saved_page_path
+    session = BrowserSession(load_config(), test_mode=True, headless=True)
+    try:
+        session.start()
+    except Exception as exc:
+        pytest.skip(f"no browser available: {exc}")
+    try:
+        result = session.call(lambda s: login.login_and_navigate(
+            s.page, s.cfg, login.Credentials("u", "p"), "2026-09"))
+        assert result.ok and "Already on the claim page" in result.message
+    finally:
+        session.close()
+
+
+def test_cancel_login_frees_the_browser_for_the_next_job(app_home, monkeypatch):
+    import time
+    from auto_spiffer import browser as browser_module
+    from auto_spiffer.browser import BrowserSession
+
+    def stubborn_login(page, cfg, creds, month, program, stop):
+        while not stop():
+            time.sleep(0.05)
+        return login.LoginResult(False, "")
+    monkeypatch.setattr(browser_module, "login_and_navigate", stubborn_login)
+    session = BrowserSession(load_config(), test_mode=True, headless=True, credentials=login.Credentials("u", "p"))
+    try:
+        session.start()
+    except Exception as exc:
+        pytest.skip(f"no browser available: {exc}")
+    try:
+        session.begin_login()
+        session.cancel_login()  # what step 2 does first
+        started = time.monotonic()
+        assert session.call(lambda s: "ran", timeout=5) == "ran"
+        assert time.monotonic() - started < 2
+        assert session.login_note() is None  # a quiet step-aside is not worth a log line
+    finally:
+        session.close()
+
+
+def test_a_slow_page_load_in_the_login_can_still_be_interrupted(app_home):
+    """The login must never hold the browser for long: even mid-navigation it steps aside at once."""
+    import http.server
+    import threading
+    import time
+
+    class Slow(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            if "slow" in self.path:
+                time.sleep(6)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"<html><body>hello</body></html>")
+
+        def log_message(self, *a):
+            pass
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Slow)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{server.server_address[1]}"
+    from playwright.sync_api import sync_playwright
+    try:
+        with sync_playwright() as p:
+            browser = launch_chromium(p, "auto", True)
+            page = browser.new_page()
+            page.goto(base + "/")
+            started = time.monotonic()
+            with pytest.raises(login._Stopped):
+                login._goto(page, base + "/slow", stop=lambda: time.monotonic() - started > 0.6)
+            assert time.monotonic() - started < 3  # not the 6 seconds the server takes
+            browser.close()
+    finally:
+        server.shutdown()

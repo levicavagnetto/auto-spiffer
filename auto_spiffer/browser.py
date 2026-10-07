@@ -84,7 +84,7 @@ class BrowserSession:
 
     def __init__(self, cfg: FillConfig, *, test_mode: bool = False, headless: bool = False,
                  test_window: Optional[tuple[str, str]] = None, test_page: str = "",
-                 credentials: Optional[Credentials] = None, month: str = ""):
+                 credentials: Optional[Credentials] = None, month: str = "", program: str = ""):
         self.cfg = cfg
         self.test_mode = test_mode
         self.headless = headless
@@ -92,7 +92,8 @@ class BrowserSession:
         self.test_page = test_page
         self.credentials = credentials
         self.month = month
-        self.login_note = ""  # what the automatic login did, for the Run log ("" when none was tried)
+        self.program = program
+        self.login_future: Optional[Future] = None  # the automatic login, running on the browser thread
         self.context = None
         self.page = None
         self._jobs: "queue.Queue[Optional[tuple[Future, Callable]]]" = queue.Queue()
@@ -111,6 +112,26 @@ class BrowserSession:
             raise self._error if isinstance(self._error, FillError) else FillError(
                 f"The browser could not be opened: {self._error}")
         return self
+
+    def begin_login(self) -> bool:
+        """Start the automatic login in the background. The window is usable straight away: anything
+        else asked of the browser simply waits its turn behind the login. False when no login is saved."""
+        if self.credentials is None:
+            return False
+        self.login_future = self.submit(lambda s: login_and_navigate(
+            s.page, s.cfg, s.credentials, s.month, s.program))
+        return True
+
+    def login_note(self) -> Optional[str]:
+        """What the automatic login did, once it has finished, else None."""
+        future = self.login_future
+        if future is None or not future.done():
+            return None
+        self.login_future = None
+        try:
+            return future.result().message
+        except Exception as exc:
+            return f"The automatic login stopped ({exc}). Finish by hand."
 
     @property
     def is_open(self) -> bool:
@@ -157,8 +178,6 @@ class BrowserSession:
                 install_stub(self.page, self.test_window)
             else:
                 self.page.goto(self.cfg.live_url, wait_until="domcontentloaded")
-                if self.credentials is not None:
-                    self.login_note = login_and_navigate(self.page, self.cfg, self.credentials, self.month).message
         except BaseException as exc:  # reported to whoever called start()
             self._error = exc
             self._ready.set()

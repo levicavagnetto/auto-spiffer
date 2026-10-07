@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
 SIZES = [16, 24, 32, 48, 64, 128, 256]
+SIDEBAR_SIZE = 36  # the logo next to the title in the window's sidebar
 
 
 def main() -> None:
@@ -33,7 +34,8 @@ def main() -> None:
     image = Image.open(io.BytesIO(png)).convert("RGBA")
     image.save(HERE / "icon.png")
     image.save(HERE / "icon.ico", sizes=[(s, s) for s in SIZES])
-    print("Wrote icon.png and icon.ico")
+    image.resize((SIDEBAR_SIZE, SIDEBAR_SIZE), Image.LANCZOS).save(HERE / "icon_sidebar.png")
+    print("Wrote icon.png, icon.ico and icon_sidebar.png")
 
 
 if __name__ == "__main__":

@@ -150,7 +150,8 @@ class RunPage(ttk.Frame):
         session = BrowserSession(cfg, test_mode=test_mode, headless=self.app.browser_headless,
                                  test_window=window,
                                  credentials=None if test_mode else load_credentials(self.app.settings),
-                                 month=workspace.month if workspace is not None else "")
+                                 month=workspace.month if workspace is not None else "",
+                                 program=self.session.catalog.program if self.session.catalog else "")
         self.status.config(text="Opening the browser...")
         self.opening = True
         self.refresh()
@@ -166,8 +167,9 @@ class RunPage(ttk.Frame):
             self.status.config(text="")
             if session.test_mode:
                 self.write("Browser opened on the SAVED page (test mode). Click step 2 to start.")
-            elif session.login_note:
-                self.write(f"Browser opened. {session.login_note} Then click step 2.")
+            elif session.begin_login():
+                self.write("Browser opened. Logging in and opening the claim page for you... You can "
+                           "take over at any time. Click step 2 once the claim form is showing.")
             else:
                 self.write(f"Browser opened at {cfg.live_url}. Log in, go to Claims > Submit a Sales Claim "
                            "for the right program, then click step 2.")
@@ -349,7 +351,11 @@ class RunPage(ttk.Frame):
         self.refresh()
 
     def _watch_window(self) -> None:
-        """Notice when the person closes the browser window, so step 1 and step 2 reflect it."""
+        """Every second: report how the automatic login went, and notice when the person closes the
+        browser window, so step 1 and step 2 reflect it."""
+        note = self.browser.login_note() if self.browser is not None else None
+        if note:
+            self.write(note)
         if self.browser is not None and not self.browser.is_open and not self.opening and not self.running:
             self.browser = None
             self.status.config(text="")

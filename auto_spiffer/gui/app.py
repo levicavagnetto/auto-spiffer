@@ -67,8 +67,13 @@ class App:
         side = tk.Frame(self.root, bg=theme.SIDEBAR_BG, width=190)
         side.pack(side="left", fill="y")
         side.pack_propagate(False)
-        tk.Label(side, text="Auto Spiffer", bg=theme.SIDEBAR_BG, fg=theme.SIDEBAR_TEXT,
-                 font=(theme.FONT, 15, "bold"), pady=14).pack(fill="x")
+        title = tk.Frame(side, bg=theme.SIDEBAR_BG)
+        title.pack(fill="x", padx=14, pady=14)
+        self.logo = theme.load_image("icon_sidebar.png")  # kept on self so Tk does not drop it
+        if self.logo is not None:
+            tk.Label(title, image=self.logo, bg=theme.SIDEBAR_BG).pack(side="left", padx=(0, 8))
+        tk.Label(title, text="Auto Spiffer", bg=theme.SIDEBAR_BG, fg=theme.SIDEBAR_TEXT,
+                 font=(theme.FONT, 15, "bold")).pack(side="left")
         self.month_label = tk.Label(side, text="", bg=theme.SIDEBAR_BG, fg=theme.SIDEBAR_MUTED,
                                     anchor="w", padx=14)
         self.month_label.pack(fill="x")

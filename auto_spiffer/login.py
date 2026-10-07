@@ -107,13 +107,18 @@ def month_terms(month: str) -> Optional[tuple[str, str]]:
     return day.strftime("%B").lower(), day.strftime("%Y")
 
 
-def pick_program(options: list[str], month: str) -> Optional[int]:
-    """Index of the one option naming the month and year, or None when none or several match."""
+def program_matches(text: str, month: str, program: str = "") -> bool:
+    """True when a dropdown entry is this month's program: it holds the program's name (from the loaded
+    tire list), or else the month's name and year."""
+    if program and program.strip().lower() in text.lower():
+        return True
     terms = month_terms(month)
-    if terms is None:
-        return None
-    name, year = terms
-    hits = [i for i, text in enumerate(options) if name in text.lower() and year in text]
+    return terms is not None and terms[0] in text.lower() and terms[1] in text
+
+
+def pick_program(options: list[str], month: str, program: str = "") -> Optional[int]:
+    """Index of the one option that is this month's program, or None when none or several match."""
+    hits = [i for i, text in enumerate(options) if program_matches(text, month, program)]
     return hits[0] if len(hits) == 1 else None
 
 
@@ -167,16 +172,16 @@ def _safe_to_click(selector: str, cfg) -> bool:
     return selector not in cfg.never_click
 
 
-def login_and_navigate(page, cfg, creds: Credentials, month: str = "") -> LoginResult:
+def login_and_navigate(page, cfg, creds: Credentials, month: str = "", program: str = "") -> LoginResult:
     """Log in (once), open the claim page, and pick the month's program. Never raises."""
     try:
-        return _login_and_navigate(page, cfg, creds, month)
+        return _login_and_navigate(page, cfg, creds, month, program)
     except Exception as exc:  # the person finishes by hand, whatever went wrong
         detail = str(exc).splitlines()[0] if str(exc) else exc.__class__.__name__
         return LoginResult(False, f"The automatic login stopped ({detail}). Finish by hand.")
 
 
-def _login_and_navigate(page, cfg, creds: Credentials, month: str) -> LoginResult:
+def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str) -> LoginResult:
     lg = cfg.login
     waits = cfg.timeouts
 
@@ -200,19 +205,71 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str) -> LoginResul
     if page.locator(cfg.selectors["date"]).count() > 0:
         return LoginResult(True, "Logged in and on the claim page.")
 
-    if not month:
+    if not month and not program:
         return LoginResult(False, "Logged in and on the claim page list. No month is loaded, so pick the "
                                   "program yourself.")
-    if not _wait_visible(page, lg.program_items, waits["action"], state="attached"):
-        return LoginResult(False, "Logged in, but the program list was not found. Pick the program yourself.")
-    items = page.locator(lg.program_items)
-    texts = [_item_text(items.nth(i)) for i in range(items.count())]
-    index = pick_program(texts, month)
-    if index is None:
-        return LoginResult(False, "Logged in, but no single program matches this month. Pick the program "
-                                  "yourself.")
-    _choose(page, items.nth(index), lg, cfg)
-    return LoginResult(True, f"Logged in and chose '{texts[index].strip()}'.")
+    # 1. A plain list: its entries are in the page even while it is closed.
+    if _wait_visible(page, lg.program_items, waits["action"], state="attached"):
+        items = page.locator(lg.program_items)
+        texts = [_item_text(items.nth(i)) for i in range(items.count())]
+        index = pick_program(texts, month, program)
+        if index is not None:
+            _choose(page, items.nth(index), lg, cfg)
+            return LoginResult(True, f"Logged in and chose '{texts[index].strip()}'.")
+    # 2. A styled list that only shows its entries once opened: open it and click the entry.
+    chosen = _choose_visible(page, lg, month, program)
+    if chosen:
+        return LoginResult(True, f"Logged in and chose '{chosen}'.")
+    saved = _save_page(page)
+    where = f" The page was saved to {saved} so the app can be taught its layout." if saved else ""
+    return LoginResult(False, "Logged in, but this month's program was not found in the list. Pick the "
+                              f"program yourself.{where}")
+
+
+def _choose_visible(page, lg, month: str, program: str) -> Optional[str]:
+    """Open the 'Select One' dropdown by clicking it, then click the one visible entry for this month."""
+    terms = month_terms(month)
+    parts = []
+    if program.strip():
+        parts.append(re.escape(program.strip()))
+    if terms:
+        parts.append(re.escape(terms[0]) + r".{0,60}?" + re.escape(terms[1]))
+    if not parts:
+        return None
+    pattern = re.compile("|".join(parts), re.IGNORECASE)
+
+    trigger = page.get_by_text(re.compile(lg.program_prompt, re.IGNORECASE))
+    for i in range(min(trigger.count(), 6)):
+        if trigger.nth(i).is_visible():
+            trigger.nth(i).click(timeout=3000)
+            break
+    seen: dict[str, object] = {}
+    deadline = 2.0
+    while deadline > 0 and not seen:
+        page.wait_for_timeout(150)
+        deadline -= 0.15
+        entries = page.get_by_text(pattern)
+        for i in range(min(entries.count(), 30)):
+            entry = entries.nth(i)
+            if entry.is_visible():
+                seen.setdefault(_item_text(entry), entry)
+    if len(seen) != 1:
+        return None
+    text, entry = next(iter(seen.items()))
+    entry.click(timeout=3000)  # type: ignore[attr-defined]
+    return text
+
+
+def _save_page(page) -> str:
+    """Keep a copy of the page that could not be read, for fixing the selectors."""
+    try:
+        from auto_spiffer import paths
+        target = paths.output_dir() / "picker_page.html"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(page.content(), encoding="utf-8")
+        return str(target)
+    except Exception:
+        return ""
 
 
 def _item_text(item) -> str:

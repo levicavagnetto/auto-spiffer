@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from auto_spiffer import __version__, paths
@@ -6,7 +7,8 @@ from auto_spiffer.models import CatalogItem, ClaimRow, SaleRow
 
 
 def test_version_is_set():
-    assert __version__ == "0.1.0"
+    # Not a fixed number: the version changes every release (the release build checks it against the tag).
+    assert re.fullmatch(r"\d+\.\d+\.\d+", __version__)
 
 
 def test_fixtures_are_present(fixtures):

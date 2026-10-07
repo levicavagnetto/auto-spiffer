@@ -140,32 +140,41 @@ def _wait_visible(page, selector: str, seconds: float, state: str = "visible") -
 
 
 def _wait_gone(page, selector: str, seconds: float) -> bool:
+    """True once the element is no longer visible. A page that is in the middle of navigating cannot be
+    asked (that is an error, not an answer), so keep waiting until it can be."""
     end = seconds
     step = 0.25
     while end > 0:
-        if _count_visible(page, selector) == 0:
-            return True
+        try:
+            loc = page.locator(selector)
+            if not any(loc.nth(i).is_visible() for i in range(min(loc.count(), 5))):
+                return True
+        except Exception:
+            pass  # the page is changing under us; ask again shortly
         page.wait_for_timeout(int(step * 1000))
         end -= step
     return False
 
 
 def _settle(page, seconds: float) -> None:
-    try:
-        page.wait_for_load_state("domcontentloaded", timeout=seconds * 1000)
-    except Exception:
-        pass
+    """Wait for the page to finish loading (and for any redirect the site started to land)."""
+    for state in ("load", "networkidle"):
+        try:
+            page.wait_for_load_state(state, timeout=seconds * 1000)
+        except Exception:
+            pass
 
 
 def _goto(page, url: str) -> None:
-    """Open a page, trying once more if the site's own redirect interrupted the first try."""
-    try:
-        page.goto(url, wait_until="domcontentloaded")
-    except Exception as exc:
-        if "interrupted" not in str(exc):
-            raise
-        _settle(page, 10)
-        page.goto(url, wait_until="domcontentloaded")
+    """Open a page, trying again if the site's own redirect interrupted the try."""
+    for attempt in range(4):
+        try:
+            page.goto(url, wait_until="domcontentloaded")
+            return
+        except Exception as exc:
+            if "interrupted" not in str(exc) or attempt == 3:
+                raise
+            _settle(page, 10)
 
 
 def _safe_to_click(selector: str, cfg) -> bool:
@@ -199,6 +208,7 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str)
                                       "CAPTCHA?). The app only tries once. Finish logging in by hand.")
 
     _settle(page, waits["action"])  # the site may still be redirecting after the login
+    page.wait_for_timeout(300)
     _goto(page, lg.claim_url)
     if _count_visible(page, lg.password):
         return LoginResult(False, "The site is asking for a login again. Log in by hand.")

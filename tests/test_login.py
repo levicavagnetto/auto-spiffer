@@ -83,7 +83,7 @@ def test_old_config_without_login_section_still_loads(app_home):
 LOGIN_PAGE = """<form onsubmit="return false"><input type=text id=u><input type=password id=p>
 <input type=submit id=go value=Go onclick="fakeLogin()"></form>
 <script>function fakeLogin(){ fetch('/attempt?u='+u.value+'&p='+p.value).then(r=>r.text()).then(t=>{
- if(t==='ok') location='/authorized/claims/submitsale.aspx'; else document.body.append('bad'); }); }</script>"""
+ if(t==='ok') setTimeout(()=>{location='/authorized/claims/submitsale.aspx'},700); else document.body.append('bad'); }); }</script>"""
 PICKER = """<select id=prog><option value=''>Choose</option><option value=a>ATD September 2026 Spiff</option>
 <option value=b>ATD October 2026 Spiff</option></select><div id=chosen></div>
 <script>prog.onchange=()=>{chosen.textContent=prog.value}</script>"""
@@ -227,3 +227,35 @@ def test_the_login_runs_in_the_background_and_reports_when_done(app_home, monkey
     finally:
         release.set()
         session.close()
+
+
+def test_waiting_for_the_login_box_to_go_ignores_a_page_that_is_mid_navigation():
+    class Element:
+        def is_visible(self):
+            return False
+
+    class Locator:
+        def __init__(self, page):
+            self.page = page
+
+        def count(self):
+            self.page.asked += 1
+            if self.page.asked <= 3:  # Playwright raises while a page is being replaced
+                raise RuntimeError("Execution context was destroyed, most likely because of a navigation")
+            return 1
+
+        def nth(self, _i):
+            return Element()
+
+    class Page:
+        asked = 0
+
+        def locator(self, _selector):
+            return Locator(self)
+
+        def wait_for_timeout(self, _ms):
+            pass
+
+    page = Page()
+    assert login._wait_gone(page, "input[type='password']", 5) is True
+    assert page.asked == 4  # three errors were waited out, not counted as "the box is gone"

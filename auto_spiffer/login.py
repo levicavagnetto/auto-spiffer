@@ -9,7 +9,9 @@ browser where it is so the person can finish by hand.
 """
 from __future__ import annotations
 
+import logging
 import re
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
@@ -131,20 +133,34 @@ def _count_visible(page, selector: str) -> int:
         return 0
 
 
-def _wait_visible(page, selector: str, seconds: float, state: str = "visible") -> bool:
-    try:
-        page.locator(selector).first.wait_for(state=state, timeout=seconds * 1000)
-        return True
-    except Exception:
-        return False
+class _Stopped(Exception):
+    """The person took over (started the run), so the automatic login gives up at once."""
 
 
-def _wait_gone(page, selector: str, seconds: float) -> bool:
+def _halt(stop) -> None:
+    if stop is not None and stop():
+        raise _Stopped()
+
+
+def _wait_visible(page, selector: str, seconds: float, state: str = "visible", stop=None) -> bool:
+    end = seconds
+    while end > 0:
+        _halt(stop)
+        try:
+            page.locator(selector).first.wait_for(state=state, timeout=250)
+            return True
+        except Exception:
+            end -= 0.25
+    return False
+
+
+def _wait_gone(page, selector: str, seconds: float, stop=None) -> bool:
     """True once the element is no longer visible. A page that is in the middle of navigating cannot be
     asked (that is an error, not an answer), so keep waiting until it can be."""
     end = seconds
     step = 0.25
     while end > 0:
+        _halt(stop)
         try:
             loc = page.locator(selector)
             if not any(loc.nth(i).is_visible() for i in range(min(loc.count(), 5))):
@@ -156,60 +172,87 @@ def _wait_gone(page, selector: str, seconds: float) -> bool:
     return False
 
 
-def _settle(page, seconds: float) -> None:
+def _settle(page, seconds: float, stop=None) -> None:
     """Wait for the page to finish loading (and for any redirect the site started to land)."""
-    for state in ("load", "networkidle"):
+    end = seconds
+    while end > 0:
+        _halt(stop)
         try:
-            page.wait_for_load_state(state, timeout=seconds * 1000)
-        except Exception:
-            pass
-
-
-def _goto(page, url: str) -> None:
-    """Open a page, trying again if the site's own redirect interrupted the try."""
-    for attempt in range(4):
-        try:
-            page.goto(url, wait_until="domcontentloaded")
+            page.wait_for_load_state("load", timeout=250)
             return
-        except Exception as exc:
-            if "interrupted" not in str(exc) or attempt == 3:
-                raise
-            _settle(page, 10)
+        except Exception:
+            end -= 0.25
+
+
+def _goto(page, url: str, stop=None, seconds: float = 20) -> None:
+    """Send the page to a URL without ever blocking for long: start the navigation from inside the page,
+    then watch for it in short slices, so the person starting the run can interrupt at any moment.
+    A page that ends up somewhere else (the site redirected) is not an error here: the caller looks."""
+    target = url.split("?")[0].lower()
+
+    def there() -> bool:
+        return page.url.split("?")[0].lower() == target
+
+    if not there():
+        try:
+            page.evaluate("u => { window.location.href = u; }", url)
+        except Exception:
+            pass  # the page was already changing; whatever it becomes is checked next
+    end = seconds
+    while end > 0:
+        _halt(stop)
+        try:
+            if there():
+                page.wait_for_load_state("domcontentloaded", timeout=250)
+                return
+            page.wait_for_timeout(250)
+        except Exception:
+            time.sleep(0.25)  # still loading, or the page is changing: look again shortly
+        end -= 0.25
 
 
 def _safe_to_click(selector: str, cfg) -> bool:
     return selector not in cfg.never_click
 
 
-def login_and_navigate(page, cfg, creds: Credentials, month: str = "", program: str = "") -> LoginResult:
-    """Log in (once), open the claim page, and pick the month's program. Never raises."""
+def login_and_navigate(page, cfg, creds: Credentials, month: str = "", program: str = "",
+                       stop=None) -> LoginResult:
+    """Log in (once), open the claim page, and pick the month's program. Never raises.
+    `stop` is asked often: when it returns True the person has taken over and this ends quietly."""
+    started = time.monotonic()
     try:
-        return _login_and_navigate(page, cfg, creds, month, program)
+        result = _login_and_navigate(page, cfg, creds, month, program, stop)
+    except _Stopped:
+        result = LoginResult(False, "")
     except Exception as exc:  # the person finishes by hand, whatever went wrong
         detail = str(exc).splitlines()[0] if str(exc) else exc.__class__.__name__
-        return LoginResult(False, f"The automatic login stopped ({detail}). Finish by hand.")
+        result = LoginResult(False, f"The automatic login stopped ({detail}). Finish by hand.")
+    logging.info("Automatic login took %.1fs: %s", time.monotonic() - started, result.message or "(stepped aside)")
+    return result
 
 
-def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str) -> LoginResult:
+def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str, stop) -> LoginResult:
     lg = cfg.login
     waits = cfg.timeouts
 
-    if _wait_visible(page, lg.password, lg.form_wait):
+    if _count_visible(page, cfg.selectors["date"]):
+        return LoginResult(True, "Already on the claim page.")  # nothing to do: the person got there first
+    if _wait_visible(page, lg.password, lg.form_wait, stop=stop):
         user_box = page.locator(lg.username).first
-        user_box.fill(creds.username)
-        page.locator(lg.password).first.fill(creds.password)
+        user_box.fill(creds.username, timeout=3000)
+        page.locator(lg.password).first.fill(creds.password, timeout=3000)
         submit = lg.submit
         if _count_visible(page, submit) and _safe_to_click(submit, cfg):
-            page.locator(submit).first.click(timeout=waits["action"] * 1000)
+            page.locator(submit).first.click(timeout=3000)
         else:
-            page.locator(lg.password).first.press("Enter")
-        if not _wait_gone(page, lg.password, lg.login_wait):
+            page.locator(lg.password).first.press("Enter", timeout=3000)
+        if not _wait_gone(page, lg.password, lg.login_wait, stop):
             return LoginResult(False, "The site did not finish logging in (wrong password, a code, or a "
                                       "CAPTCHA?). The app only tries once. Finish logging in by hand.")
 
-    _settle(page, waits["action"])  # the site may still be redirecting after the login
+    _settle(page, waits["action"], stop)  # the site may still be redirecting after the login
     page.wait_for_timeout(300)
-    _goto(page, lg.claim_url)
+    _goto(page, lg.claim_url, stop)
     if _count_visible(page, lg.password):
         return LoginResult(False, "The site is asking for a login again. Log in by hand.")
     if page.locator(cfg.selectors["date"]).count() > 0:
@@ -219,7 +262,7 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str)
         return LoginResult(False, "Logged in and on the claim page list. No month is loaded, so pick the "
                                   "program yourself.")
     # 1. A plain list: its entries are in the page even while it is closed.
-    if _wait_visible(page, lg.program_items, waits["action"], state="attached"):
+    if _wait_visible(page, lg.program_items, 3, state="attached", stop=stop):
         items = page.locator(lg.program_items)
         texts = [_item_text(items.nth(i)) for i in range(items.count())]
         index = pick_program(texts, month, program)
@@ -227,7 +270,7 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str)
             _choose(page, items.nth(index), lg, cfg)
             return LoginResult(True, f"Logged in and chose '{texts[index].strip()}'.")
     # 2. A styled list that only shows its entries once opened: open it and click the entry.
-    chosen = _choose_visible(page, lg, month, program)
+    chosen = _choose_visible(page, lg, month, program, stop)
     if chosen:
         return LoginResult(True, f"Logged in and chose '{chosen}'.")
     saved = _save_page(page)
@@ -236,7 +279,7 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str)
                               f"program yourself.{where}")
 
 
-def _choose_visible(page, lg, month: str, program: str) -> Optional[str]:
+def _choose_visible(page, lg, month: str, program: str, stop=None) -> Optional[str]:
     """Open the 'Select One' dropdown by clicking it, then click the one visible entry for this month."""
     terms = month_terms(month)
     parts = []
@@ -256,6 +299,7 @@ def _choose_visible(page, lg, month: str, program: str) -> Optional[str]:
     seen: dict[str, object] = {}
     deadline = 2.0
     while deadline > 0 and not seen:
+        _halt(stop)
         page.wait_for_timeout(150)
         deadline -= 0.15
         entries = page.get_by_text(pattern)
@@ -290,12 +334,8 @@ def _choose(page, item: Any, lg, cfg) -> None:
     tag = (item.evaluate("e => e.tagName") or "").lower()
     if tag == "option":
         select = item.locator("xpath=ancestor::select")
-        select.select_option(value=item.get_attribute("value"))
+        select.select_option(value=item.get_attribute("value"), timeout=3000)
         if lg.program_go and _count_visible(page, lg.program_go) and _safe_to_click(lg.program_go, cfg):
-            page.locator(lg.program_go).first.click(timeout=cfg.timeouts["action"] * 1000)
+            page.locator(lg.program_go).first.click(timeout=3000)
     else:
-        item.click(timeout=cfg.timeouts["action"] * 1000)
-    try:
-        page.wait_for_load_state("domcontentloaded", timeout=cfg.timeouts["action"] * 1000)
-    except Exception:
-        pass
+        item.click(timeout=3000)

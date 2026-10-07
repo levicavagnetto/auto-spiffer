@@ -50,9 +50,7 @@ class SettingsDialog:
         ttk.Checkbutton(frame, text="When some PDFs are loaded, still enter sales that have none "
                                     "(otherwise they are held back)",
                         variable=self.allow_var).pack(anchor="w", pady=(6, 0))
-        self.test_var = tk.BooleanVar(value=bool(app.settings.get("run_test_mode")))
-        ttk.Checkbutton(frame, text="Test mode: use the saved page, nothing reaches the real website",
-                        variable=self.test_var).pack(anchor="w", pady=(6, 10))
+        ttk.Label(frame).pack(pady=(0, 2))
 
         ttk.Label(frame, text="Saved login (the app logs in and opens the claim page for you)").pack(anchor="w")
         login_row = ttk.Frame(frame)
@@ -117,7 +115,7 @@ class SettingsDialog:
         except FillError as exc:
             self.app.error("Settings", str(exc))
             return False
-        self.app.apply_settings(allow_missing_pdf=self.allow_var.get(), test_mode=self.test_var.get(),
+        self.app.apply_settings(allow_missing_pdf=self.allow_var.get(),
                                 use_pdfs=not self.use_var.get())
         self.close()
         return True

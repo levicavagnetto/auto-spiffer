@@ -1,7 +1,9 @@
 """Page 3: the entry run. Open the claim site, check the page, enter every sale, upload the PDFs, stop."""
 from __future__ import annotations
 
+import logging
 import queue
+import time
 import tkinter as tk
 from dataclasses import dataclass, replace
 from datetime import datetime
@@ -56,18 +58,10 @@ class RunPage(ttk.Frame):
         self.reenter_button = ttk.Button(row, text="Re-enter this month...", command=self.reenter_month)
         self.reenter_button.pack(side="right")
 
-        opts = ttk.Frame(self)
-        opts.pack(fill="x", pady=(8, 0))
-        self.test_var = tk.BooleanVar(value=bool(app.settings.get("run_test_mode")))
-        ttk.Checkbutton(opts, text="Test mode (the saved page; nothing reaches the website)",
-                        variable=self.test_var, command=self._options_changed).pack(side="left")
-        ttk.Label(opts, text="     Only the first").pack(side="left")
-        self.limit_var = tk.StringVar(value=str(app.settings.get("run_limit") or 0))
-        spin = ttk.Spinbox(opts, from_=0, to=999, width=5, textvariable=self.limit_var,
-                           command=self._options_changed)
-        spin.pack(side="left", padx=4)
-        spin.bind("<FocusOut>", lambda _e: self._options_changed())
-        ttk.Label(opts, text="lines (0 = all)").pack(side="left")
+        # Test mode (the saved page) and "only the first N lines" are not shown in the window. They are
+        # switches for the tests and the command line, so they always start off and are never remembered.
+        self.test_var = tk.BooleanVar(value=False)
+        self.limit_var = tk.StringVar(value="0")
 
         self.mode_banner = theme.banner(self, "", "info")
         self.status = ttk.Label(self, text="", style="Subtle.TLabel", wraplength=900, justify="left")
@@ -105,8 +99,6 @@ class RunPage(ttk.Frame):
             return 0
 
     def _options_changed(self) -> None:
-        self.app.settings.set("run_test_mode", bool(self.test_var.get()))
-        self.app.settings.set("run_limit", self.limit)
         self.refresh()
 
     def rows_to_run(self):
@@ -191,17 +183,26 @@ class RunPage(ttk.Frame):
         if not rows:
             self.app.info("Nothing to enter", "There are no lines ready to enter.")
             return
+        self.browser.cancel_login()  # the person is taking over: the automatic login must not delay the run
         catalog = self.session.catalog
         state = self._state()
         control = self.control = RunControl()
         test_mode = self.browser.test_mode
         window = (format_page_date(min(r.sale_date for r in rows)), format_page_date(max(r.sale_date for r in rows)))
 
+        clicked = time.monotonic()
+
         def job(sess: BrowserSession) -> RunOutcome:
+            began = time.monotonic()
             claim = sess.claim_page()
             if test_mode:  # test mode pretends the page's program dates are the sales' dates
                 claim.page.evaluate("w => { window.__stub.window = w; }", list(window))
             check = check_page(claim.read_info(), rows, catalog)
+            done = time.monotonic()
+            timing = (f"Ready to enter {done - clicked:.1f}s after start (waited for the browser "
+                      f"{began - clicked:.1f}s, checked the page {done - began:.1f}s).")
+            logging.info(timing)
+            self.events.put({"type": "log", "message": timing})
             self.events.put({"type": "check", "check": check})
             if not check.ok:
                 return RunOutcome(check, None)

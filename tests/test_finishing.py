@@ -91,7 +91,7 @@ def test_settings_window_shows_the_current_values(app):
     try:
         assert dialog.url_var.get().startswith("https://prorewards")
         assert dialog.browser_value() == "auto"
-        assert dialog.allow_var.get() is False and dialog.test_var.get() is False
+        assert dialog.allow_var.get() is False
     finally:
         dialog.close()
 
@@ -101,13 +101,11 @@ def test_saving_settings_takes_effect(app):
     dialog.url_var.set("https://example.org/claims")
     dialog.browser_var.set("Microsoft Edge")
     dialog.allow_var.set(True)
-    dialog.test_var.set(True)
     assert dialog.save() and dialog.closed
     assert load_config().live_url == "https://example.org/claims" and load_config().browser == "msedge"
     assert app.session.allow_missing_pdf is True
-    assert app.pages["run"].test_var.get() is True
     saved = Settings.load()
-    assert saved.get("allow_missing_pdf") is True and saved.get("run_test_mode") is True
+    assert saved.get("allow_missing_pdf") is True
 
 
 def test_a_bad_address_keeps_the_window_open(app):

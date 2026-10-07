@@ -7,7 +7,7 @@ import pytest
 
 from auto_spiffer import paths
 # The fixtures and helpers of the window tests are reused here.
-from test_gui import (REPORT, app, brands, invoice_folder, load_everything, noise, october,  # noqa: F401
+from test_gui import (REPORT, app, brands, invoice_folder, load_everything, make_app, noise, october,  # noqa: F401
                       row_values)
 
 
@@ -155,7 +155,6 @@ def test_run_page_limit_for_a_first_trial(app, invoice_folder):
         wait_for_run(app, run)
         assert run.counter.cget("text") == "2 of 2 sales"
         assert app.session.counts()["entered"][0] == 2
-        assert app.settings.get("run_limit") == 2
     finally:
         run.shutdown()
 
@@ -197,13 +196,29 @@ def test_closing_the_app_closes_the_browser_after_asking(app, invoice_folder):
     assert not run.browser_open()
 
 
-def test_the_test_mode_choice_is_remembered(app, invoice_folder):
-    run = to_run_page(app, invoice_folder, test_mode=True)
-    assert app.settings.get("run_test_mode") is True
-    run.test_var.set(False)
-    run._options_changed()
-    assert app.settings.get("run_test_mode") is False
-    assert "TEST MODE" not in run.mode_banner.cget("text")
+def test_test_mode_and_the_line_limit_are_not_in_the_window(app, invoice_folder):
+    from tkinter import ttk
+    run = app.pages["run"]
+    app.show("run")
+    texts = [w.cget("text") for w in run.winfo_children() for w in [w, *w.winfo_children()]
+             if isinstance(w, (ttk.Checkbutton, ttk.Spinbox, ttk.Label)) and "text" in w.keys()]
+    assert not any("Test mode" in t or "first" in t.lower() for t in texts)
+    assert not [w for w in run.winfo_children() if isinstance(w, ttk.Spinbox)]
+    assert run.test_var.get() is False and run.limit == 0  # always start off, even if an old file said otherwise
+
+
+def test_an_old_saved_test_mode_choice_is_ignored(app_home, brands, noise, october):
+    from auto_spiffer.settings import Settings
+    old = Settings.load()
+    old.set("run_test_mode", True)
+    old.set("run_limit", 5)
+    old.save()
+    root, window = make_app(brands, noise)
+    try:
+        run = window.pages["run"]
+        assert run.test_var.get() is False and run.limit == 0
+    finally:
+        root.destroy()
 
 
 def test_run_without_invoice_pdfs_enters_sales_only(app):

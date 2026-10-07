@@ -235,7 +235,7 @@ text boxes work for real), but ATD's date-picker code is not active in the copy.
 so nothing can reach the real server, and a small stub (`page_stub.py`) plays the server for Add (appends a row,
 shows the duplicate or validation popup) and for file uploads. Test mode keeps its own record
 (`data\state_test.json`) so it never makes the real run think something was entered. It is used for development
-and for the "Test mode" option on the Run page.
+and for the command line and the tests (the window has no Test mode option).
 
 ### 5.5 Invoice PDFs: finding and uploading
 
@@ -328,8 +328,7 @@ The **Fix dialog** (double-click a row) shows the report text, best guesses with
 of every tire, "Remember this choice", "not an eligible tire", and a quantity box. A note appears when lines are
 recorded as already entered, pointing to Re-enter on the Run page.
 
-**Run.** Buttons: Open claim site, I'm on the page start, Pause (Resume), Stop, and **Re-enter this month...**. A Test
-mode checkbox (with a banner when on) and an "Only the first N lines" box (for a first real trial). A page-check line,
+**Run.** Buttons: Open claim site, I'm on the page start, Pause (Resume), Stop, and **Re-enter this month...**. A page-check line,
 a large "12 of 17 sales" counter with a progress bar, a "Now:" line, and a live log. Closing the window asks first
 if a run is going or a browser is open. After a run, Review shows Entered and Failed rows and the CSV report is saved.
 

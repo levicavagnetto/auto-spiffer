@@ -89,6 +89,32 @@ PICKER = """<select id=prog><option value=''>Choose</option><option value=a>ATD 
 <script>prog.onchange=()=>{chosen.textContent=prog.value}</script>"""
 
 
+NEXT_BUTTON = "<input type=submit id=next value=NEXT onclick=\"location='/authorized/claims/claimform.aspx'\">"
+CLAIM_FORM_PAGE = "<html><body><input id='ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput'></body></html>"
+
+PICKER += NEXT_BUTTON
+
+
+def fake_site_handler(state):
+    """The fake site: /attempt checks the password, submitsale shows state['picker'] once logged in
+    (else the login page), and claimform is the claim form that NEXT opens."""
+    def handler(route):
+        url = route.request.url
+        if "/attempt" in url:
+            state["attempts"] += 1
+            good = f"p={state['password']}" in url
+            state["logged_in"] = state["logged_in"] or good
+            route.fulfill(body="ok" if good else "no", content_type="text/plain")
+        elif "claimform" in url:
+            route.fulfill(body=CLAIM_FORM_PAGE, content_type="text/html")
+        elif "submitsale" in url:
+            route.fulfill(body=state.get("picker", PICKER) if state["logged_in"] else LOGIN_PAGE,
+                          content_type="text/html")
+        else:
+            route.fulfill(body=LOGIN_PAGE, content_type="text/html")
+    return handler
+
+
 @pytest.fixture
 def site(app_home):
     from playwright.sync_api import sync_playwright
@@ -97,20 +123,8 @@ def site(app_home):
         context = browser.new_context()
         state = {"attempts": 0, "logged_in": False, "password": "right"}
 
-        def handler(route):
-            url = route.request.url
-            if "/attempt" in url:
-                state["attempts"] += 1
-                good = f"p={state['password']}" in url
-                state["logged_in"] = state["logged_in"] or good
-                route.fulfill(body="ok" if good else "no", content_type="text/plain")
-            elif "submitsale" in url:
-                body = PICKER if state["logged_in"] else LOGIN_PAGE
-                route.fulfill(body=body, content_type="text/html")
-            else:
-                route.fulfill(body=LOGIN_PAGE, content_type="text/html")
-
-        context.route("http://fake.test/**", handler)
+        state["picker"] = PICKER
+        context.route("http://fake.test/**", fake_site_handler(state))
         page = context.new_page()
         cfg = load_config()
         cfg.live_url = "http://fake.test/"
@@ -124,8 +138,9 @@ def site(app_home):
 
 def test_login_then_picks_the_months_program(site):
     page, cfg, state = site
+    state["picker"] = PICKER.replace(NEXT_BUTTON, "")  # no NEXT, so the page stays put to be inspected
     result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09")
-    assert result.ok and "September 2026" in result.message
+    assert "chose 'ATD September 2026 Spiff'" in result.message
     assert page.locator("#chosen").inner_text() == "a"
     assert state["attempts"] == 1
 
@@ -162,35 +177,25 @@ STYLED_PICKER = """<div id=box>Select One</div><ul id=list style="display:none">
 <li>August 2026 Pro Rewards</li><li>September 2026 Pro Rewards</li></ul><div id=chosen></div>
 <script>box.onclick=()=>{list.style.display='block'};
 list.querySelectorAll('li').forEach(li=>li.onclick=()=>{chosen.textContent=li.textContent;list.style.display='none'})</script>"""
+STYLED_PICKER += NEXT_BUTTON
 
 
 @pytest.fixture
 def styled_site(site):
     page, cfg, state = site
     page.context.unroute("http://fake.test/**")
-
-    def handler(route):
-        url = route.request.url
-        if "/attempt" in url:
-            state["attempts"] += 1
-            good = f"p={state['password']}" in url
-            state["logged_in"] = state["logged_in"] or good
-            route.fulfill(body="ok" if good else "no", content_type="text/plain")
-        elif "submitsale" in url:
-            route.fulfill(body=STYLED_PICKER if state["logged_in"] else LOGIN_PAGE, content_type="text/html")
-        else:
-            route.fulfill(body=LOGIN_PAGE, content_type="text/html")
-
-    page.context.route("http://fake.test/**", handler)
+    state["picker"] = STYLED_PICKER
+    page.context.route("http://fake.test/**", fake_site_handler(state))
     page.goto("http://fake.test/")
     return page, cfg, state
 
 
 def test_styled_dropdown_is_opened_and_the_month_clicked(styled_site):
-    page, cfg, _ = styled_site
+    page, cfg, state = styled_site
+    state["picker"] = STYLED_PICKER.replace(NEXT_BUTTON, "")
     result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
                                       "September 2026 Pro Rewards")
-    assert result.ok and "September 2026 Pro Rewards" in result.message
+    assert "chose 'September 2026 Pro Rewards'" in result.message
     assert page.locator("#chosen").inner_text() == "September 2026 Pro Rewards"
 
 
@@ -349,3 +354,136 @@ def test_a_slow_page_load_in_the_login_can_still_be_interrupted(app_home):
             browser.close()
     finally:
         server.shutdown()
+
+
+# ------------------------------------- the real dropdown: a "Chosen" box with a hidden list behind it
+CHOSEN_PICKER = """<select id=promo style="display:none">
+<option value=''>Select One</option><option value=oct>October 2026 Pro Rewards</option>
+<option value=sep>September 2026 Pro Rewards</option></select>
+<div class="chosen-container chosen-container-single" id=promo_chosen>
+ <a class="chosen-single"><span id=shown>Select One</span></a>
+ <div class="chosen-drop" style="display:none"><div class="chosen-search"><input class="chosen-search-input"></div>
+ <ul class="chosen-results"><li class="active-result">Select One</li>
+ <li class="active-result" data-v=oct>October 2026 Pro Rewards</li>
+ <li class="active-result" data-v=sep>September 2026 Pro Rewards</li></ul></div></div>
+<div id=picked></div>
+<script>
+const drop = document.querySelector('.chosen-drop');
+document.querySelector('.chosen-single').onclick = () => { drop.style.display = drop.style.display === 'none' ? 'block' : 'none'; };
+document.querySelectorAll('.chosen-results li').forEach(li => li.onclick = () => {
+  shown.textContent = li.textContent; promo.value = li.dataset.v || ''; picked.textContent = promo.value;
+  drop.style.display = 'none'; });
+</script>"""
+CHOSEN_PICKER += NEXT_BUTTON
+
+
+@pytest.fixture
+def chosen_site(site):
+    page, cfg, state = site
+    page.context.unroute("http://fake.test/**")
+    state["picker"] = CHOSEN_PICKER
+    page.context.route("http://fake.test/**", fake_site_handler(state))
+    page.goto("http://fake.test/")
+    return page, cfg, state
+
+
+def test_the_chosen_dropdown_is_opened_and_the_right_month_clicked(chosen_site):
+    page, cfg, state = chosen_site
+    state["picker"] = CHOSEN_PICKER.replace(NEXT_BUTTON, "")
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert "chose 'September 2026 Pro Rewards'" in result.message
+    assert page.locator("#shown").inner_text() == "September 2026 Pro Rewards"  # what the person sees
+    assert page.locator("#promo").input_value() == "sep"  # and what the form will send
+
+
+def test_the_month_comes_from_the_claimforms_program_not_a_guess(chosen_site):
+    page, cfg, state = chosen_site
+    state["picker"] = CHOSEN_PICKER.replace(NEXT_BUTTON, "")
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-10",
+                                      "October 2026 Pro Rewards")
+    assert "chose 'October 2026 Pro Rewards'" in result.message
+    assert page.locator("#shown").inner_text() == "October 2026 Pro Rewards"
+
+
+def test_the_chosen_dropdown_is_left_alone_when_the_month_is_not_listed(chosen_site):
+    page, cfg, _ = chosen_site
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-11",
+                                      "November 2026 Pro Rewards")
+    assert not result.ok and "Pick the program yourself" in result.message
+    assert page.locator("#shown").inner_text() == "Select One" and page.locator("#promo").input_value() == ""
+
+
+def test_a_hidden_list_is_set_from_inside_the_page(site):
+    page, cfg, state = site
+    page.context.unroute("http://fake.test/**")
+    state["picker"] = """<select id=promo style="display:none"><option value=''>Select One</option>
+    <option value=sep>September 2026 Pro Rewards</option></select><div id=fired></div>
+    <script>promo.onchange=()=>{fired.textContent='changed:'+promo.value}</script>"""
+    page.context.route("http://fake.test/**", fake_site_handler(state))
+    page.goto("http://fake.test/")
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert "chose 'September 2026 Pro Rewards'" in result.message
+    assert page.locator("#fired").inner_text() == "changed:sep"
+
+
+# ------------------------------------------------ pressing NEXT after the month is chosen
+def _serve_picker(site, picker):
+    page, cfg, state = site
+    state["picker"] = picker
+    page.goto("http://fake.test/")
+    return page, cfg, state
+
+
+def test_next_is_pressed_after_the_month_and_the_claim_form_opens(chosen_site):
+    page, cfg, _ = chosen_site
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert result.ok and "opened the claim form" in result.message
+    assert page.url.endswith("claimform.aspx")
+    assert page.locator(cfg.selectors["date"]).count() == 1
+
+
+def test_next_is_not_pressed_when_the_month_was_not_chosen(chosen_site):
+    page, cfg, _ = chosen_site
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-11",
+                                      "November 2026 Pro Rewards")
+    assert not result.ok and page.url.endswith("submitsale.aspx")  # still on the picker, nothing pressed
+
+
+def test_a_missing_next_button_leaves_the_person_to_press_it(site):
+    page, cfg, state = site
+    state["picker"] = CHOSEN_PICKER.replace(NEXT_BUTTON, "")
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert not result.ok and "Click NEXT yourself" in result.message
+    assert page.locator("#shown").inner_text() == "September 2026 Pro Rewards"  # the month stays chosen
+
+
+def test_two_next_buttons_are_ambiguous_so_none_is_pressed(site):
+    page, cfg, state = site
+    state["picker"] = CHOSEN_PICKER + NEXT_BUTTON.replace('id=next', 'id=next2')
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert not result.ok and "Click NEXT yourself" in result.message
+    assert page.url.endswith("submitsale.aspx")
+
+
+def test_a_button_on_the_never_click_list_is_never_pressed(site):
+    page, cfg, state = site
+    cfg.never_click = set(cfg.never_click) | {"#next"}
+    state["picker"] = CHOSEN_PICKER
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert not result.ok and "Click NEXT yourself" in result.message
+    assert page.url.endswith("submitsale.aspx")
+
+
+def test_next_that_goes_nowhere_is_reported_not_retried(site):
+    page, cfg, state = site
+    cfg.login.form_open_wait = 1
+    state["picker"] = CHOSEN_PICKER.replace("location='/authorized/claims/claimform.aspx'", "void 0")
+    result = login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09",
+                                      "September 2026 Pro Rewards")
+    assert not result.ok and "did not appear" in result.message

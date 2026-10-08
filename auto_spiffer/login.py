@@ -14,7 +14,7 @@ import re
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from auto_spiffer.settings import Settings
 
@@ -261,22 +261,117 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str,
     if not month and not program:
         return LoginResult(False, "Logged in and on the claim page list. No month is loaded, so pick the "
                                   "program yourself.")
-    # 1. A plain list: its entries are in the page even while it is closed.
-    if _wait_visible(page, lg.program_items, 3, state="attached", stop=stop):
-        items = page.locator(lg.program_items)
-        texts = [_item_text(items.nth(i)) for i in range(items.count())]
-        index = pick_program(texts, month, program)
-        if index is not None:
-            _choose(page, items.nth(index), lg, cfg)
-            return LoginResult(True, f"Logged in and chose '{texts[index].strip()}'.")
-    # 2. A styled list that only shows its entries once opened: open it and click the entry.
-    chosen = _choose_visible(page, lg, month, program, stop)
+    chosen = _choose_program(page, cfg, month, program, stop)
     if chosen:
-        return LoginResult(True, f"Logged in and chose '{chosen}'.")
+        return _open_claim_form(page, cfg, chosen, stop)
     saved = _save_page(page)
     where = f" The page was saved to {saved} so the app can be taught its layout." if saved else ""
     return LoginResult(False, "Logged in, but this month's program was not found in the list. Pick the "
                               f"program yourself.{where}")
+
+
+def _open_claim_form(page, cfg, chosen: str, stop) -> LoginResult:
+    """Click the page's NEXT button (the one that opens the claim form for the chosen program).
+    Only ever done here, on the program page, and only for a single plain match: never on the claim form."""
+    lg = cfg.login
+    done = f"Logged in and chose '{chosen}'"
+    date_box = cfg.selectors["date"]
+
+    def form_open() -> bool:
+        return _count_visible(page, date_box) > 0
+
+    page.wait_for_timeout(300)  # choosing may already have moved the page on its own
+    if form_open():
+        return LoginResult(True, done + " and opened the claim form.")
+    rx = re.compile(lg.program_next, re.IGNORECASE)
+    found = []
+    for role in ("button", "link"):
+        buttons = page.get_by_role(role, name=rx)
+        found += [buttons.nth(i) for i in range(min(buttons.count(), 6)) if buttons.nth(i).is_visible()]
+    if len(found) != 1:
+        return LoginResult(False, done + ". Click NEXT yourself.")
+    button = found[0]
+    ident = button.get_attribute("id") or ""
+    if (ident and f"#{ident}" in cfg.never_click) or form_open():
+        return LoginResult(False, done + ". Click NEXT yourself.")  # never press a claim-form button
+    button.click(timeout=3000)
+    end = lg.form_open_wait
+    while end > 0:
+        _halt(stop)
+        try:
+            if form_open():
+                return LoginResult(True, done + " and opened the claim form.")
+        except Exception:
+            pass  # the page is changing under us
+        page.wait_for_timeout(250)
+        end -= 0.25
+    return LoginResult(False, done + " and clicked NEXT, but the claim form did not appear. Check the page.")
+
+
+def _choose_program(page, cfg, month: str, program: str, stop) -> Optional[str]:
+    """Pick this month's program, trying the ways the dropdown might be built. Each way is tried on its
+    own, so one that fails (or does not apply) never stops the next from being tried."""
+    for way in (_choose_in_dropdown, _choose_in_select, _choose_visible):
+        try:
+            chosen = way(page, cfg.login, month, program, stop)
+        except _Stopped:
+            raise
+        except Exception:
+            chosen = None
+        if chosen:
+            return chosen
+    return None
+
+
+def _visible_texts(loc, limit: int = 60) -> list[tuple[int, str]]:
+    return [(i, _item_text(loc.nth(i))) for i in range(min(loc.count(), limit)) if loc.nth(i).is_visible()]
+
+
+def _choose_in_dropdown(page, lg, month: str, program: str, stop=None) -> Optional[str]:
+    """The dropdown as a person uses it: click the box to open it, then click this month's entry."""
+    trigger = page.locator(lg.program_trigger)
+    if not _count_visible(page, lg.program_trigger):
+        return None  # this page has no such dropdown
+    trigger.first.click(timeout=3000)
+    entries = page.locator(lg.program_entries)
+    shown: list[tuple[int, str]] = []
+    for _ in range(14):  # up to ~2 seconds for the list to open
+        _halt(stop)
+        shown = _visible_texts(entries)
+        if shown:
+            break
+        page.wait_for_timeout(150)
+    index = pick_program([t for _i, t in shown], month, program)
+    if index is None:
+        page.keyboard.press("Escape")  # close it again without choosing anything
+        return None
+    entry_number, text = shown[index]
+    entries.nth(entry_number).click(timeout=3000)
+    page.wait_for_timeout(300)
+    now = _item_text(trigger.first)  # the closed box now shows what was picked
+    return text if program_matches(now, month, program) else None
+
+
+def _choose_in_select(page, lg, month: str, program: str, stop=None) -> Optional[str]:
+    """A plain list, visible or hidden behind a styled one: set it directly and tell the page it changed
+    (Playwright would refuse to act on a hidden list, so this is done from inside the page)."""
+    options = page.locator(lg.program_items)
+    if options.count() == 0:
+        return None
+    texts = [_item_text(options.nth(i)) for i in range(options.count())]
+    index = pick_program(texts, month, program)
+    if index is None:
+        return None
+    options.nth(index).evaluate(
+        """o => {
+            const s = o.closest('select');
+            s.value = o.value;
+            s.dispatchEvent(new Event('input', { bubbles: true }));
+            s.dispatchEvent(new Event('change', { bubbles: true }));
+            if (window.jQuery) window.jQuery(s).trigger('chosen:updated');
+        }""")
+    page.wait_for_timeout(300)
+    return texts[index].strip()
 
 
 def _choose_visible(page, lg, month: str, program: str, stop=None) -> Optional[str]:
@@ -328,14 +423,3 @@ def _save_page(page) -> str:
 
 def _item_text(item) -> str:
     return re.sub(r"\s+", " ", item.inner_text() or "").strip()
-
-
-def _choose(page, item: Any, lg, cfg) -> None:
-    tag = (item.evaluate("e => e.tagName") or "").lower()
-    if tag == "option":
-        select = item.locator("xpath=ancestor::select")
-        select.select_option(value=item.get_attribute("value"), timeout=3000)
-        if lg.program_go and _count_visible(page, lg.program_go) and _safe_to_click(lg.program_go, cfg):
-            page.locator(lg.program_go).first.click(timeout=3000)
-    else:
-        item.click(timeout=3000)

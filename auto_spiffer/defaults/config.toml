@@ -56,9 +56,16 @@ password = "input[type='password']"
 submit = "input[type='submit'], button[type='submit']"
 # The choices on the claim page that name each month's program (an option in a list, or a link).
 program_items = "select option"
+# The program dropdown as the person sees it: the box to click, and the entries that appear.
+program_trigger = '.chosen-container .chosen-single'
+program_entries = '.chosen-container .chosen-results li'
 # The text a closed program dropdown shows (a regular expression). The app clicks it to open the list.
 program_prompt = '^\s*Select One\s*$'
 # A button to click after choosing from a list, if the page needs one (leave empty if not).
 program_go = ""
+# The button that opens the claim form once a program is chosen (a regular expression on its text).
+# It is clicked only on this page, never on the claim form itself.
+program_next = '^\s*Next\s*$'
+form_open_wait = 15
 form_wait = 6
 login_wait = 20

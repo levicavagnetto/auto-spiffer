@@ -333,13 +333,13 @@ def test_reset_starts_a_new_month(loaded):
 def test_settings_defaults_save_and_damaged_file(tmp_path):
     path = tmp_path / "settings.json"
     s = Settings.load(path)
-    assert s.get("window_geometry") == "1260x720" and s.get("last_workspace") == ""
+    assert s.get("window_geometry") == "1280x720" and s.get("last_workspace") == ""
     s.set("last_workspace", "2026-09")
     s.save()
     assert Settings.load(path).get("last_workspace") == "2026-09"
     path.write_text("{ not json")
     assert Settings.load(path).get("last_workspace") == ""
-    assert Settings.load(tmp_path / "missing.json").get("window_geometry") == "1260x720"
+    assert Settings.load(tmp_path / "missing.json").get("window_geometry") == "1280x720"
 
 
 # ------------------------------------------------- invoice PDFs are optional

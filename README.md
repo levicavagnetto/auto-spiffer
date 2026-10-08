@@ -55,7 +55,7 @@ Double-click **AutoSpiffer.exe**.
 1. Click **Open claim site**. A browser opens.
 2. **Log in** to the ATD ProRewards website and go to **Claims > Submit a Sales Claim** for the
    right month's program. *Or save your login once* in **Settings > Saved login**: then Open claim site logs in,
-   opens the claim page, and picks the month's program for you. The password is kept in Windows
+   opens the claim page, picks the month's program, and presses NEXT for you. The password is kept in Windows
    Credential Manager, not in a file. The app tries the login once. If it can't finish (wrong password, a
    code, a CAPTCHA, no matching program), it stops and the log tells you what to do by hand.
 3. Click **Start autofill**. The app first checks that the page is for the right program and

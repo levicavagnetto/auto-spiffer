@@ -54,8 +54,8 @@ Everything happens in one desktop window with a left sidebar (section 5.10).
    "Read files and continue". Copies go into `data\months\<month>\`; originals are never touched.
 4. **Review**: every sale with its matched tire and a status. Resolve amber rows by picking the right tire
    (the choice can be remembered), exclude rows, export a CSV. Continue when nothing is left amber.
-5. **Run**: "Open claim site" (with a saved login the app logs in, opens the claim page and picks the month's
-   program; otherwise the person does that), "Start autofill". The app checks the page, enters each line with live progress, uploads PDFs if any, and stops.
+5. **Run**: "Open claim site" (with a saved login the app logs in, opens the claim page, picks the month's
+   program and presses NEXT; otherwise the person does that), "Start autofill". The app checks the page, enters each line with live progress, uploads PDFs if any, and stops.
 6. The person reviews the Cumulative Sale(s) List on the website, uploads the invoice PDFs themselves if they
    did not give them to the app, and clicks Next/Submit.
 

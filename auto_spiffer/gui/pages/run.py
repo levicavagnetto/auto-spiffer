@@ -101,6 +101,14 @@ class RunPage(ttk.Frame):
     def _options_changed(self) -> None:
         self.refresh()
 
+    def _program_month(self, workspace) -> str:
+        """The month to pick on the website, as 'YYYY-MM': the month the loaded ClaimForm is for (that is
+        the program being claimed), else the month of the loaded report."""
+        catalog = self.session.catalog
+        if catalog is not None and catalog.program_start is not None:
+            return catalog.program_start.strftime("%Y-%m")
+        return workspace.month if workspace is not None else ""
+
     def rows_to_run(self):
         rows = self.session.runnable()
         return rows[: self.limit] if self.limit else rows
@@ -142,7 +150,7 @@ class RunPage(ttk.Frame):
         session = BrowserSession(cfg, test_mode=test_mode, headless=self.app.browser_headless,
                                  test_window=window,
                                  credentials=None if test_mode else load_credentials(self.app.settings),
-                                 month=workspace.month if workspace is not None else "",
+                                 month=self._program_month(workspace),
                                  program=self.session.catalog.program if self.session.catalog else "")
         self.status.config(text="Opening the browser...")
         self.opening = True

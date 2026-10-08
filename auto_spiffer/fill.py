@@ -54,8 +54,12 @@ class LoginConfig:
     password: str = "input[type='password']"
     submit: str = "input[type='submit'], button[type='submit']"
     program_items: str = "select option"
+    program_trigger: str = ".chosen-container .chosen-single"
+    program_entries: str = ".chosen-container .chosen-results li"
     program_prompt: str = r"^\s*Select One\s*$"
     program_go: str = ""
+    program_next: str = r"^\s*Next\s*$"  # the button text that opens the claim form after a program is picked
+    form_open_wait: float = 15.0
     form_wait: float = 6.0
     login_wait: float = 20.0
 

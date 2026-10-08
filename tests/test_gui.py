@@ -563,7 +563,7 @@ def test_settings_saved_login_never_shows_the_password(app, monkeypatch):
 
     monkeypatch.setattr(login, "_keyring", lambda: Fake)
     dialog = app.open_settings()
-    assert "no" in dialog.login_status.cget("text")
+    assert "no" in dialog.login_status.cget("text").lower()
     dialog.user_var.set("shop")
     dialog.pass_var.set("pw-123")
     dialog.save_login()
@@ -571,3 +571,10 @@ def test_settings_saved_login_never_shows_the_password(app, monkeypatch):
     assert "pw-123" not in Settings.load().path.read_text(encoding="utf-8")
     dialog.forget_login()
     assert store == {} and "no" in dialog.login_status.cget("text")
+
+
+def test_no_hint_text_before_a_report_is_chosen(app):
+    load = app.pages["load"]
+    app.refresh_all()
+    assert load.read_button.instate(["disabled"])
+    assert load.reason.cget("text") == ""  # not "Choose the Material Sales report first."

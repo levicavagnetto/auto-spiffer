@@ -1,4 +1,4 @@
-"""Page 1: load this month's files (the report, the invoice PDFs, and the tire list)."""
+"""Page 1: load this month's files (the tire list, the report, and the invoice PDFs)."""
 from __future__ import annotations
 
 import tkinter as tk
@@ -25,7 +25,7 @@ class LoadPage(ttk.Frame):
         self.recent_button.config(menu=self.recent_menu)
         self.recent_button.pack(side="right")
         ttk.Button(head, text="New month", command=self.new_month).pack(side="right", padx=6)
-        ttk.Label(self, text="Pick this month's Material Sales report. The invoice PDFs are optional.",
+        ttk.Label(self, text="Load this month's ClaimForm, then the Material Sales report. The invoice PDFs are optional.",
                   style="Subtle.TLabel").pack(anchor="w", pady=(0, 8))
 
         # ---- warning banner (only shown when something needs attention)
@@ -37,8 +37,15 @@ class LoadPage(ttk.Frame):
             self.banner_holder, variable=self.override_var, command=self._override_changed,
             text="Continue anyway (only for trying things out: the website rejects dates outside its program)")
 
-        # ---- 1. report
-        g1 = ttk.LabelFrame(self, text=" 1.  Material Sales report ", padding=10)
+        # ---- 1. tire list
+        g3 = ttk.LabelFrame(self, text=" 1.  Tire list (ClaimForm.pdf) ", padding=10)
+        g3.pack(fill="x", pady=4)
+        self.tire_text = ttk.Label(g3, text="")
+        self.tire_text.pack(side="left")
+        ttk.Button(g3, text="Load ClaimForm.pdf...", command=self.load_tire_list).pack(side="right")
+
+        # ---- 2. report
+        g1 = ttk.LabelFrame(self, text=" 2.  Material Sales report ", padding=10)
         g1.pack(fill="x", pady=4)
         self.report_var = tk.StringVar()
         ttk.Entry(g1, textvariable=self.report_var, state="readonly").pack(side="left", fill="x", expand=True)
@@ -46,8 +53,8 @@ class LoadPage(ttk.Frame):
         self.report_status = ttk.Label(g1, text="")
         self.report_status.pack(side="left", padx=(12, 0))
 
-        # ---- 2. invoices
-        g2 = ttk.LabelFrame(self, text=" 2.  Invoice PDFs (optional) ", padding=10)
+        # ---- 3. invoices
+        g2 = ttk.LabelFrame(self, text=" 3.  Invoice PDFs (optional) ", padding=10)
         g2.pack(fill="both", expand=True, pady=4)
         top = ttk.Frame(g2)
         top.pack(fill="both", expand=True)
@@ -63,13 +70,6 @@ class LoadPage(ttk.Frame):
             ttk.Button(buttons, text=text, command=command).pack(fill="x", pady=1)
         self.invoice_status = ttk.Label(g2, text="")
         self.invoice_status.pack(anchor="w", pady=(6, 0))
-
-        # ---- 3. tire list
-        g3 = ttk.LabelFrame(self, text=" 3.  Tire list (ClaimForm.pdf) ", padding=10)
-        g3.pack(fill="x", pady=4)
-        self.tire_text = ttk.Label(g3, text="")
-        self.tire_text.pack(side="left")
-        ttk.Button(g3, text="Load ClaimForm.pdf...", command=self.load_tire_list).pack(side="right")
 
         # ---- footer
         foot = ttk.Frame(self)
@@ -192,7 +192,8 @@ class LoadPage(ttk.Frame):
         ok, reason = s.can_read()
         if not self._reading:
             self.read_button.state(["!disabled"] if ok else ["disabled"])
-            self.reason.config(text="" if ok else reason)
+            # No report chosen yet is obvious from the empty box above, so no text for it.
+            self.reason.config(text="" if ok or s.report_path is None else reason)
         self.override_var.set(s.decisions.override_program_mismatch)
 
     def _refresh_banner(self) -> None:

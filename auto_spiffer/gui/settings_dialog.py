@@ -1,4 +1,4 @@
-"""The Settings window: site address, browser, missing-PDF rule, test mode, and where the data lives."""
+"""The Settings window: website, saved login, invoice PDF rules, and where the data lives."""
 from __future__ import annotations
 
 import os
@@ -25,68 +25,85 @@ class SettingsDialog:
 
         self.top = tk.Toplevel(app.root)
         self.top.title("Settings")
-        width, height = 660, 640
-        x = app.root.winfo_rootx() + max(0, (app.root.winfo_width() - width) // 2)
-        y = app.root.winfo_rooty() + max(0, (app.root.winfo_height() - height) // 3)
-        self.top.geometry(f"{width}x{height}+{x}+{y}")
         self.top.transient(app.root)
         frame = ttk.Frame(self.top, padding=16)
         frame.pack(fill="both", expand=True)
-        ttk.Label(frame, text="Settings", style="Title.TLabel").pack(anchor="w", pady=(0, 10))
+        ttk.Label(frame, text="Settings", style="Title.TLabel").pack(anchor="w", pady=(0, 6))
 
-        ttk.Label(frame, text="Claim website address").pack(anchor="w")
+        # ---- website: address and browser
+        site = self._section(frame, "Website")
         self.url_var = tk.StringVar(value=url)
-        ttk.Entry(frame, textvariable=self.url_var).pack(fill="x", pady=(2, 10))
-
-        ttk.Label(frame, text="Browser to use").pack(anchor="w")
+        ttk.Label(site, text="Address").grid(row=0, column=0, sticky="w", pady=3)
+        ttk.Entry(site, textvariable=self.url_var).grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=3)
         self.browser_var = tk.StringVar(value=BROWSER_LABELS.get(browser, BROWSER_LABELS["auto"]))
-        ttk.Combobox(frame, textvariable=self.browser_var, state="readonly",
-                     values=[BROWSER_LABELS[c] for c in BROWSER_CHOICES]).pack(anchor="w", pady=(2, 10))
+        ttk.Label(site, text="Browser").grid(row=1, column=0, sticky="w", pady=3)
+        ttk.Combobox(site, textvariable=self.browser_var, state="readonly", width=32,
+                     values=[BROWSER_LABELS[c] for c in BROWSER_CHOICES]).grid(
+            row=1, column=1, sticky="w", padx=(10, 0), pady=3)
 
-        self.use_var = tk.BooleanVar(value=not bool(app.settings.get("use_invoice_pdfs")))
-        ttk.Checkbutton(frame, text="I upload the invoice PDFs myself on the website "
-                                    "(ignore any PDFs I load)", variable=self.use_var).pack(anchor="w")
-        self.allow_var = tk.BooleanVar(value=bool(app.settings.get("allow_missing_pdf")))
-        ttk.Checkbutton(frame, text="When some PDFs are loaded, still enter sales that have none "
-                                    "(otherwise they are held back)",
-                        variable=self.allow_var).pack(anchor="w", pady=(6, 0))
-        ttk.Label(frame).pack(pady=(0, 2))
-
-        ttk.Label(frame, text="Saved login (the app logs in and opens the claim page for you)").pack(anchor="w")
-        login_row = ttk.Frame(frame)
-        login_row.pack(fill="x", pady=(2, 0))
+        # ---- saved login
+        box = self._section(frame, "Saved login")
         self.user_var = tk.StringVar(value=login.saved_username(app.settings))
         self.pass_var = tk.StringVar()
-        ttk.Label(login_row, text="Username").pack(side="left")
-        ttk.Entry(login_row, textvariable=self.user_var, width=22).pack(side="left", padx=(4, 10))
-        ttk.Label(login_row, text="Password").pack(side="left")
-        ttk.Entry(login_row, textvariable=self.pass_var, show="*", width=18).pack(side="left", padx=4)
-        ttk.Button(login_row, text="Save login", command=self.save_login).pack(side="left", padx=(6, 0))
-        ttk.Button(login_row, text="Forget", command=self.forget_login).pack(side="left", padx=4)
-        self.login_status = ttk.Label(frame, style="Subtle.TLabel")
-        self.login_status.pack(anchor="w", pady=(2, 10))
+        ttk.Label(box, text="Username").grid(row=0, column=0, sticky="w", pady=3)
+        ttk.Entry(box, textvariable=self.user_var).grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=3)
+        ttk.Label(box, text="Password").grid(row=1, column=0, sticky="w", pady=3)
+        ttk.Entry(box, textvariable=self.pass_var, show="*").grid(row=1, column=1, sticky="ew",
+                                                                  padx=(10, 0), pady=3)
+        actions = ttk.Frame(box)
+        actions.grid(row=2, column=1, sticky="w", padx=(10, 0), pady=(4, 0))
+        ttk.Button(actions, text="Save login", command=self.save_login).pack(side="left")
+        ttk.Button(actions, text="Forget", command=self.forget_login).pack(side="left", padx=6)
+        self.login_status = ttk.Label(actions, style="Subtle.TLabel")
+        self.login_status.pack(side="left", padx=(8, 0))
         self.refresh_login_status()
 
-        ttk.Label(frame, text="Where the app keeps its files").pack(anchor="w")
-        row = ttk.Frame(frame)
-        row.pack(fill="x", pady=(2, 0))
-        ttk.Label(row, text=str(paths.app_dir()), style="Subtle.TLabel", wraplength=470).pack(side="left")
-        ttk.Button(row, text="Open folder", command=self.open_folder).pack(side="right")
-        ttk.Label(frame, text="Month folders, the tire list, saved choices, and the log are in here.",
-                  style="Subtle.TLabel").pack(anchor="w", pady=(2, 0))
+        # ---- invoice PDFs
+        pdfs = self._section(frame, "Invoice PDFs")
+        self.use_var = tk.BooleanVar(value=not bool(app.settings.get("use_invoice_pdfs")))
+        ttk.Checkbutton(pdfs, text="I upload the PDFs myself (ignore any I load)",
+                        variable=self.use_var).pack(anchor="w", pady=2)
+        self.allow_var = tk.BooleanVar(value=bool(app.settings.get("allow_missing_pdf")))
+        ttk.Checkbutton(pdfs, text="Enter sales that have no PDF, even when others do",
+                        variable=self.allow_var).pack(anchor="w", pady=2)
+
+        # ---- files
+        files = self._section(frame, "Files")
+        files.columnconfigure(0, weight=1)
+        ttk.Label(files, text=str(paths.app_dir()), style="Subtle.TLabel", wraplength=420).grid(
+            row=0, column=0, sticky="w")
+        ttk.Button(files, text="Open folder", command=self.open_folder).grid(row=0, column=1, padx=(10, 0))
 
         buttons = ttk.Frame(frame)
-        buttons.pack(side="bottom", fill="x", pady=(14, 0))
+        buttons.pack(fill="x", pady=(14, 0))
         ttk.Button(buttons, text="Cancel", command=self.close).pack(side="right")
         ttk.Button(buttons, text="Save", command=self.save).pack(side="right", padx=6)
 
+        # Size to the content, then sit near the top-middle of the main window.
+        self.top.geometry("600x1")  # a width to lay the content out against, then grow to fit its height
+        self.top.update()
+        width, height = max(self.top.winfo_reqwidth(), 600), self.top.winfo_reqheight()
+        x = app.root.winfo_rootx() + max(0, (app.root.winfo_width() - width) // 2)
+        y = app.root.winfo_rooty() + max(0, (app.root.winfo_height() - height) // 3)
+        self.top.geometry(f"{width}x{height}+{x}+{y}")
+        self.top.minsize(width, height)
+
+    @staticmethod
+    def _section(parent, title: str) -> ttk.LabelFrame:
+        """A titled group, with its second column stretching so boxes line up and fill the width."""
+        group = ttk.LabelFrame(parent, text=f" {title} ", padding=(12, 8))
+        group.pack(fill="x", pady=5)
+        group.columnconfigure(0, minsize=80)  # the same label width in every group, so boxes line up
+        group.columnconfigure(1, weight=1)
+        return group
+
     def refresh_login_status(self) -> None:
         if login.load_credentials(self.app.settings) is not None:
-            text = f"Saved login: yes ({login.saved_username(self.app.settings)}). The password is kept in Windows."
+            text = f"Saved: yes ({login.saved_username(self.app.settings)})"
         elif not login.storage_available():
-            text = "Saved login: unavailable (Windows Credential Manager was not found)."
+            text = "Saved: unavailable (no Windows Credential Manager)"
         else:
-            text = "Saved login: no. You log in by hand each time."
+            text = "Saved: no"
         self.login_status.config(text=text)
 
     def save_login(self) -> None:

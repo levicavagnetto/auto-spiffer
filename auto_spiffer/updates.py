@@ -21,9 +21,21 @@ def parse_version(text: object) -> Optional[tuple[int, int, int]]:
     return tuple(int(part) for part in match.groups()) if match else None
 
 
+_ORDER = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)(-[0-9A-Za-z.]+)?$")
+
+
+def _order(text: object) -> Optional[tuple]:
+    """A sortable form of a version. A test build like '0.3.0-rc1' sorts just below the real '0.3.0'."""
+    match = _ORDER.match(text.strip()) if isinstance(text, str) else None
+    if match is None:
+        return None
+    major, minor, patch, suffix = match.groups()
+    return int(major), int(minor), int(patch), 0 if suffix else 1
+
+
 def is_newer(latest: object, current: object) -> bool:
     """True only when both versions parse and `latest` is higher than `current`."""
-    a, b = parse_version(latest), parse_version(current)
+    a, b = _order(latest), _order(current)
     return a is not None and b is not None and a > b
 
 

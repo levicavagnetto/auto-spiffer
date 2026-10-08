@@ -21,6 +21,8 @@ def test_parse_version(text, expected):
     ("v0.3.0", "0.2.1", True), ("v0.2.2", "0.2.1", True), ("v1.0.0", "0.9.9", True),
     ("v0.10.0", "0.9.0", True),            # numbers, not text: 10 is more than 9
     ("v0.2.1", "0.2.1", False), ("v0.2.0", "0.2.1", False),
+    ("v0.3.0", "0.3.0-rc1", True),         # the real release is newer than its own test build
+    ("v0.3.0", "0.2.1-rc1", True), ("v0.3.0", "0.3.1-rc1", False), ("v0.3.0", "0.3.0", False),
     ("garbage", "0.2.1", False), ("v0.3.0", "garbage", False), (None, "0.2.1", False),
 ])
 def test_is_newer(latest, current, expected):

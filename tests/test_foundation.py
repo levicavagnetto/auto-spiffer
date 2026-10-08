@@ -8,7 +8,8 @@ from auto_spiffer.models import CatalogItem, ClaimRow, SaleRow
 
 def test_version_is_set():
     # Not a fixed number: the version changes every release (the release build checks it against the tag).
-    assert re.fullmatch(r"\d+\.\d+\.\d+", __version__)
+    # A test release may end in a suffix such as -rc1.
+    assert re.fullmatch(r"\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?", __version__)
 
 
 def test_fixtures_are_present(fixtures):

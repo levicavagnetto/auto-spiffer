@@ -55,7 +55,7 @@ Everything happens in one desktop window with a left sidebar (section 5.10).
 4. **Review**: every sale with its matched tire and a status. Resolve amber rows by picking the right tire
    (the choice can be remembered), exclude rows, export a CSV. Continue when nothing is left amber.
 5. **Run**: "Open claim site" (with a saved login the app logs in, opens the claim page and picks the month's
-   program; otherwise the person does that), "I'm on the page, start". The app checks the page, enters each line with live progress, uploads PDFs if any, and stops.
+   program; otherwise the person does that), "Start autofill". The app checks the page, enters each line with live progress, uploads PDFs if any, and stops.
 6. The person reviews the Cumulative Sale(s) List on the website, uploads the invoice PDFs themselves if they
    did not give them to the app, and clicks Next/Submit.
 
@@ -252,7 +252,7 @@ and for the command line and the tests (the window has no Test mode option).
 
 - **Playwright** drives the person's installed **Chrome or Edge** (`browser = "auto"` tries Chrome then Edge),
   shown on screen. One dedicated thread owns the browser (`browser.py`), because Playwright must stay on the
-  thread that started it and the window has to stay open between "Open claim site" and "start".
+  thread that started it and the window has to stay open between "Open claim site" and "Start autofill".
 - The person logs in. No credentials are stored. The app finds the open tab showing the claim form.
 - **Page check before typing anything** (`check_page`): the page's promotion matches the tire list's program;
   every line's sale date is inside the page's date window; every tire exists in the page's dropdown. Otherwise
@@ -328,7 +328,7 @@ The **Fix dialog** (double-click a row) shows the report text, best guesses with
 of every tire, "Remember this choice", "not an eligible tire", and a quantity box. A note appears when lines are
 recorded as already entered, pointing to Re-enter on the Run page.
 
-**Run.** Buttons: Open claim site, I'm on the page start, Pause (Resume), Stop, and **Re-enter this month...**. A page-check line,
+**Run.** Buttons: Open claim site, Start autofill, Pause (Resume), Stop, and **Re-enter this month...**. A page-check line,
 a large "12 of 17 sales" counter with a progress bar, a "Now:" line, and a live log. Closing the window asks first
 if a run is going or a browser is open. After a run, Review shows Entered and Failed rows and the CSV report is saved.
 

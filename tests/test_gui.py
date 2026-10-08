@@ -578,3 +578,28 @@ def test_no_hint_text_before_a_report_is_chosen(app):
     app.refresh_all()
     assert load.read_button.instate(["disabled"])
     assert load.reason.cget("text") == ""  # not "Choose the Material Sales report first."
+
+
+def test_the_window_is_wide_enough_for_every_review_column(app):
+    from auto_spiffer.gui.app import MIN_WIDTH
+    app.root.deiconify()
+    app.root.geometry(f"{MIN_WIDTH}x700")  # the narrowest the window is allowed to be
+    app.show("review")
+    app.root.update()
+    tree = app.pages["review"].tree
+    needed = sum(int(tree.column(c, "width")) for c in tree["columns"])
+    if app.root.winfo_screenwidth() < MIN_WIDTH:
+        pytest.skip("the screen is narrower than the window")
+    assert tree.winfo_width() >= needed, f"the table is clipped by {needed - tree.winfo_width()} px"
+
+
+def test_an_old_narrow_saved_size_is_widened(app_home, brands, noise, october):
+    from auto_spiffer.gui.app import MIN_WIDTH
+    old = Settings.load()
+    old.set("window_geometry", "1165x688")  # what an earlier version saved: too narrow for the table
+    old.save()
+    root, window = make_app(brands, noise)
+    try:
+        assert window._starting_size() == f"{MIN_WIDTH}x688"
+    finally:
+        root.destroy()

@@ -26,6 +26,8 @@ from auto_spiffer.workspace import Workspace
 
 log = logging.getLogger("auto_spiffer")
 
+MIN_WIDTH, MIN_HEIGHT = 1240, 640  # the Review table needs about 1,000 px beside the sidebar
+
 NAV = (("load", "1   Load files"), ("review", "2   Review"), ("run", "3   Run"), ("tires", "Tire list"))
 PLAIN_ERRORS = (ReportError, CatalogError, InvoiceError, FillError, ValueError, OSError)
 
@@ -49,8 +51,9 @@ class App:
         theme.apply_theme(root)
         root.title("Auto Spiffer")
         theme.set_window_icon(root)
-        root.geometry(self.settings.get("window_geometry"))
-        root.minsize(1100, 640)
+        # Wide enough for every column of the Review table (they need about 1,000 px beside the sidebar).
+        root.minsize(MIN_WIDTH, MIN_HEIGHT)
+        root.geometry(self._starting_size())
         self._build_sidebar()
         self._build_pages()
         root.protocol("WM_DELETE_WINDOW", self.close)
@@ -63,6 +66,15 @@ class App:
             self._restore_last_workspace()
 
     # ------------------------------------------------------------- building
+    def _starting_size(self) -> str:
+        """The size the window had when it last closed, but never smaller than the minimum (an older
+        version allowed a narrower window, which cut off the last column of the Review table)."""
+        try:
+            width, height = (int(n) for n in str(self.settings.get("window_geometry")).split("x"))
+        except ValueError:
+            width, height = MIN_WIDTH, 720
+        return f"{max(width, MIN_WIDTH)}x{max(height, MIN_HEIGHT)}"
+
     def _build_sidebar(self) -> None:
         side = tk.Frame(self.root, bg=theme.SIDEBAR_BG, width=190)
         side.pack(side="left", fill="y")

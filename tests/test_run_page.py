@@ -264,7 +264,7 @@ def test_open_button_stays_available_and_notices_a_closed_window(app, invoice_fo
     assert run.browser is None and run.start_button.instate(["disabled"])
     assert run.open_button.instate(["!disabled"])
     assert "window was closed" in log_text(run)
-    run.open_site()  # step 1 again, any time
+    run.open_site()  # Open claim site again, any time
     assert run.browser_open()
 
 

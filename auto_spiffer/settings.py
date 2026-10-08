@@ -8,7 +8,7 @@ from typing import Any, Optional
 from auto_spiffer import paths
 
 DEFAULTS: dict[str, Any] = {
-    "window_geometry": "1260x720",
+    "window_geometry": "1280x720",
     "last_workspace": "",       # month folder name, e.g. "2026-09"
     "last_report_dir": "",
     "last_invoice_dir": "",

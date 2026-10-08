@@ -1,7 +1,7 @@
 """The browser window the app drives (the person's own Chrome or Edge, through Playwright).
 
 Playwright must be used from the one thread that started it, and the window has to stay open
-between "Open claim site" (the person logs in) and "start" (the app takes over). So a single
+between "Open claim site" (the person logs in) and "Start autofill" (the app takes over). So a single
 dedicated thread owns the browser and runs whatever jobs it is given, one at a time.
 """
 from __future__ import annotations

@@ -42,14 +42,14 @@ class RunPage(ttk.Frame):
         self.last_report = None
 
         ttk.Label(self, text="Run", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(self, text="Open the claim site, log in, go to “Submit a Sales Claim”, then start.",
+        ttk.Label(self, text="Open the claim site, get to “Submit a Sales Claim”, then start autofill.",
                   style="Subtle.TLabel").pack(anchor="w", pady=(0, 8))
 
         row = ttk.Frame(self)
         row.pack(fill="x")
-        self.open_button = ttk.Button(row, text="1  Open claim site", command=self.open_site)
+        self.open_button = ttk.Button(row, text="Open claim site", command=self.open_site)
         self.open_button.pack(side="left")
-        self.start_button = ttk.Button(row, text="2  I'm on the page, start", command=self.start_run)
+        self.start_button = ttk.Button(row, text="Start autofill", command=self.start_run)
         self.start_button.pack(side="left", padx=8)
         self.pause_button = ttk.Button(row, text="Pause", command=self.toggle_pause)
         self.pause_button.pack(side="left")
@@ -122,7 +122,7 @@ class RunPage(ttk.Frame):
         self.log.delete("1.0", "end")
         self.log.config(state="disabled")
 
-    # ------------------------------------------------------------------ step 1
+    # ------------------------------------------------------------ open claim site
     def open_site(self) -> None:
         if self.running or self.opening:
             return
@@ -158,13 +158,13 @@ class RunPage(ttk.Frame):
             self.browser = session
             self.status.config(text="")
             if session.test_mode:
-                self.write("Browser opened on the SAVED page (test mode). Click step 2 to start.")
+                self.write("Browser opened on the SAVED page (test mode). Click Start autofill.")
             elif session.begin_login():
                 self.write("Browser opened. Logging in and opening the claim page for you... You can "
-                           "take over at any time. Click step 2 once the claim form is showing.")
+                           "take over at any time. Click Start autofill once the claim form is showing.")
             else:
                 self.write(f"Browser opened at {cfg.live_url}. Log in, go to Claims > Submit a Sales Claim "
-                           "for the right program, then click step 2.")
+                           "for the right program, then click Start autofill.")
             self.refresh()
 
         def failed(exc: Exception) -> None:
@@ -175,7 +175,7 @@ class RunPage(ttk.Frame):
 
         self.app.worker.run(start, opened, failed)
 
-    # ------------------------------------------------------------------ step 2
+    # ---------------------------------------------------------------- start autofill
     def start_run(self) -> None:
         if self.running or self.browser is None or not self.browser.is_open:
             return
@@ -353,14 +353,14 @@ class RunPage(ttk.Frame):
 
     def _watch_window(self) -> None:
         """Every second: report how the automatic login went, and notice when the person closes the
-        browser window, so step 1 and step 2 reflect it."""
+        browser window, so both buttons reflect it."""
         note = self.browser.login_note() if self.browser is not None else None
         if note:
             self.write(note)
         if self.browser is not None and not self.browser.is_open and not self.opening and not self.running:
             self.browser = None
             self.status.config(text="")
-            self.write("The browser window was closed. Click step 1 to open it again.")
+            self.write("The browser window was closed. Click Open claim site to open it again.")
             self.refresh()
         try:
             self.after(1000, self._watch_window)

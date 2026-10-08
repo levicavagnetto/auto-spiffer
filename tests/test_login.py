@@ -203,7 +203,7 @@ def test_styled_dropdown_without_the_month_waits_and_saves_the_page(styled_site,
     assert (app_home / "output" / "picker_page.html").is_file()
 
 
-# ------------------------------------------------------- the login never holds up step 2
+# ------------------------------------------------------- the login never holds up Start autofill
 def test_the_login_runs_in_the_background_and_reports_when_done(app_home, monkeypatch):
     import threading
     from auto_spiffer import browser as browser_module
@@ -306,7 +306,7 @@ def test_cancel_login_frees_the_browser_for_the_next_job(app_home, monkeypatch):
         pytest.skip(f"no browser available: {exc}")
     try:
         session.begin_login()
-        session.cancel_login()  # what step 2 does first
+        session.cancel_login()  # what Start autofill does first
         started = time.monotonic()
         assert session.call(lambda s: "ran", timeout=5) == "ran"
         assert time.monotonic() - started < 2

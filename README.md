@@ -52,13 +52,13 @@ Double-click **AutoSpiffer.exe**.
   resolved* to leave the amber ones out.)
 
 ### 4. Run
-1. Click **1 Open claim site**. A browser opens.
+1. Click **Open claim site**. A browser opens.
 2. **Log in** to the ATD ProRewards website and go to **Claims > Submit a Sales Claim** for the
-   right month's program. *Or save your login once* in **Settings > Saved login**: then step 1 logs in,
+   right month's program. *Or save your login once* in **Settings > Saved login**: then Open claim site logs in,
    opens the claim page, and picks the month's program for you. The password is kept in Windows
    Credential Manager, not in a file. The app tries the login once. If it can't finish (wrong password, a
    code, a CAPTCHA, no matching program), it stops and the log tells you what to do by hand.
-3. Click **2 I'm on the page, start**. The app first checks that the page is for the right program and
+3. Click **Start autofill**. The app first checks that the page is for the right program and
    that every tire is in the website's list. Then it types each sale, clicks Add, checks that the line
    appeared, and (if you loaded PDFs) uploads that sale's invoice PDF. With no PDFs loaded it enters the
    sales only, and you upload the PDFs on the website yourself.

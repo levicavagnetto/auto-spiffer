@@ -7,6 +7,7 @@ __pycache__/
 # Build output
 build/
 dist/
+installer/Output/
 
 # Local app data and run output (per-user, not source)
 data/

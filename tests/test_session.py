@@ -342,6 +342,17 @@ def test_settings_defaults_save_and_damaged_file(tmp_path):
     assert Settings.load(tmp_path / "missing.json").get("window_geometry") == "1280x720"
 
 
+def test_settings_check_updates_defaults_on_and_is_remembered(tmp_path):
+    path = tmp_path / "settings.json"
+    assert Settings.load(path).get("check_updates") is True
+    path.write_text('{"last_workspace": "2026-09"}')  # a file saved before the setting existed
+    old = Settings.load(path)
+    assert old.get("check_updates") is True and old.get("last_workspace") == "2026-09"
+    old.set("check_updates", False)
+    old.save()
+    assert Settings.load(path).get("check_updates") is False
+
+
 # ------------------------------------------------- invoice PDFs are optional
 def test_no_invoice_pdfs_means_sales_only(session):
     session.set_report(REPORT)

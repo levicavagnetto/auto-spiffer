@@ -67,6 +67,12 @@ class SettingsDialog:
         ttk.Checkbutton(pdfs, text="Enter sales that have no PDF, even when others do",
                         variable=self.allow_var).pack(anchor="w", pady=2)
 
+        # ---- updates
+        updates = self._section(frame, "Updates")
+        self.updates_var = tk.BooleanVar(value=bool(app.settings.get("check_updates")))
+        ttk.Checkbutton(updates, text="Check for updates when the app starts",
+                        variable=self.updates_var).pack(anchor="w", pady=2)
+
         # ---- files
         files = self._section(frame, "Files")
         files.columnconfigure(0, weight=1)
@@ -133,7 +139,8 @@ class SettingsDialog:
             self.app.error("Settings", str(exc))
             return False
         self.app.apply_settings(allow_missing_pdf=self.allow_var.get(),
-                                use_pdfs=not self.use_var.get())
+                                use_pdfs=not self.use_var.get(),
+                                check_updates=self.updates_var.get())
         self.close()
         return True
 

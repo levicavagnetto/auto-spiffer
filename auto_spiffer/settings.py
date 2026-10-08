@@ -16,6 +16,7 @@ DEFAULTS: dict[str, Any] = {
     "allow_missing_pdf": False,  # treat sales with no invoice PDF as ready anyway
     "login_user": "",            # saved site username (the password is in Windows Credential Manager)
     "use_invoice_pdfs": True,    # False: ignore invoice PDFs entirely (you upload them yourself)
+    "check_updates": True,       # at startup, look on GitHub for a newer release
 }
 
 

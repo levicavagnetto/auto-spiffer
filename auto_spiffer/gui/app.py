@@ -3,10 +3,11 @@ from __future__ import annotations
 
 import logging
 import tkinter as tk
+import webbrowser
 from tkinter import messagebox, ttk
-from typing import Optional
+from typing import Callable, Optional
 
-from auto_spiffer import __version__, paths
+from auto_spiffer import __version__, paths, updates
 from auto_spiffer.catalog import CatalogError
 from auto_spiffer.browser import browser_problem
 from auto_spiffer.fill import FillError, load_config
@@ -34,7 +35,9 @@ PLAIN_ERRORS = (ReportError, CatalogError, InvoiceError, FillError, ValueError, 
 
 class App:
     def __init__(self, root: tk.Tk, session: Optional[Session] = None, settings: Optional[Settings] = None,
-                 synchronous: bool = False, restore: bool = True, first_run_checks: bool = True):
+                 synchronous: bool = False, restore: bool = True, first_run_checks: bool = True,
+                 update_check: Optional[Callable[[], Optional[tuple[str, str]]]] = None):
+        """`update_check` looks up the latest release; only the real program passes it, so tests never use the network."""
         self.root = root
         self.synchronous = synchronous
         self.settings = settings or Settings.load()
@@ -45,6 +48,8 @@ class App:
         self.browser_headless = False  # tests set this so no browser window appears
         self.confirm_answer = True     # in test mode, what a Yes/No question is answered with
         self.browser_problem = None
+        self.update_page = ""          # the release page the Update button opens
+        self.open_url = webbrowser.open  # tests replace this so no browser starts
         self.session.allow_missing_pdf = bool(self.settings.get("allow_missing_pdf"))
         self.session.use_pdfs = bool(self.settings.get("use_invoice_pdfs"))
 
@@ -64,6 +69,7 @@ class App:
             self._first_run_checks()
         if restore:
             self._restore_last_workspace()
+        self._start_update_check(update_check)
 
     # ------------------------------------------------------------- building
     def _starting_size(self) -> str:
@@ -106,6 +112,16 @@ class App:
         self.hint.pack(fill="x", pady=(8, 0))
 
         tk.Label(side, bg=theme.SIDEBAR_BG).pack(expand=True, fill="both")
+        # Shown only when a newer release exists (see _show_update).
+        self.update_box = tk.Frame(side, bg=theme.SIDEBAR_BG)
+        self.update_text = tk.Label(self.update_box, text="", bg=theme.SIDEBAR_BG, fg="#f2c94c", anchor="w",
+                                    padx=14, wraplength=170, justify="left", font=(theme.FONT, 9))
+        self.update_text.pack(fill="x")
+        self.update_link = tk.Label(self.update_box, text="Update", bg=theme.SIDEBAR_ACTIVE,
+                                    fg=theme.SIDEBAR_TEXT, padx=14, pady=4, font=(theme.FONT, 9, "bold"),
+                                    cursor="hand2")
+        self.update_link.pack(anchor="w", padx=14, pady=(2, 10))
+        self.update_link.bind("<Button-1>", lambda _e: self.open_update_page())
         self.workspace_label = tk.Label(side, text="", bg=theme.SIDEBAR_BG, fg=theme.SIDEBAR_MUTED,
                                         anchor="w", padx=14, font=(theme.FONT, 8))
         self.workspace_label.pack(fill="x")
@@ -254,8 +270,9 @@ class App:
             dialog.show_modal()
         return dialog
 
-    def apply_settings(self, allow_missing_pdf: bool, use_pdfs: bool = True) -> None:
+    def apply_settings(self, allow_missing_pdf: bool, use_pdfs: bool = True, check_updates: bool = True) -> None:
         """Take the Settings window's choices into effect now."""
+        self.settings.set("check_updates", bool(check_updates))
         self.settings.set("use_invoice_pdfs", bool(use_pdfs))
         self.session.use_pdfs = bool(use_pdfs)
         self.settings.set("allow_missing_pdf", bool(allow_missing_pdf))
@@ -267,6 +284,24 @@ class App:
             except Exception as exc:
                 self.report_exception(exc, "Could not apply the settings")
         self.refresh_all()
+
+    # -------------------------------------------------------------- updates
+    def _start_update_check(self, fetch) -> None:
+        """Look for a newer release in the background. Skipped when switched off in Settings."""
+        if fetch is None or not self.settings.get("check_updates"):
+            return
+        self.worker.run(fetch, self._show_update, lambda _exc: None)
+
+    def _show_update(self, found) -> None:
+        if not found or not updates.is_newer(found[0], __version__):
+            return
+        tag, self.update_page = found
+        self.update_text.config(text=f"Version {tag.lstrip('v')} is available")
+        self.update_box.pack(fill="x", before=self.workspace_label)
+
+    def open_update_page(self) -> None:
+        if self.update_page:
+            self.open_url(self.update_page)
 
     # ---------------------------------------------------------- first run, errors
     def _first_run_checks(self) -> None:
@@ -315,6 +350,6 @@ def run() -> int:
     logging.basicConfig(filename=str(paths.output_dir() / "auto_spiffer.log"), level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
     root = tk.Tk()
-    App(root)
+    App(root, update_check=updates.latest_release)
     root.mainloop()
     return 0

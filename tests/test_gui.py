@@ -573,6 +573,86 @@ def test_settings_saved_login_never_shows_the_password(app, monkeypatch):
     assert store == {} and "no" in dialog.login_status.cget("text")
 
 
+def test_settings_check_for_updates_box_is_remembered(app):
+    dialog = app.open_settings()
+    assert dialog.updates_var.get() is True  # on by default
+    dialog.updates_var.set(False)
+    assert dialog.save() is True
+    assert app.settings.get("check_updates") is False
+    assert Settings.load().get("check_updates") is False  # written to the file
+    again = app.open_settings()
+    assert again.updates_var.get() is False
+    again.close()
+
+
+def make_update_app(brands, noise, fetch, check=True):
+    """An app that was told how to look for updates (a fake lookup, never the real GitHub)."""
+    from auto_spiffer.gui.app import App
+    try:
+        root = tk.Tk()
+    except tk.TclError:
+        pytest.skip("Tk cannot open a window here")
+    root.withdraw()
+    settings = Settings.load()
+    settings.set("check_updates", check)
+    application = App(root, session=Session(brands=brands, noise=noise), settings=settings,
+                      synchronous=True, restore=False, update_check=fetch)
+    application.open_url = lambda url: application.messages.append(("opened", url))
+    return root, application
+
+
+@pytest.fixture
+def update_app(app_home, brands, noise):
+    roots = []
+
+    def make(fetch, check=True):
+        root, application = make_update_app(brands, noise, fetch, check)
+        roots.append(root)
+        return application
+
+    yield make
+    for root in roots:
+        try:
+            root.destroy()
+        except tk.TclError:
+            pass
+
+
+PAGE = "https://github.com/levicavagnetto/auto-spiffer/releases/tag/v99.0.0"
+
+
+def test_update_notice_appears_for_a_newer_release_and_opens_its_page(update_app):
+    app = update_app(lambda: ("v99.0.0", PAGE))
+    assert "99.0.0" in app.update_text.cget("text")
+    assert app.update_box.winfo_manager() == "pack"
+    app.open_update_page()
+    assert ("opened", PAGE) in app.messages
+
+
+@pytest.mark.parametrize("answer", [None, ("v0.0.1", "x"), ("nightly", "x")])
+def test_no_update_notice_when_up_to_date_or_the_lookup_failed(update_app, answer):
+    app = update_app(lambda: answer)
+    assert app.update_box.winfo_manager() == ""
+    app.open_update_page()  # nothing to open
+    assert app.messages == []
+
+
+def test_no_update_notice_for_the_current_version(update_app):
+    from auto_spiffer import __version__
+    app = update_app(lambda: (f"v{__version__}", PAGE))
+    assert app.update_box.winfo_manager() == ""
+
+
+def test_update_check_is_skipped_when_switched_off(update_app):
+    calls = []
+    app = update_app(lambda: calls.append(1) or ("v99.0.0", PAGE), check=False)
+    assert calls == [] and app.update_box.winfo_manager() == ""
+
+
+def test_the_plain_app_never_looks_for_updates(app):
+    assert app.update_box.winfo_manager() == ""  # the test app is given no lookup at all
+
+
 def test_no_hint_text_before_a_report_is_chosen(app):
     load = app.pages["load"]
     app.refresh_all()

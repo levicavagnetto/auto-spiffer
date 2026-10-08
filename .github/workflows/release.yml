@@ -44,11 +44,28 @@ jobs:
       - name: Zip the app folder
         run: Compress-Archive -Path dist/AutoSpiffer -DestinationPath "AutoSpiffer-${{ github.ref_name }}-windows.zip"
 
+      - name: Build the installer
+        run: |
+          # Inno Setup is not always on the runner; install it when it is missing.
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          if (-not (Test-Path $iscc)) { Write-Error "Inno Setup is not installed"; exit 1 }
+          $version = python -c "import auto_spiffer; print(auto_spiffer.__version__)"
+          & $iscc "/DAppVersion=$version" installer\auto_spiffer.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path "installer\Output\AutoSpiffer-Setup-v$version.exe")) {
+            Write-Error "The installer was not built"; exit 1
+          }
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $flags = @()
           if ("${{ github.ref_name }}" -like "*-*") { $flags += "--prerelease" }
-          gh release create "${{ github.ref_name }}" "AutoSpiffer-${{ github.ref_name }}-windows.zip" `
+          gh release create "${{ github.ref_name }}" `
+            "AutoSpiffer-${{ github.ref_name }}-windows.zip" `
+            "installer\Output\AutoSpiffer-Setup-${{ github.ref_name }}.exe" `
             --title "Auto Spiffer ${{ github.ref_name }}" --generate-notes @flags

@@ -306,13 +306,29 @@ plain-language messages.
 - `AutoSpiffer.exe --selftest` (or `--selftest-browser`) checks the pieces and writes `output\selftest.txt`.
 - The exe is not code-signed, so Windows may warn the first time.
 
+**Installer.** `installer\auto_spiffer.iss` (Inno Setup 6) wraps `dist\AutoSpiffer` into
+`AutoSpiffer-Setup-vX.Y.Z.exe`; the version comes from `/DAppVersion=`. The install is per user
+(`PrivilegesRequired=lowest`, default `%LOCALAPPDATA%\Programs\Auto Spiffer`) because the app writes `data\` and
+`output\` beside the exe. The `AppId` GUID must never change: it makes a newer installer an upgrade of the old one.
+The script excludes `data\` and `output\` from what it ships (they exist in `dist\` if the built exe was run there)
+and never deletes them, so upgrades and uninstalls keep the person's data. The release workflow installs Inno Setup
+when the runner lacks it, builds the installer, and attaches it to the release beside the zip.
+
+**Update check.** `auto_spiffer\updates.py`: `latest_release()` reads
+`api.github.com/repos/levicavagnetto/auto-spiffer/releases/latest` (public repo, no token; it never returns
+pre-releases or drafts) with a 5-second timeout and returns `None` on any failure. `is_newer()` compares numbers, and
+a suffixed test build (`0.3.0-rc1`) sorts just below its release. At startup `App` runs the lookup on the `Worker`
+thread, only when Settings > Updates is on, and only the real program passes the lookup in, so tests never use the
+network. A newer release shows a notice and an **Update** button in the sidebar that opens the release page in the
+browser. Downloading and installing from inside the app is not done (a possible follow-up).
+
 ### 5.10 The app window
 
 Tkinter (ttk) with a left sidebar and one page at a time. The window has no business logic; it calls `session.py`.
 The same core runs from the command line, which is how most of it is tested.
 
 **Sidebar:** app name, the month being worked on, a tire-list status line (orange when the list is for a different
-month), the pages (**1 Load files, 2 Review, 3 Run, Tire list**), the workspace name, **Settings**, and the version.
+month), the pages (**1 Load files, 2 Review, 3 Run, Tire list**), an update notice when a newer release exists, the workspace name, **Settings**, and the version.
 Review and Run are greyed out until their earlier step is done, with a hint saying why.
 
 **Load files.** Report picker; invoice PDFs (**optional**, by folder or by files, with a status that says what
@@ -336,8 +352,8 @@ if a run is going or a browser is open. After a run, Review shows Entered and Fa
 (with the diff dialog), Export CSV, and History (earlier lists, read only).
 
 **Settings.** The website address, the browser (Automatic, Chrome, Edge), "I upload the invoice PDFs myself (ignore
-loaded PDFs)", "when some PDFs are loaded, still enter sales that have none", Test mode, and where the app keeps
-its files (with an Open folder button). The address and browser are written to `config.toml`.
+loaded PDFs)", "when some PDFs are loaded, still enter sales that have none", "Check for updates when the app
+starts", and where the app keeps its files (with an Open folder button). The address and browser are written to `config.toml`.
 
 **Friendly behavior.** The window remembers its size and the last month and reopens where the person left off. Long
 work runs on background threads through a queue, so the window never freezes. Every expected problem is a plain

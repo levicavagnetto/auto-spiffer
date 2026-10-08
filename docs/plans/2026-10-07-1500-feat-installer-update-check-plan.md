@@ -177,10 +177,10 @@ Work top to bottom. Each task is built, then tested by the user, before the next
 - [x] **T7. Upgrade and uninstall keep data** *(layer: polish)*
   - **BUILD:** Adjust the script if the check fails.
   - **TEST:** With the app installed, change a setting and load a month; run the installer again (same version is fine) -> settings and months are still there; uninstall -> the `data` folder is still in the install folder | Failure looks like: settings reset after upgrade, or `data` deleted on uninstall.
-- [ ] **T8. Build the installer in the release workflow** *(layer: wiring)*
+- [x] **T8. Build the installer in the release workflow** *(layer: wiring)*
   - **BUILD:** Update `.github/workflows/release.yml` to build the installer and attach it with the zip. Add `installer/Output/` to `.gitignore` if needed.
   - **TEST:** USER: push a test tag after the next version bump (for example `v0.2.2` or a prerelease like `v0.3.0-rc1`) -> the Actions run is green and the release lists the zip and `AutoSpiffer-Setup-vX.Y.Z.exe` | Failure looks like: a red step in Actions (paste the log of that step).
-- [ ] **T9. Docs** *(layer: polish)*
+- [x] **T9. Docs** *(layer: polish)*
   - **BUILD:** Update `README.md` and `docs/DESIGN.md` (install, update notice, setting, release steps).
   - **TEST:** Read the new README section -> a new user could install and update from it alone | Failure looks like: an unclear or wrong step.
 - [ ] **T10. Full-feature check** *(layer: polish)*

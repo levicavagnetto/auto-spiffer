@@ -14,9 +14,25 @@ the page and submit it yourself.
    changes, so load the new one each month.
 4. Google Chrome or Microsoft Edge installed on the computer.
 
+## Install
+
+1. Download **AutoSpiffer-Setup-vX.Y.Z.exe** from the
+   [latest release](https://github.com/levicavagnetto/auto-spiffer/releases/latest) and run it.
+2. Follow the wizard. It installs for your user only (no administrator needed), adds **Auto Spiffer** to the
+   Start Menu, and can add a desktop shortcut.
+3. Windows may warn that the program is unknown (it is not code-signed). Click **More info**, then **Run anyway**.
+
+**Updating.** When a newer version is out, the left menu shows *Version X is available* with an **Update**
+button. It opens the download page: download the new Setup and run it over the old one. Your settings and
+months are kept. Turn the check off in **Settings > Updates**. **Uninstalling** (Windows Settings > Apps)
+removes the program but leaves your `data` and `output` folders.
+
+(A zip of the program folder is also on each release. Unzip it anywhere you can write to and run
+`AutoSpiffer.exe`.)
+
 ## Every month, step by step
 
-Double-click **AutoSpiffer.exe**.
+Start **Auto Spiffer** from the Start Menu.
 
 ### 1. Tire list (only when a new ClaimForm is out)
 - Open **Tire list** in the left menu and click **Update from ClaimForm.pdf...**.
@@ -83,7 +99,8 @@ to be the website for Add and uploads. Nothing real is entered, and test mode ke
 
 Click **Settings** in the left menu to change the website address, the browser (Automatic, Chrome or Edge),
 whether to use invoice PDFs at all (*I upload the invoice PDFs myself*), whether sales with no PDF are still
-entered when some PDFs are loaded. It also shows where the app keeps its files.
+entered when some PDFs are loaded, and whether to check for updates at startup. It also shows where the app keeps
+its files.
 
 ## If something goes wrong
 
@@ -121,6 +138,11 @@ entered when some PDFs are loaded. It also shows where the app keeps its files.
 
 - `python -m pytest` runs the tests (about 360; the browser tests take around ten minutes).
 - `python -m auto_spiffer --help` lists the command line tools (`prepare`, `probe-page`, `fill-all`, ...).
-- `python build_exe.py` builds `dist\AutoSpiffer\AutoSpiffer.exe`.
+- `python build_exe.py` builds `dist\AutoSpiffer\AutoSpiffer.exe`. With [Inno Setup 6](https://jrsoftware.org/isinfo.php)
+  installed, `iscc /DAppVersion=X.Y.Z installer\auto_spiffer.iss` then builds `installer\Output\AutoSpiffer-Setup-vX.Y.Z.exe`.
+- **Release:** set `__version__` in `auto_spiffer\__init__.py`, commit and push `main`, then
+  `git tag vX.Y.Z` and `git push origin vX.Y.Z`. GitHub Actions checks the tag against the version, runs the
+  tests, builds the exe, zip and installer, and publishes the release. A tag with a suffix (`v0.3.0-rc1`,
+  with the same text in `__version__`) is published as a pre-release, which the in-app update check ignores.
 - `docs\DESIGN.md` explains how it works. The plan and task list are in `docs\plans\`, and the original
   window mockups are in `docs\mockups\` (`python docs\mockups\mockup_gui.py B`).

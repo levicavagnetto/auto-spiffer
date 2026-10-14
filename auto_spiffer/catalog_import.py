@@ -22,6 +22,15 @@ WHEEL_LINE_RE = re.compile(rf"^(?P<name>.+?\bWheels?)\s+{_PRICE}$", re.IGNORECAS
 PRICED_LINE_RE = re.compile(r"\$\d+(?:\.\d{1,2})?$")
 # "October 1 - October 31, 2026"
 DATES_RE = re.compile(r"^([A-Za-z]+) (\d{1,2}) - (?:([A-Za-z]+) )?(\d{1,2}), (\d{4})$")
+# A tire's price: at the end of a line, or followed by the next tire's name when two lines ran
+# together. "$600.00 in any calendar year" (the terms) is followed by a small letter, so it does not count.
+_PRICE_TOKEN_RE = re.compile(r"\$\d+(?:\.\d{1,2})?(?=\s*$|\s+[A-Z])")
+# Each brand's section starts with this column heading line.
+_SECTION_HEADING = "Description Total"
+# The section's label: "← Falken Fanatic Program Member can claim ..." -> "Falken Fanatic Program Member".
+_SECTION_LABEL_RE = re.compile(r"^←\s*(.+?(?:Member|Wheels)|.{1,40})")
+# The browser's print footer: "https://.../ClaimForm.aspx?pid=157 2/5".
+_PAGE_FOOTER_RE = re.compile(r"^https?://\S+\s+(\d+)/(\d+)$")
 
 
 @dataclass
@@ -30,6 +39,9 @@ class ImportResult:
     unparsed: list[str] = field(default_factory=list)  # priced lines that did not fit any pattern
     new_brands: list[str] = field(default_factory=list)  # brands not in brands.toml
     warnings: list[str] = field(default_factory=list)
+    # Signs the ClaimForm was not read completely (a second, plain count disagrees). Shown to the
+    # person, who has to confirm before the list is used.
+    problems: list[str] = field(default_factory=list)
 
 
 def _normalize_category(raw: str) -> str:
@@ -74,11 +86,38 @@ def parse_claimform(path: str | Path, brands: Optional[BrandTable] = None) -> Im
         with pdfplumber.open(path) as pdf:
             # The Pirelli list runs across a page break, so treat the whole file as one stream.
             lines = [ln.strip() for page in pdf.pages for ln in (page.extract_text() or "").splitlines()]
+            pages = len(pdf.pages)
     except Exception as exc:
         raise CatalogError(
             f"Could not read this file as a PDF: {path.name} ({exc.__class__.__name__})") from exc
 
-    return parse_lines(lines, path.name, (brands or load_brands()).claimform_names)
+    result = parse_lines(lines, path.name, (brands or load_brands()).claimform_names)
+    result.problems.extend(check_page_count(lines, pages))
+    return result
+
+
+def check_page_count(lines: list[str], pages: int) -> list[str]:
+    """The print footer says '2/5': a file with fewer pages is an incomplete print or save."""
+    totals = [int(m.group(2)) for m in map(_PAGE_FOOTER_RE.match, lines) if m]
+    if totals and max(totals) > pages:
+        return [f"The ClaimForm says it has {max(totals)} pages, but this file has only {pages}."]
+    return []
+
+
+def check_lines(lines: list[str], read: int, sections: list[list]) -> list[str]:
+    """Compare what was read with a plain count of the prices on the form, and make sure every
+    brand section gave at least one tire. A changed layout (margins, wrapped or merged lines)
+    makes these disagree even when each line that was read looks fine."""
+    problems = []
+    prices = sum(len(_PRICE_TOKEN_RE.findall(line)) for line in lines)
+    if prices > read:
+        problems.append(f"The ClaimForm lists {prices} prices but only {read} tires and wheels were read, "
+                        f"so {prices - read} may be missing.")
+    for number, (label, count) in enumerate(sections, start=1):
+        if count == 0:
+            name = f"the '{label}' section" if label else f"section {number} of {len(sections)}"
+            problems.append(f"No tires were read from {name}.")
+    return problems
 
 
 def parse_lines(lines: list[str], source: str, brand_names: list[str]) -> ImportResult:
@@ -91,10 +130,23 @@ def parse_lines(lines: list[str], source: str, brand_names: list[str]) -> Import
         imported_on=date.today(), source=source))
     seen_ids: set[str] = set()
     seen_text: set[str] = set()
+    sections: list[list] = []  # [label, lines read] for each brand section
+    read = 0                   # priced lines read as a tire or wheel (duplicates included)
 
     for line in lines:
+        if line == _SECTION_HEADING:
+            sections.append([None, 0])
+            continue
+        if sections and sections[-1][0] is None and (label := _SECTION_LABEL_RE.match(line)):
+            sections[-1][0] = label.group(1).strip()
         tire = TIRE_LINE_RE.match(line)
         wheel = None if tire else WHEEL_LINE_RE.match(line)
+        if (tire or wheel) and "$" in (tire or wheel).group("name"):
+            tire = wheel = None  # two tires ran together on one line: not one tire with a long name
+        if tire or wheel:
+            read += 1
+            if sections:
+                sections[-1][1] += 1
         if not tire and not wheel:
             if PRICED_LINE_RE.search(line) and len(line) < 100:
                 result.unparsed.append(line)
@@ -133,6 +185,7 @@ def parse_lines(lines: list[str], source: str, brand_names: list[str]) -> Import
         raise CatalogError(
             "No tires were found. Is this the ProRewards ClaimForm PDF "
             "(lines like 'General Altimax RT45 - Passenger Tires  $3.00')?")
+    result.problems.extend(check_lines(lines, read, sections))
     if program is None:
         result.warnings.append("Could not find the program name.")
     if start is None or end is None:

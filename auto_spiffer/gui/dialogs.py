@@ -179,7 +179,8 @@ class DiffDialog:
     """Shows what changes when a new ClaimForm replaces the current tire list, and asks to confirm."""
 
     def __init__(self, app, new: Catalog, old: Optional[Catalog], diff: Optional[CatalogDiff],
-                 unparsed: list[str], notes: list[str]):
+                 unparsed: list[str], notes: list[str], problems: Optional[list[str]] = None):
+        problems = problems or []
         self.app = app
         self.confirmed = False
         self.top = tk.Toplevel(app.root)
@@ -194,6 +195,14 @@ class DiffDialog:
         ttk.Label(frame, text=new.program, style="Title.TLabel").pack(anchor="w")
         ttk.Label(frame, text=f"{start} to {end}   -   {len(new.tires)} tires, {len(new.wheels)} wheels",
                   style="Subtle.TLabel").pack(anchor="w", pady=(0, 8))
+        self.problem_box = None
+        if problems:
+            lines = ["✖  This ClaimForm may not have been read completely. Its layout may have changed "
+                     "(margins, wrapped lines). Compare the list below with the PDF before using it:"]
+            self.problem_box = tk.Label(frame, text="\n".join(lines + ["      " + p for p in problems]),
+                                        bg="#fde7e9", fg=theme.BAD, anchor="w", justify="left",
+                                        padx=10, pady=8, wraplength=700)
+            self.problem_box.pack(fill="x", pady=(0, 8))
 
         text = tk.Text(frame, wrap="word", height=22, font=("Consolas", 9), relief="groove")
         text.pack(fill="both", expand=True)
@@ -206,7 +215,7 @@ class DiffDialog:
         buttons = ttk.Frame(frame)
         buttons.pack(fill="x", pady=(10, 0))
         ttk.Button(buttons, text="Cancel", command=self.close).pack(side="right")
-        label = "Use this list anyway" if unparsed else "Use this tire list"
+        label = "Use this list anyway" if unparsed or problems else "Use this tire list"
         ttk.Button(buttons, text=label, command=self.confirm).pack(side="right", padx=6)
 
     @staticmethod

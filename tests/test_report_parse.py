@@ -1,7 +1,10 @@
 from datetime import date
+from pathlib import Path
 
+import pdfplumber
 import pytest
 
+from auto_spiffer import report_parse
 from auto_spiffer.cli import main
 from auto_spiffer.models import format_page_date
 from auto_spiffer.report_parse import (ReportError, classify_row, clean_description,
@@ -144,3 +147,60 @@ def test_read_report_command(fixtures, capsys):
 def test_read_report_command_reports_error(tmp_path, capsys):
     assert main(["read-report", str(tmp_path / "missing.pdf")]) == 1
     assert "Error:" in capsys.readouterr().out
+
+
+# ------------------------------------------- self-check: was the report read completely?
+REPORT_PDF = Path(__file__).parent / "fixtures" / "Material-Sales.pdf"
+
+
+def no_table_on_page(monkeypatch, number):
+    """Act as if a changed layout (margins, columns) hid one page's table from the table reader."""
+    real = pdfplumber.page.Page.extract_tables
+    monkeypatch.setattr(pdfplumber.page.Page, "extract_tables",
+                        lambda self, *a, **k: [] if self.page_number == number else real(self, *a, **k))
+
+
+def test_a_normal_report_has_no_problems(report):
+    assert report.problems == [] and report.warnings == []
+
+
+def test_a_page_whose_table_is_not_found_is_read_by_position(monkeypatch):
+    no_table_on_page(monkeypatch, 2)
+    report = parse_report(REPORT_PDF)
+    assert len(report.rows) == 32 and report.problems == []
+    assert {"215024", "215081", "215091", "215100"} <= {r.invoice for r in report.rows}
+
+
+def test_sales_that_were_not_read_are_named(monkeypatch):
+    real = report_parse.rows_from_page_words
+    monkeypatch.setattr(report_parse, "rows_from_page_words", lambda page, w: real(page, w)[:-2])
+    no_table_on_page(monkeypatch, 2)
+    report = parse_report(REPORT_PDF)
+    assert len(report.rows) == 30
+    assert report.problems == ["Page 2 lists 6 sales but only 4 were read. Not read: 215091, 215100."]
+
+
+def test_sales_read_that_are_not_on_the_page_are_named():
+    rows = [report_parse.SaleRow(date(2026, 9, 1), "214195", "x", 1),
+            report_parse.SaleRow(date(2026, 9, 1), "999999", "x", 1)]
+    problems = report_parse.check_page(1, "09/01/2026 214195 225/65R17 1\n", rows)
+    assert problems == ["Page 1: read 1 sale(s) that are not on the page as written: 999999."]
+
+
+def test_the_footer_stamp_is_not_counted_as_a_sale():
+    assert report_parse.check_page(1, "10/4/2026 9:57 AM Page 1 of 2\n", []) == []
+
+
+def test_a_missing_page_is_noticed():
+    texts = ["... Page 1 of 3", "... Page 2 of 3"]
+    assert report_parse.check_page_count(texts) == [
+        "The report says it has 3 pages, but this file has only 2."]
+    assert report_parse.check_page_count(texts + ["... Page 3 of 3"]) == []
+
+
+def test_read_report_command_shows_problems(monkeypatch, capsys):
+    real = report_parse.rows_from_page_words
+    monkeypatch.setattr(report_parse, "rows_from_page_words", lambda page, w: real(page, w)[:-1])
+    no_table_on_page(monkeypatch, 2)
+    assert main(["read-report", str(REPORT_PDF)]) == 0
+    assert "NOT READ COMPLETELY: Page 2 lists 6 sales" in capsys.readouterr().out

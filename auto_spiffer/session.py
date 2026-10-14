@@ -69,6 +69,7 @@ class Session:
         self.report_path: Optional[Path] = None
         self.report: Optional[Report] = None
         self.report_error: Optional[str] = None
+        self.report_problems_accepted = False  # the person checked a report that was not read completely
         self.invoice_paths: list[Path] = []
         self.invoice_preview: Optional[InvoiceIndex] = None
         self.workspace: Optional[Workspace] = None
@@ -96,6 +97,7 @@ class Session:
         """Read the chosen report. Returns it, or None with report_error set."""
         self.report_path = Path(path)
         self.report, self.report_error = None, None
+        self.report_problems_accepted = False
         try:
             self.report = parse_report(path)
         except ReportError as exc:
@@ -154,6 +156,8 @@ class Session:
             return False, "Choose the Material Sales report first."
         if self.report is None:
             return False, self.report_error or "The report could not be read."
+        if self.report.problems and not self.report_problems_accepted:
+            return False, "The report may not have been read completely. Check it, then tick 'Read anyway'."
         if self.catalog is None:
             return False, "Load a tire list (ClaimForm.pdf) first."
         check = self.program_check()

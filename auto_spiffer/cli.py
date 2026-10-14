@@ -67,6 +67,8 @@ def cmd_read_report(pdf: str, use_fallback: bool = False) -> int:
     print(f"Total tire qty:  {report.total_tire_qty}")
     for warning in report.warnings:
         print(f"Warning: {warning}")
+    for problem in report.problems:
+        print(f"NOT READ COMPLETELY: {problem}")
     return 0
 
 

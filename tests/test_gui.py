@@ -468,15 +468,18 @@ def test_loading_without_invoice_pdfs_is_fine(app):
     assert "No PDFs will be uploaded" in app.pages["run"].log.get("1.0", "end")
 
 
-def test_settings_can_ignore_loaded_pdfs(app, invoice_folder):
-    load_everything(app, invoice_folder)
-    assert {v[5] for v in row_values(app)} >= {"Yes"}
-    dialog = app.open_settings()
-    dialog.use_var.set(True)  # "I upload the invoice PDFs myself"
-    dialog.save()
-    assert app.session.use_pdfs is False
-    assert {v[5] for v in row_values(app)} == {"-"}
-    assert Settings.load().get("use_invoice_pdfs") is False
+def test_loaded_pdfs_are_used_even_if_an_old_setting_said_not_to(app_home, brands, noise, october, invoice_folder):
+    save_catalog(october)
+    settings = Settings.load()
+    settings.values["use_invoice_pdfs"] = False  # the old "I upload the PDFs myself" box, now removed
+    settings.save()
+    root, app = make_app(brands, noise)
+    try:
+        load_everything(app, invoice_folder)
+        assert {v[5] for v in row_values(app)} >= {"Yes"}
+        assert not hasattr(app.open_settings(), "use_var")
+    finally:
+        root.destroy()
 
 
 # ------------------------------------------------- re-enter this month

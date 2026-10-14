@@ -215,15 +215,18 @@ def test_yes_to_a_duplicate_is_on_the_never_click_list():
 
 
 # ------------------------------------------------------------------- T35: uploads
-def test_upload_one_pdf(page, tmp_path):
-    pdfs = make_pdfs(tmp_path, "214341", "214533")
+def test_upload_several_pdfs(page, tmp_path):
+    pdfs = make_pdfs(tmp_path, "214341", "214533", "214629")
 
     def job(claim, sess):
-        claim.upload(pdfs["214341"])
-        claim.upload(pdfs["214533"])
-        return stub(sess, "window.__stub.files"), claim.loc("uploaded_panel").first.is_visible()
-    files, visible = on_page(page, job)
-    assert files == ["invoice_214341.pdf", "invoice_214533.pdf"] and visible
+        for number in ("214341", "214533", "214629"):
+            claim.upload(pdfs[number])
+        box = claim.loc("upload_input").last.get_attribute("id")
+        return stub(sess, "window.__stub.files"), claim.loc("uploaded_panel").first.is_visible(), box
+    files, visible, box = on_page(page, job)
+    assert files == ["invoice_214341.pdf", "invoice_214533.pdf", "invoice_214629.pdf"] and visible
+    # the site swaps in a new file box after every upload, as the live page does (issue #10)
+    assert box == "ctl00_DefaultContent_FileUploadRadAsyncUploadfile3"
 
 
 def test_upload_that_never_finishes_is_reported(page, tmp_path):
@@ -465,6 +468,16 @@ def test_config_defaults_and_errors(app_home):
     (paths.data_dir() / "config.toml").write_text("[site\nbroken")
     with pytest.raises(FillError, match="config.toml could not be read"):
         load_config()
+
+
+def test_an_old_upload_selector_in_the_data_folder_is_upgraded(app_home):
+    load_config()
+    path = paths.data_dir() / "config.toml"
+    text = path.read_text(encoding="utf-8").replace(
+        "#ctl00_DefaultContent_FileUploadRadAsyncUpload input[type=file]",
+        "#ctl00_DefaultContent_FileUploadRadAsyncUploadfile0")
+    path.write_text(text, encoding="utf-8")
+    assert load_config().selectors["upload_input"] == "#ctl00_DefaultContent_FileUploadRadAsyncUpload input[type=file]"
 
 
 def test_missing_browser_gives_a_plain_message():

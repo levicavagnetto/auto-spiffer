@@ -99,11 +99,14 @@ STUB_JS = r"""
   };
   window.HideDuplicateLineItemMessagePopupPanel = () => hide('DefaultContent_DuplicateLineItemMessagePopupPanel');
 
-  // A file chosen for upload: show it as attached (the real server would save and list it).
+  // A file chosen for upload: show it as attached (the real server would save and list it), and swap
+  // in a fresh file box with the next number, as the live upload control does (file0, file1, ...).
+  let fileBoxes = 0;
   document.addEventListener('change', (e) => {
     const t = e.target;
-    if (!t || t.id !== 'ctl00_DefaultContent_FileUploadRadAsyncUploadfile0') return;
+    if (!t || t.type !== 'file' || !t.closest('#ctl00_DefaultContent_FileUploadRadAsyncUpload')) return;
     e.stopImmediatePropagation();
+    const row = t.closest('li');
     for (const f of Array.from(t.files || [])) {
       S.files.push(f.name);
       show('DefaultContent_UploadedFilesPanel');
@@ -116,8 +119,15 @@ STUB_JS = r"""
       const tr = document.createElement('tr'); tr.className = 'rgRow';
       const td = document.createElement('td'); td.textContent = f.name; tr.appendChild(td);
       table.querySelector('tbody').appendChild(tr);
+      const done = document.createElement('li');
+      done.innerHTML = '<span class="ruUploadProgress ruUploadSuccess"></span>';
+      done.firstChild.textContent = f.name;
+      if (row) row.parentNode.insertBefore(done, row);
     }
-    t.value = '';
+    fileBoxes += 1;
+    const fresh = t.cloneNode(false);
+    fresh.id = fresh.name = 'ctl00_DefaultContent_FileUploadRadAsyncUploadfile' + fileBoxes;
+    t.replaceWith(fresh);
   }, true);
 
   // Record every click on anything that must never be clicked.

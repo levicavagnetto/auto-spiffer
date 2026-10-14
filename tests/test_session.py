@@ -364,15 +364,10 @@ def test_no_invoice_pdfs_means_sales_only(session):
     assert session.can_read() == (True, "")
 
 
-def test_pdfs_can_be_ignored_even_when_loaded(session, invoice_folder):
-    session.use_pdfs = False
+def test_loaded_pdfs_are_always_used(session, invoice_folder):
     session.set_report(REPORT)
     session.add_invoice_paths([invoice_folder])
     session.read()
-    assert not session.uses_pdfs
-    assert session.counts()["ready"] == (17, 60) and all(r.pdf_path is None for r in session.rows)
-    session.use_pdfs = True
-    session.analyze()
     assert session.uses_pdfs and all(r.pdf_path for r in session.rows if r.status == "ready")
 
 

@@ -23,7 +23,9 @@ product_chosen = "#DefaultContent_ProductDropdownList_chosen"
 qty = "#ctl00_DefaultContent_QtyClaimedRadNumericTextBox"
 add = "#DefaultContent_AddProductLinkButton"
 grid = "#ctl00_DefaultContent_ProductRadGrid_ctl00"
-upload_input = "#ctl00_DefaultContent_FileUploadRadAsyncUploadfile0"
+# Any file box of the upload control. After each upload the site swaps in a new one (file0, file1, ...),
+# so the app always uses the last one.
+upload_input = "#ctl00_DefaultContent_FileUploadRadAsyncUpload input[type=file]"
 uploaded_panel = "#DefaultContent_UploadedFilesPanel"
 duplicate_popup = "#DefaultContent_DuplicateLineItemMessagePopupPanel"
 duplicate_no = "#DefaultContent_DuplicateLineItemMessagePopupPanel button"

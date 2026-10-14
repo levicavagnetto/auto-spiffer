@@ -1,6 +1,7 @@
 """The browser step, tested for real: Chrome (or Edge) opens the saved copy of the claim page, the
 test stub plays the server, and every web request is blocked. Skipped if no browser is installed."""
 import threading
+import time
 from dataclasses import replace
 from datetime import date
 from pathlib import Path
@@ -186,6 +187,17 @@ def test_entering_the_same_line_twice_asks_about_a_duplicate(page):
     assert first.ok and second.outcome == "duplicate"
     assert popup and not after
     assert len(rows) == 1  # 'No' was answered, never 'Yes'
+
+
+def test_add_is_not_clicked_while_a_message_box_is_open(page):
+    def job(claim, sess):
+        stub(sess, "document.getElementById('DefaultContent_DuplicateLineItemMessagePopupPanel')"
+                   ".style.display = 'block'")
+        with pytest.raises(FillError, match="message box .*duplicate popup.* Add was not clicked"):
+            claim.add_row(row())
+        return stub(sess, "window.__stub.posts"), claim.grid_rows()
+    posts, rows = on_page(page, job)
+    assert posts == [] and rows == []
 
 
 def test_two_different_tires_on_one_invoice(page):
@@ -586,6 +598,16 @@ def test_model_only_then_tab_picks_the_exact_tire(page):
     assert on_page(page, job) == ALTIMAX
 
 
+def test_the_tire_list_itself_picks_the_tire_both_ways(page):
+    """The dropdown opens and picks without the mouse (not the last-resort setting of the hidden list)."""
+    def job(claim, _s):
+        claim._search_product("Altimax RT45", True, ALTIMAX)
+        by_tab = claim._selected_product()
+        claim._search_product(TOYO, False, TOYO)
+        return by_tab, claim._selected_product()
+    assert on_page(page, job) == (ALTIMAX, TOYO)
+
+
 def test_a_model_that_lands_on_the_wrong_tire_falls_back_to_the_exact_name(page):
     def job(claim, _s):
         claim.select_product(TOYO, "Altimax RT45")  # Tab would pick the Altimax: wrong, so redo by name
@@ -620,3 +642,36 @@ def test_a_box_that_ignores_pasting_is_typed_instead(page):
         claim.set_invoice("777888")
         return claim.loc("invoice").first.input_value()
     assert on_page(page, job) == "777888"
+
+
+# ------------------------------------------------------- a minimized browser
+def test_a_minimized_browser_window_enters_just_as_fast():
+    """A minimized window hardly redraws. Mouse clicks wait for redraws, so each tire once took about
+    10 seconds this way. This test briefly opens a real (minimized) browser window."""
+    cfg = load_config(paths.defaults_dir() / "config.toml")
+    session = BrowserSession(cfg, test_mode=True, headless=False, test_window=SEPT_WINDOW)
+    try:
+        session.start()
+    except FillError as exc:
+        pytest.skip(f"no browser available: {exc}")
+    try:
+        def minimize(sess):
+            cdp = sess.context.new_cdp_session(sess.page)
+            window = cdp.send("Browser.getWindowForTarget")["windowId"]
+            cdp.send("Browser.setWindowBounds", {"windowId": window, "bounds": {"windowState": "minimized"}})
+            sess.page.wait_for_timeout(500)
+            return cdp.send("Browser.getWindowBounds", {"windowId": window})["bounds"]["windowState"]
+        assert session.call(minimize) == "minimized"
+
+        def job(claim, _s):
+            took = []
+            for invoice, tire in (("1", ALTIMAX), ("2", NOKIAN), ("3", TOYO), ("4", STRONG)):
+                began = time.monotonic()
+                assert claim.add_row(row(invoice=invoice, tire=tire)).ok
+                took.append(time.monotonic() - began)
+            return took, len(claim.grid_rows())
+        took, count = on_page(session, job)
+        assert count == 4
+        assert max(took) < 3, f"seconds per tire: {took}"
+    finally:
+        session.close()

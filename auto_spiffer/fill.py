@@ -137,6 +137,15 @@ def _squash(text: str) -> str:
     return re.sub(r"\s+", " ", text or "").strip()
 
 
+def _direct_click(locator, seconds: float) -> None:
+    """Click this exact element from inside the page, not with the mouse.
+
+    A mouse click first waits for the page to redraw a few times, and a minimized browser window
+    hardly redraws: every click then took about 2 seconds, about 10 per tire. This click goes to the
+    element itself, so it cannot land on a message box lying on top of it either."""
+    locator.evaluate("e => e.click()", timeout=seconds * 1000)
+
+
 def file_hash(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -174,7 +183,8 @@ class AddResult:
 
 
 # --------------------------------------------------------------------- the page
-REQUIRED = ("date", "invoice", "product_select", "product_chosen", "qty", "add", "grid", "upload_input")
+POPUP_KEYS = ("duplicate_popup", "validation_popup")  # the website's message boxes
+REQUIRED = ("date","invoice", "product_select", "product_chosen", "qty", "add", "grid", "upload_input")
 
 
 class ClaimPage:
@@ -216,7 +226,11 @@ class ClaimPage:
         selector = self.sel(key)
         if selector in self.cfg.never_click or key == "next_button":
             raise FillError(f"Refusing to click '{key}'. Auto Spiffer never submits the claim.")
-        self.loc(key).first.click(timeout=self.cfg.timeouts["action"] * 1000)
+        _direct_click(self.loc(key).first, self.cfg.timeouts["action"])
+
+    def open_popup(self) -> Optional[str]:
+        """The website's message box that is showing (duplicate or validation), or None."""
+        return next((key for key in POPUP_KEYS if self._visible(key)), None)
 
     # ----------------------------------------------------------------- reading
     def promotion(self) -> Optional[str]:
@@ -289,7 +303,7 @@ class ClaimPage:
         timeout = self.cfg.timeouts["action"] * 1000
         shown = ""
         for paste in (True, False):
-            box.click(timeout=timeout)
+            box.focus(timeout=timeout)  # not a click: see _direct_click
             self.page.keyboard.press("Control+A")
             self.page.keyboard.press("Delete")
             if paste:
@@ -333,7 +347,8 @@ class ClaimPage:
         chosen = self.page.locator(self.sel("product_chosen")).first
         if chosen.evaluate("e => e.classList.contains('chosen-with-drop')"):
             self.page.keyboard.press("Escape")  # a list left open by the last try would close on click
-        chosen.locator("a.chosen-single").click(timeout=3000)
+        # the list opens on a mouse press and picks on a mouse release (see _direct_click)
+        chosen.locator("a.chosen-single").dispatch_event("mousedown", {"button": 0}, timeout=3000)
         search = chosen.locator("input.chosen-search-input")
         items = chosen.locator("ul.chosen-results li.active-result")
         for paste in (True, False):
@@ -354,7 +369,7 @@ class ClaimPage:
             return
         for i in range(items.count()):
             if _squash(items.nth(i).inner_text()) == label:
-                items.nth(i).click(timeout=3000)
+                items.nth(i).dispatch_event("mouseup", {"button": 0}, timeout=3000)
                 break
 
     def select_product(self, label: str, model: str = "") -> None:
@@ -394,6 +409,12 @@ class ClaimPage:
         self.set_invoice(row.invoice)
         self.select_product(row.product_text, row.model)
         self.set_qty(row.qty)
+        popup = self.open_popup()
+        if popup:
+            raise FillError(f"A message box ({popup.replace('_', ' ')}) is open on the website, so Add "
+                            "was not clicked.")
+        if not self._visible("add"):
+            raise FillError("The Add button is not showing on the website, so it was not clicked.")
         self._click("add")
         return self._wait_for_add(row, before)
 
@@ -427,10 +448,7 @@ class ClaimPage:
         for name in ("OK", "Ok", "Close", "Cancel"):
             button = panel.get_by_role("button", name=name)
             if button.count() and button.first.is_visible():
-                try:
-                    button.first.click(timeout=1500)
-                except Exception:  # something sits on top of it: press it without the mouse
-                    button.first.evaluate("e => e.click()")
+                _direct_click(button.first, 1.5)
                 return
         self.page.keyboard.press("Escape")
 

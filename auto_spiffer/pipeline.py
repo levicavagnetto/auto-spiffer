@@ -146,12 +146,15 @@ def _claim_row(m: MatchedRow, *, check_pdf: bool, state: Optional[State],
     if m.status == NOT_ELIGIBLE:
         row.status = NOT_ELIGIBLE_ROW
         row.notes.append(m.result.reason)
+        row.reasons.append(f"Not claimable: {m.result.reason}. If it is an eligible tire, pick it below.")
         return row
     if m.status == ATTENTION:
         row.status = HELD
         row.notes.append(f"needs attention: {m.result.reason}")
         if item:
             row.notes.append(f"best guess: {item.site_text}")
+        row.reasons.append(f"The app is not sure which ClaimForm tire this is: {m.result.reason}. "
+                           "Pick the right tire below, or tick 'This is not an eligible tire'.")
         return row
 
     # Ready: a settled tire. Now make sure it is safe to enter.
@@ -162,8 +165,13 @@ def _claim_row(m: MatchedRow, *, check_pdf: bool, state: Optional[State],
     if window[0] and window[1] and not (window[0] <= m.sale_date <= window[1]):
         problems.append(f"sale date {format_page_date(m.sale_date)} is outside the program dates "
                         f"({_span(*window)})")
+        row.reasons.append(f"The sale date {format_page_date(m.sale_date)} is outside this program's dates "
+                           f"({_span(*window)}), so the website will not accept it. Check the date on the "
+                           "report, or exclude this line.")
     if check_pdf and m.pdf is None:
         problems.append("no invoice PDF found for this invoice")
+        row.reasons.append(f"No invoice PDF was found for invoice {m.invoice}. Add its PDF on the Load page, "
+                           "or turn on 'Enter sales that have no PDF' in Settings.")
     if state is not None:
         earlier = state.find_entered(m.invoice, item.site_text)
         if earlier is not None:
@@ -172,6 +180,9 @@ def _claim_row(m: MatchedRow, *, check_pdf: bool, state: Optional[State],
                 row.notes.append(f"already entered on {earlier.entered_on[:10]}")
                 return row
             problems.append(f"already entered with qty {earlier.qty}, the report now says {m.qty}")
+            row.reasons.append(f"This tire was already entered on {earlier.entered_on[:10]} with quantity "
+                               f"{earlier.qty}, but the report now says {m.qty}. Check the claim on the "
+                               "website, then set the quantity below to match.")
     if problems:
         row.status = PROBLEM
         row.notes.extend(problems)

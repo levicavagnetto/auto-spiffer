@@ -59,6 +59,8 @@ class ClaimRow:
     # ready, attention, not_eligible, problem, already_entered, excluded, entered, failed
     status: str = "ready"
     notes: list[str] = field(default_factory=list)
+    # Why the line is not ready, written for the person: what is wrong and what to do about it.
+    reasons: list[str] = field(default_factory=list)
     description: str = ""          # the report's wording, for the person reading a report
     item_id: Optional[str] = None  # the matched tire's id on the tire list
     unit_value: float = 0.0        # payout per tire from the tire list

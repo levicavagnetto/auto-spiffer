@@ -243,6 +243,7 @@ class Session:
         for base in self.result.claim_rows:
             row = copy(base)
             row.notes = list(base.notes)
+            row.reasons = list(base.reasons)
             key = row_key(row)
             if key in self.decisions.qty and self.decisions.qty[key] != row.qty:
                 row.notes.append(f"quantity changed from {row.qty} to {self.decisions.qty[key]} by you")

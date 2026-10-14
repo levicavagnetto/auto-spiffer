@@ -10,6 +10,10 @@ from auto_spiffer.gui import theme
 from auto_spiffer.models import CatalogItem
 
 
+WHY_TITLES = {"attention": "Why this needs attention", "problem": "Why this is a problem",
+              "not_eligible": "Why this is not eligible"}
+
+
 class FixDialog:
     """Pick the right ClaimForm tire for a report line (or mark it not eligible), and change its qty."""
 
@@ -24,7 +28,7 @@ class FixDialog:
         self.top = tk.Toplevel(app.root)
         self.top.title("Choose the ClaimForm tire")
         root = app.root
-        width, height = 700, 660
+        width, height = 700, 720
         x = root.winfo_rootx() + max(0, (root.winfo_width() - width) // 2)
         y = root.winfo_rooty() + max(0, (root.winfo_height() - height) // 2)
         self.top.geometry(f"{width}x{height}+{x}+{y}")
@@ -36,9 +40,9 @@ class FixDialog:
         tk.Label(frame, text=f"{self.row.description}\ninvoice {self.row.invoice}   qty {self.row.qty}",
                  bg="#f3f3f3", anchor="w", justify="left", padx=8, pady=6, relief="groove",
                  wraplength=640).pack(fill="x", pady=(2, 6))
-        reason = self.matched.result.reason
-        if reason:
-            ttk.Label(frame, text="Why it is not settled: " + reason, style="Subtle.TLabel",
+        self.why = self._why_box(frame)
+        if self.why is None and self.matched.result.reason:
+            ttk.Label(frame, text="Matched because: " + self.matched.result.reason, style="Subtle.TLabel",
                       wraplength=640).pack(anchor="w", pady=(0, 6))
 
         ttk.Label(frame, text="Best guesses:", font=(theme.FONT, 9, "bold")).pack(anchor="w")
@@ -87,6 +91,24 @@ class FixDialog:
         buttons.pack(fill="x", pady=(12, 0))
         ttk.Button(buttons, text="Cancel", command=self.close).pack(side="right")
         ttk.Button(buttons, text="Use selected tire", command=self.accept).pack(side="right", padx=6)
+
+    def _why_box(self, frame) -> Optional[tk.Frame]:
+        """A box in the line's status color saying why it is not ready and what to do about it."""
+        if not self.row.reasons:
+            return None
+        status = self.row.status
+        bg = theme.ROW_STYLES.get(status, {}).get("background", theme.WARN_BG)
+        box = tk.Frame(frame, bg=bg, padx=10, pady=8, highlightthickness=1,
+                       highlightbackground=theme.CARD_COLORS.get(status, theme.WARN_FG))
+        box.pack(fill="x", pady=(0, 8))
+        tk.Label(box, text=WHY_TITLES.get(status, theme.STATUS_TEXT.get(status, status)), bg=bg,
+                 fg=theme.CARD_COLORS.get(status, theme.WARN_FG), font=(theme.FONT, 10, "bold"),
+                 anchor="w").pack(fill="x")
+        bullet = "•  " if len(self.row.reasons) > 1 else ""
+        for reason in self.row.reasons:
+            tk.Label(box, text=bullet + reason, bg=bg, fg="#222222", anchor="w", justify="left",
+                     wraplength=630).pack(fill="x", pady=(3, 0))
+        return box
 
     # --------------------------------------------------------------- choices
     def _suggestions(self) -> list[tuple[CatalogItem, float]]:

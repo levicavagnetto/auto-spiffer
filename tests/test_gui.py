@@ -240,6 +240,38 @@ def test_fix_dialog_resolves_a_row(app, invoice_folder):
     assert row_values(app)[attention_index(app, "214655")][3] == "Nokian One HT - Light Truck Tires"
 
 
+def why_text(dialog) -> str:
+    return "\n".join(w.cget("text") for w in dialog.why.winfo_children())
+
+
+def test_fix_dialog_says_why_a_row_needs_attention(app, invoice_folder):
+    load_everything(app, invoice_folder)
+    dialog = app.pages["review"].open_fix(attention_index(app, "214655"))
+    text = why_text(dialog)
+    assert text.startswith("Why this needs attention\n") and "not sure which ClaimForm tire" in text
+    dialog.close()
+
+
+def test_fix_dialog_says_why_a_row_is_a_problem(app, tmp_path):
+    folder = tmp_path / "few"
+    make_demo_invoices(parse_report(REPORT), folder, count=3)
+    load_everything(app, folder)
+    index = next(i for i, r in enumerate(app.session.rows) if r.status == "problem")
+    dialog = app.pages["review"].open_fix(index)
+    text = why_text(dialog)
+    assert text.startswith("Why this is a problem\n") and "No invoice PDF was found" in text
+    assert "Matched because" not in text
+    dialog.close()
+
+
+def test_fix_dialog_on_a_ready_row_has_no_why_box(app, invoice_folder):
+    load_everything(app, invoice_folder)
+    index = next(i for i, r in enumerate(app.session.rows) if r.status == "ready")
+    dialog = app.pages["review"].open_fix(index)
+    assert dialog.why is None
+    dialog.close()
+
+
 def test_the_choice_is_remembered_after_restarting(app, invoice_folder, brands, noise):
     load_everything(app, invoice_folder)
     dialog = app.pages["review"].open_fix(attention_index(app, "214655"))

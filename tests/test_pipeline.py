@@ -134,6 +134,12 @@ def test_held_rows_carry_their_reason_and_best_guess(prepared):
     row = next(r for r in prepared.claim_rows if r.invoice == "214655")
     assert row.status == HELD and row.product_text == ""
     assert any("HT" in n for n in row.notes) and any("best guess: Nokian One HT" in n for n in row.notes)
+    assert len(row.reasons) == 1 and "not sure which ClaimForm tire" in row.reasons[0]
+    assert "HT" in row.reasons[0] and "Pick the right tire" in row.reasons[0]
+
+
+def test_ready_rows_have_no_reasons(prepared):
+    assert all(r.reasons == [] for r in prepared.to_enter)
 
 
 # ---------------------------------------------------------------- invoice PDFs
@@ -147,6 +153,8 @@ def test_missing_pdfs_stop_a_row_from_being_entered(tmp_path, report, september_
     assert {r.invoice for r in result.to_enter} == {"214288", "214341", "214533"}
     problems = result.with_status(PROBLEM)
     assert len(problems) == 14 and all("no invoice PDF" in " ".join(r.notes) for r in problems)
+    assert all(r.reasons == [f"No invoice PDF was found for invoice {r.invoice}. Add its PDF on the Load page, "
+                             "or turn on 'Enter sales that have no PDF' in Settings."] for r in problems)
     assert len(result.links.missing) == 16  # 14 problems + the 2 held rows
 
 
@@ -171,6 +179,7 @@ def test_a_sale_date_outside_the_program_is_a_problem(report, september_list, br
     result = prepare(report, september_list, brands=brands, noise=noise)
     flagged = next(r for r in result.claim_rows if r.invoice == "214341")
     assert flagged.status == PROBLEM and "outside the program dates" in " ".join(flagged.notes)
+    assert "10/05/2026 is outside this program's dates (09/01/2026 to 09/30/2026)" in flagged.reasons[0]
 
 
 # ------------------------------------------------------------- T23: already entered
@@ -196,6 +205,7 @@ def test_a_changed_quantity_is_a_problem_not_a_silent_duplicate(tmp_path, report
     result = prepare(report, september_list, brands=brands, noise=noise, state=state)
     row = next(r for r in result.claim_rows if r.invoice == "214341")
     assert row.status == PROBLEM and "already entered with qty 3" in " ".join(row.notes)
+    assert "already entered on" in row.reasons[0] and "quantity 3, but the report now says 4" in row.reasons[0]
 
 
 def test_state_round_trip_and_forget(tmp_path):

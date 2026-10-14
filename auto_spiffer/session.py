@@ -77,6 +77,7 @@ class Session:
         self.temp_choices.entries.clear()
         self.run_results: dict[str, tuple[str, str]] = {}  # row_key -> ("entered" | "failed", message)
         self._index: Optional[InvoiceIndex] = None
+        self._read_inputs: Optional[tuple] = None  # the report and PDFs the current result was made from
 
     @property
     def brands(self) -> BrandTable:
@@ -134,6 +135,14 @@ class Session:
         have = set(self.invoice_preview.by_invoice)
         return sorted({r.invoice for r in self.report.tire_rows} - have)
 
+    def _inputs(self) -> tuple:
+        report = self.report_path.resolve() if self.report_path else None
+        return report, frozenset(p.resolve() for p in self.invoice_paths)
+
+    def needs_read(self) -> bool:
+        """True when nothing was read yet, or the report or PDFs on the Load page changed since."""
+        return self.result is None or self._inputs() != self._read_inputs
+
     # ------------------------------------------------------------- readiness
     def program_check(self) -> Optional[ProgramCheck]:
         if self.report is None or self.catalog is None:
@@ -166,6 +175,7 @@ class Session:
         self.workspace = ws
         self.report_path = ws.report_file
         self.invoice_paths = copies
+        self._read_inputs = self._inputs()
         self._index = index_folder(ws.invoices_dir)
         self._load_decisions(keep_override=True)
         self.save_decisions()
@@ -178,6 +188,7 @@ class Session:
             raise ReportError(self.report_error or "The saved report could not be read.")
         self.workspace = ws
         self.invoice_paths = sorted(ws.invoices_dir.glob("*.pdf"), key=lambda p: p.name.lower())
+        self._read_inputs = self._inputs()
         self._index = index_folder(ws.invoices_dir)
         self._load_decisions()
         return self.analyze()

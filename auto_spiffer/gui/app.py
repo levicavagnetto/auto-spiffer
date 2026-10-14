@@ -163,6 +163,17 @@ class App:
         return ""
 
     def show(self, key: str) -> bool:
+        if key in ("review", "run") and self.session.needs_read():
+            # Files were added or changed on page 1 since they were last read: read them first,
+            # so Review never shows a result made from the old files. Reading opens Review when done.
+            ok, reason = self.session.can_read()
+            if ok:
+                self.hint.config(text="")
+                self.pages["load"].read_files()
+                return self.current == key
+            if self.session.result is not None:
+                self.hint.config(text="The files on page 1 changed and cannot be read: " + reason)
+                return False
         if not self.is_unlocked(key):
             self.hint.config(text=self.lock_reason(key))
             return False

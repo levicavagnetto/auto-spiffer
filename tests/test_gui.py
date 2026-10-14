@@ -104,6 +104,51 @@ def test_later_pages_are_locked_until_files_are_read(app):
     assert app.show("load") is True and app.hint.cget("text") == ""
 
 
+def test_review_tab_reads_the_files_when_nothing_was_read_yet(app, invoice_folder):
+    load = app.pages["load"]
+    load.set_report(str(REPORT))
+    load.add_paths([str(invoice_folder)])
+    load.override_var.set(True)
+    load._override_changed()
+    assert app.show("review") is True and app.current == "review"
+    assert app.session.result is not None and not app.session.needs_read()
+
+
+def test_review_tab_reads_pdfs_added_after_the_last_read(app, tmp_path):
+    few = tmp_path / "few"
+    make_demo_invoices(parse_report(REPORT), few, count=1)
+    load_everything(app, few)
+    assert sorted(p.name for p in app.session.workspace.invoices_dir.glob("*.pdf")) == \
+        ["invoice_214288.pdf", "invoice_999999.pdf"]
+    app.show("load")
+    more = tmp_path / "more"
+    make_demo_invoices(parse_report(REPORT), more, count=3)
+    app.pages["load"].add_paths([str(more / "invoice_214341.pdf")])
+    assert app.session.needs_read()
+    assert app.show("review") is True  # the sidebar tab, not the Read button
+    assert "invoice_214341.pdf" in {p.name for p in app.session.workspace.invoices_dir.glob("*.pdf")}
+    assert next(r for r in app.session.rows if r.invoice == "214341").pdf_path
+    assert not app.session.needs_read()
+
+
+def test_run_tab_also_reads_changed_files_first(app, invoice_folder, tmp_path):
+    load_everything(app, invoice_folder)
+    app.show("load")
+    other = tmp_path / "other"
+    make_demo_invoices(parse_report(REPORT), other, count=1)
+    app.pages["load"].add_paths([str(other)])
+    app.show("run")
+    assert not app.session.needs_read()
+
+
+def test_changed_files_that_cannot_be_read_keep_you_on_the_load_page(app, invoice_folder):
+    load_everything(app, invoice_folder)
+    app.show("load")
+    app.pages["load"].set_report(str(FIXTURES / "example_invoice.pdf"))  # not a Material Sales report
+    assert app.show("review") is False and app.current == "load"
+    assert "changed and cannot be read" in app.hint.cget("text")
+
+
 def test_sidebar_status_lines(app):
     assert app.month_label.cget("text") == "No month loaded"
     assert "October 2026 Pro Rewards" in app.tire_status.cget("text")

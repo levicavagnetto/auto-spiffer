@@ -37,6 +37,16 @@ class LoadPage(ttk.Frame):
             self.banner_holder, variable=self.override_var, command=self._override_changed,
             text="Continue anyway (only for trying things out: the website rejects dates outside its program)")
 
+        # ---- report self-check (only shown when the report may not have been read completely)
+        self.report_holder = ttk.Frame(self)
+        self.report_holder.pack(fill="x")
+        self.report_banner = tk.Label(self.report_holder, text="", bg="#fde7e9", fg=theme.BAD, anchor="w",
+                                      justify="left", padx=10, pady=8, wraplength=900)
+        self.accept_var = tk.BooleanVar(value=False)
+        self.accept_box = ttk.Checkbutton(
+            self.report_holder, variable=self.accept_var, command=self._accept_changed,
+            text="Read anyway: I checked the report, and I will enter any missing sales myself")
+
         # ---- 1. tire list
         g3 = ttk.LabelFrame(self, text=" 1.  Tire list (ClaimForm.pdf) ", padding=10)
         g3.pack(fill="x", pady=4)
@@ -150,6 +160,10 @@ class LoadPage(ttk.Frame):
         self.session.save_decisions()
         self.refresh()
 
+    def _accept_changed(self) -> None:
+        self.session.report_problems_accepted = self.accept_var.get()
+        self.refresh()
+
     def read_files(self) -> None:
         ok, _reason = self.session.can_read()
         if not ok or self._reading:
@@ -178,6 +192,7 @@ class LoadPage(ttk.Frame):
     def refresh(self) -> None:
         s = self.session
         self._refresh_banner()
+        self._refresh_report_check()
         self._refresh_report()
         self._refresh_invoices()
         cat = s.catalog
@@ -212,6 +227,25 @@ class LoadPage(ttk.Frame):
             if check is not None and not check.ok:
                 self.override_box.pack(anchor="w", pady=(0, 6))
 
+    def _refresh_report_check(self) -> None:
+        """Say so when a second, plain count of the report's sales disagrees with what was read."""
+        report = self.session.report
+        for widget in (self.report_banner, self.accept_box):
+            widget.pack_forget()
+        if report is None or not (report.problems or report.warnings):
+            return
+        lines = []
+        if report.problems:
+            lines.append("✖  The Material Sales report may not have been read completely. Its layout may "
+                         "have changed (margins, columns). Compare it with the Review page before going on:")
+        lines += ["      " + p for p in report.problems]
+        lines += ["⚠  " + w for w in report.warnings]
+        self.report_banner.config(text="\n".join(lines))
+        self.report_banner.pack(fill="x", pady=(0, 4))
+        if report.problems:
+            self.accept_var.set(self.session.report_problems_accepted)
+            self.accept_box.pack(anchor="w", pady=(0, 6))
+
     def _refresh_report(self) -> None:
         s = self.session
         if s.report_path is not None and not self.report_var.get():
@@ -221,9 +255,10 @@ class LoadPage(ttk.Frame):
             self.report_status.config(text="", style="Subtle.TLabel")
         elif s.report is not None:
             r = s.report
+            mark = "⚠" if r.problems else "✔"
             self.report_status.config(
-                text=f"✔  {len(r.rows)} rows read ({len(r.tire_rows)} tires, {len(r.ignored_rows)} ignored)",
-                style="Good.TLabel")
+                text=f"{mark}  {len(r.rows)} rows read ({len(r.tire_rows)} tires, {len(r.ignored_rows)} ignored)",
+                style="Bad.TLabel" if r.problems else "Good.TLabel")
         elif s.report_error:
             self.report_status.config(text="✖  " + s.report_error, style="Bad.TLabel")
 

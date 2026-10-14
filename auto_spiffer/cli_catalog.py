@@ -76,12 +76,17 @@ def cmd_import(pdf: str, save: bool, show_list: bool) -> int:
         print(f"Note: new brand '{brand}' is not in brands.toml")
     for warning in result.warnings:
         print(f"Warning: {warning}")
+    for problem in result.problems:
+        print(f"NOT READ COMPLETELY: {problem}")
     print()
     _print_brand_counts(cat)
     if show_list:
         print()
         _print_items(cat.items)
     print()
+    if save and result.problems:
+        print("Not saved: the ClaimForm may not have been read completely. Check it, or load it in the app.")
+        return 1
     if save:
         archived = save_catalog(cat)
         print(f"Saved {len(cat.items)} items as the current tire list.")

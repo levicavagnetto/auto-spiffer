@@ -268,3 +268,61 @@ def test_cli_diff_with_nothing_saved(app_home, fixtures, capsys):
 def test_cli_import_wrong_file(app_home, fixtures, capsys):
     assert main(["catalog-import", str(fixtures / "Material-Sales.pdf")]) == 1
     assert "Error:" in capsys.readouterr().out
+
+
+# ------------------------------------------- self-check: was the ClaimForm read completely?
+def changed_layout(monkeypatch, edit):
+    """Act as if the ClaimForm's layout changed: `edit` rewrites each page's text."""
+    import pdfplumber
+    real = pdfplumber.page.Page.extract_text
+    monkeypatch.setattr(pdfplumber.page.Page, "extract_text", lambda self, *a, **k: edit(real(self, *a, **k)))
+
+
+def read_october():
+    from pathlib import Path
+    return parse_claimform(Path(__file__).parent / "fixtures" / "ClaimForm.pdf",
+                           brands=type("B", (), {"claimform_names": BRANDS})())
+
+
+def test_a_normal_claimform_has_no_problems(october):
+    assert october.problems == [] and october.unparsed == []
+
+
+def test_a_wrapped_line_is_noticed(monkeypatch):
+    changed_layout(monkeypatch, lambda t: t.replace("Toyo Celsius II - Passenger Tires $3.00",
+                                                    "Toyo Celsius II - Passenger\nTires $3.00"))
+    r = read_october()
+    assert len(r.catalog.items) == 76
+    assert r.problems == ["The ClaimForm lists 77 prices but only 76 tires and wheels were read, "
+                          "so 1 may be missing."]
+
+
+def test_two_tires_run_together_are_not_read_as_one(monkeypatch):
+    changed_layout(monkeypatch, lambda t: t.replace("Toyo Proxes G-Tour - Passenger Tires $3.00\n",
+                                                    "Toyo Proxes G-Tour - Passenger Tires $3.00 "))
+    r = read_october()
+    assert not any("$" in i.site_text for i in r.catalog.items)  # no tire named "... $3.00 Toyo ..."
+    assert "so 2 may be missing" in r.problems[0]
+
+
+def test_a_section_with_no_tires_is_named(monkeypatch):
+    import re
+    changed_layout(monkeypatch, lambda t: re.sub(r"(?m)^Nitto .* \$\d+\.\d\d$", "", t))
+    r = read_october()
+    assert "No tires were read from the 'NITTO Enthusiast Member' section." in r.problems
+
+
+def test_a_missing_page_of_the_claimform_is_noticed():
+    from auto_spiffer.catalog_import import check_page_count
+    lines = ["https://prorewards.acbrewards.com/x.aspx?pid=1 1/5", "https://prorewards.acbrewards.com/x.aspx?pid=1 2/5"]
+    assert check_page_count(lines, 2) == ["The ClaimForm says it has 5 pages, but this file has only 2."]
+    assert check_page_count(lines, 5) == []
+
+
+def test_cli_import_will_not_save_a_claimform_read_incompletely(app_home, fixtures, monkeypatch, capsys):
+    changed_layout(monkeypatch, lambda t: t.replace("Toyo Celsius II - Passenger Tires $3.00",
+                                                    "Toyo Celsius II - Passenger\nTires $3.00"))
+    assert main(["catalog-import", str(fixtures / "ClaimForm.pdf"), "--save"]) == 1
+    out = capsys.readouterr().out
+    assert "NOT READ COMPLETELY: The ClaimForm lists 77 prices" in out and "Not saved" in out
+    assert load_catalog() is None

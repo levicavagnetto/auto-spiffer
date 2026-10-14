@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
@@ -15,6 +16,10 @@ from auto_spiffer.sizes import has_tire_size
 HEADER_CELLS = ["invoiced", "invoice #", "description", "quantity"]
 _DATE_RE = r"\d{1,2}/\d{1,2}/\d{4}"
 _ROW_TOLERANCE = 6.0  # points: how far a cell may sit from the row's date line
+# A sale in the page's plain text: its date and invoice # start a line ("09/26/2026 214983 4").
+# The footer stamp ("10/4/2026 9:57 AM") has no invoice number after the date, so it does not count.
+_SALE_LINE_RE = re.compile(rf"^({_DATE_RE})\s+(\d{{3,}})\b", re.MULTILINE)
+_PAGE_OF_RE = re.compile(r"\bPage\s+\d+\s+of\s+(\d+)\b")
 
 
 class ReportError(Exception):
@@ -29,6 +34,9 @@ class Report:
     location: Optional[str] = None
     rows: list[SaleRow] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    # Signs the report was not read completely (a second, plain-text count disagrees). Shown to the
+    # person, who has to confirm before the sales are used.
+    problems: list[str] = field(default_factory=list)
 
     @property
     def tire_rows(self) -> list[SaleRow]:
@@ -115,24 +123,23 @@ def _is_data_table(table: list[list[Optional[str]]]) -> bool:
     return first[:4] == HEADER_CELLS
 
 
-def _rows_from_tables(pages_tables, report: Report) -> int:
-    """Rows from every table that has the report's column headings. Returns how many tables it found."""
-    found_tables = 0
-    for tables in pages_tables:
-        for table in tables:
-            if not _is_data_table(table):
+def _rows_from_tables(tables, warnings: list[str]) -> Optional[list[SaleRow]]:
+    """Rows from one page's tables that have the report's column headings, or None when it has none."""
+    rows: Optional[list[SaleRow]] = None
+    for table in tables:
+        if not _is_data_table(table):
+            continue
+        rows = rows or []
+        for cells in table[1:]:
+            cells = [(c or "") for c in cells]
+            if len(cells) < 4 or [c.strip().lower() for c in cells[:4]] == HEADER_CELLS:
                 continue
-            found_tables += 1
-            for cells in table[1:]:
-                cells = [(c or "") for c in cells]
-                if len(cells) < 4 or [c.strip().lower() for c in cells[:4]] == HEADER_CELLS:
-                    continue
-                if not any(c.strip() for c in cells):
-                    continue
-                row = _make_row(cells[0], cells[1], cells[2], cells[3], report.warnings)
-                if row:
-                    report.rows.append(row)
-    return found_tables
+            if not any(c.strip() for c in cells):
+                continue
+            row = _make_row(cells[0], cells[1], cells[2], cells[3], warnings)
+            if row:
+                rows.append(row)
+    return rows
 
 
 # ------------------------------------------------- position-based fallback reader
@@ -195,6 +202,47 @@ def rows_from_page_words(page, warnings: list[str]) -> list[SaleRow]:
     return rows
 
 
+# ------------------------------------------------------------------ self-check
+def _sale_key(date_text: str, invoice: str) -> tuple:
+    try:
+        return parse_report_date(date_text), invoice.strip()
+    except ValueError:
+        return date_text.strip(), invoice.strip()
+
+
+def check_page(number: int, text: str, rows: list[SaleRow]) -> list[str]:
+    """Compare the rows read from a page with a plain count of the sale lines in its text.
+
+    The two ways of reading do not depend on each other, so when the layout changes (margins,
+    column widths) and the main reader loses or mangles rows, they disagree.
+    """
+    expected = Counter(_sale_key(d, i) for d, i in _SALE_LINE_RE.findall(text))
+    got = Counter((r.sale_date, r.invoice) for r in rows)
+    missing = sorted((expected - got).elements(), key=str)
+    extra = sorted((got - expected).elements(), key=str)
+    problems = []
+    if missing:
+        problems.append(f"Page {number} lists {sum(expected.values())} sales but only "
+                        f"{sum(expected.values()) - len(missing)} were read. Not read: {_invoices(missing)}.")
+    if extra:
+        problems.append(f"Page {number}: read {len(extra)} sale(s) that are not on the page as written: "
+                        f"{_invoices(extra)}.")
+    return problems
+
+
+def check_page_count(texts: list[str]) -> list[str]:
+    """The footer says 'Page 1 of 3': a file with fewer pages is an incomplete print or export."""
+    totals = {int(n) for t in texts for n in _PAGE_OF_RE.findall(t)}
+    if totals and max(totals) > len(texts):
+        return [f"The report says it has {max(totals)} pages, but this file has only {len(texts)}."]
+    return []
+
+
+def _invoices(keys: list[tuple]) -> str:
+    shown = [str(invoice) for _date, invoice in keys[:8]]
+    return ", ".join(shown) + (f" and {len(keys) - 8} more" if len(keys) > 8 else "")
+
+
 # ------------------------------------------------------------------- public API
 def parse_report(path: str | Path, use_fallback: bool = False) -> Report:
     """Read a Material Sales PDF. Raises ReportError with a plain message on failure.
@@ -210,12 +258,19 @@ def parse_report(path: str | Path, use_fallback: bool = False) -> Report:
         with pdfplumber.open(path) as pdf:
             if not pdf.pages:
                 raise ReportError("The report PDF has no pages.")
-            pages_tables = [page.extract_tables() for page in pdf.pages]
-            _parse_header(pages_tables[0], pdf.pages[0].extract_text() or "", report)
-            found = 0 if use_fallback else _rows_from_tables(pages_tables, report)
-            if found == 0:
-                for page in pdf.pages:
-                    report.rows.extend(rows_from_page_words(page, report.warnings))
+            texts = [page.extract_text() or "" for page in pdf.pages]
+            for number, (page, text) in enumerate(zip(pdf.pages, texts), start=1):
+                tables = page.extract_tables()
+                if number == 1:
+                    _parse_header(tables, text, report)
+                # Each page on its own: a page whose table is not detected (a changed layout or
+                # margins) is read by position instead of being lost.
+                rows = None if use_fallback else _rows_from_tables(tables, report.warnings)
+                if rows is None:
+                    rows = rows_from_page_words(page, report.warnings)
+                report.rows.extend(rows)
+                report.problems.extend(check_page(number, text, rows))
+            report.problems.extend(check_page_count(texts))
     except ReportError:
         raise
     except Exception as exc:  # unreadable or not a PDF

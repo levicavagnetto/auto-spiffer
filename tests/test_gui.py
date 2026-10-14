@@ -141,6 +141,54 @@ def test_run_tab_also_reads_changed_files_first(app, invoice_folder, tmp_path):
     assert not app.session.needs_read()
 
 
+def a_report_read_incompletely(monkeypatch):
+    """Page 2's table is not found and the position reader loses its last row, as with changed margins."""
+    import pdfplumber
+    from auto_spiffer import report_parse
+    tables, words = pdfplumber.page.Page.extract_tables, report_parse.rows_from_page_words
+    monkeypatch.setattr(pdfplumber.page.Page, "extract_tables",
+                        lambda self, *a, **k: [] if self.page_number == 2 else tables(self, *a, **k))
+    monkeypatch.setattr(report_parse, "rows_from_page_words", lambda page, w: words(page, w)[:-1])
+
+
+def test_a_report_that_was_not_read_completely_is_flagged_and_must_be_confirmed(app, monkeypatch):
+    a_report_read_incompletely(monkeypatch)
+    load = app.pages["load"]
+    load.set_report(str(REPORT))
+    load.override_var.set(True)
+    load._override_changed()
+    assert "may not have been read completely" in load.report_banner.cget("text")
+    assert "Page 2 lists 6 sales but only 5 were read. Not read: 215100." in load.report_banner.cget("text")
+    assert load.report_status.cget("text").startswith("⚠")
+    assert load.accept_box.winfo_manager() == "pack"
+    assert not load.read_button.instate(["!disabled"]) and "Read anyway" in load.reason.cget("text")
+    assert app.show("review") is False  # the sidebar does not get around it either
+    load.accept_var.set(True)
+    load._accept_changed()
+    assert load.read_button.instate(["!disabled"])
+    assert app.show("review") is True
+
+
+def test_the_tire_list_window_shows_claimform_problems(app, october):
+    from auto_spiffer.gui.dialogs import DiffDialog
+    dialog = DiffDialog(app, october, None, None, [], [],
+                        ["No tires were read from the 'NITTO Enthusiast Member' section."])
+    assert "may not have been read completely" in dialog.problem_box.cget("text")
+    assert "'NITTO Enthusiast Member' section" in dialog.problem_box.cget("text")
+    labels = [w.cget("text") for w in dialog.top.winfo_children()[0].winfo_children()[-1].winfo_children()]
+    assert "Use this list anyway" in labels
+    dialog.close()
+    clean = DiffDialog(app, october, None, None, [], [])
+    assert clean.problem_box is None
+    clean.close()
+
+
+def test_a_complete_report_shows_no_report_warning(app):
+    load = app.pages["load"]
+    load.set_report(str(REPORT))
+    assert load.report_banner.winfo_manager() == "" and load.accept_box.winfo_manager() == ""
+
+
 def test_changed_files_that_cannot_be_read_keep_you_on_the_load_page(app, invoice_folder):
     load_everything(app, invoice_folder)
     app.show("load")

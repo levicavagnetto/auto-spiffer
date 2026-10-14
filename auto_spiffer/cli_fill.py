@@ -196,6 +196,11 @@ def cmd_fill_all(args) -> int:
     if catalog is None:
         return 1
     report = parse_report(args.report)
+    if report.problems:
+        print("The report may not have been read completely, so nothing was entered:")
+        for problem in report.problems:
+            print(f"  {problem}")
+        return 1
     product_map = None if args.no_saved else ProductMap.load()
     if product_map is not None and product_map.sync(catalog):
         product_map.save()

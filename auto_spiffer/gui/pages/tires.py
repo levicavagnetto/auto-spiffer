@@ -114,7 +114,7 @@ class TiresPage(ttk.Frame):
         if self.app.synchronous:  # no window to ask: the test calls apply_update itself
             self.pending = (result, diff)
             return
-        dialog = DiffDialog(self.app, result.catalog, old, diff, result.unparsed, notes)
+        dialog = DiffDialog(self.app, result.catalog, old, diff, result.unparsed, notes, result.problems)
         if dialog.show_modal():
             self.apply_update(result.catalog)
 

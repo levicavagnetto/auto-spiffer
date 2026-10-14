@@ -51,7 +51,6 @@ class App:
         self.update_page = ""          # the release page the Update button opens
         self.open_url = webbrowser.open  # tests replace this so no browser starts
         self.session.allow_missing_pdf = bool(self.settings.get("allow_missing_pdf"))
-        self.session.use_pdfs = bool(self.settings.get("use_invoice_pdfs"))
 
         theme.apply_theme(root)
         root.title("Auto Spiffer")
@@ -270,11 +269,9 @@ class App:
             dialog.show_modal()
         return dialog
 
-    def apply_settings(self, allow_missing_pdf: bool, use_pdfs: bool = True, check_updates: bool = True) -> None:
+    def apply_settings(self, allow_missing_pdf: bool, check_updates: bool = True) -> None:
         """Take the Settings window's choices into effect now."""
         self.settings.set("check_updates", bool(check_updates))
-        self.settings.set("use_invoice_pdfs", bool(use_pdfs))
-        self.session.use_pdfs = bool(use_pdfs)
         self.settings.set("allow_missing_pdf", bool(allow_missing_pdf))
         self.settings.save()
         self.session.allow_missing_pdf = bool(allow_missing_pdf)

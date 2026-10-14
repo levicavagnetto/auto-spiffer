@@ -351,8 +351,7 @@ if a run is going or a browser is open. After a run, Review shows Entered and Fa
 **Tire list.** Program, dates and counts; a searchable table of every tire with its value; Update from ClaimForm.pdf
 (with the diff dialog), Export CSV, and History (earlier lists, read only).
 
-**Settings.** The website address, the browser (Automatic, Chrome, Edge), "I upload the invoice PDFs myself (ignore
-loaded PDFs)", "when some PDFs are loaded, still enter sales that have none", "Check for updates when the app
+**Settings.** The website address, the browser (Automatic, Chrome, Edge), "when some PDFs are loaded, still enter sales that have none", "Check for updates when the app
 starts", and where the app keeps its files (with an Open folder button). The address and browser are written to `config.toml`.
 
 **Friendly behavior.** The window remembers its size and the last month and reopens where the person left off. Long

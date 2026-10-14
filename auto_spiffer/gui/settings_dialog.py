@@ -60,9 +60,6 @@ class SettingsDialog:
 
         # ---- invoice PDFs
         pdfs = self._section(frame, "Invoice PDFs")
-        self.use_var = tk.BooleanVar(value=not bool(app.settings.get("use_invoice_pdfs")))
-        ttk.Checkbutton(pdfs, text="I upload the PDFs myself (ignore any I load)",
-                        variable=self.use_var).pack(anchor="w", pady=2)
         self.allow_var = tk.BooleanVar(value=bool(app.settings.get("allow_missing_pdf")))
         ttk.Checkbutton(pdfs, text="Enter sales that have no PDF, even when others do",
                         variable=self.allow_var).pack(anchor="w", pady=2)
@@ -139,7 +136,6 @@ class SettingsDialog:
             self.app.error("Settings", str(exc))
             return False
         self.app.apply_settings(allow_missing_pdf=self.allow_var.get(),
-                                use_pdfs=not self.use_var.get(),
                                 check_updates=self.updates_var.get())
         self.close()
         return True

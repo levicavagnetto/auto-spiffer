@@ -64,6 +64,21 @@ class LoginConfig:
     login_wait: float = 20.0
 
 
+# Selectors from older copies of config.toml in the data folder that are known not to work anymore.
+# file0 is only the first file box: the site replaces it after one upload, so later PDFs were lost.
+_OUTDATED_SELECTORS = {
+    "upload_input": ("#ctl00_DefaultContent_FileUploadRadAsyncUploadfile0",
+                     "#ctl00_DefaultContent_FileUploadRadAsyncUpload input[type=file]"),
+}
+
+
+def _upgrade_selectors(selectors: dict[str, str]) -> dict[str, str]:
+    for key, (old, new) in _OUTDATED_SELECTORS.items():
+        if selectors.get(key, "").strip() == old:
+            selectors[key] = new
+    return selectors
+
+
 def load_config(path: Optional[Path] = None) -> FillConfig:
     """Read config.toml from the data folder (created from the defaults on first use)."""
     path = path or paths.ensure_data_file("config.toml")
@@ -73,7 +88,7 @@ def load_config(path: Optional[Path] = None) -> FillConfig:
         return FillConfig(
             live_url=data["site"]["live_url"], browser=data["site"].get("browser", "auto"),
             timeouts={k: float(v) for k, v in data["timeouts"].items()},
-            selectors=dict(data["selectors"]),
+            selectors=_upgrade_selectors(dict(data["selectors"])),
             never_click=set(data.get("never_click", {}).get("selectors", [])),
             upload_done=list(data.get("upload", {}).get("done_selectors", [])),
             login=LoginConfig(**{k: v for k, v in data.get("login", {}).items()
@@ -426,7 +441,8 @@ class ClaimPage:
     def upload(self, path: str | Path) -> None:
         path = Path(path)
         baseline = self._upload_signal()
-        self.loc("upload_input").first.set_input_files(str(path), timeout=self.cfg.timeouts["action"] * 1000)
+        # the newest file box: the site replaces the used one with a fresh one after every upload
+        self.loc("upload_input").last.set_input_files(str(path), timeout=self.cfg.timeouts["action"] * 1000)
         deadline = time.monotonic() + self.cfg.timeouts["upload"]
         while time.monotonic() < deadline:
             if self._upload_signal() > baseline:

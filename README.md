@@ -98,8 +98,7 @@ to be the website for Add and uploads. Nothing real is entered, and test mode ke
 ## Settings
 
 Click **Settings** in the left menu to change the website address, the browser (Automatic, Chrome or Edge),
-whether to use invoice PDFs at all (*I upload the invoice PDFs myself*), whether sales with no PDF are still
-entered when some PDFs are loaded, and whether to check for updates at startup. It also shows where the app keeps
+whether sales with no PDF are still entered when some PDFs are loaded, and whether to check for updates at startup. It also shows where the app keeps
 its files.
 
 ## If something goes wrong

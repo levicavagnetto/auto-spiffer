@@ -57,7 +57,6 @@ class Session:
                  load_saved: bool = True):
         self._brands, self._noise = brands, noise
         self.allow_missing_pdf = False  # set from Settings by the window
-        self.use_pdfs = True            # set from Settings: False means PDFs are not used at all
         self.catalog: Optional[Catalog] = load_catalog() if load_saved else None
         self.product_map = ProductMap.load()
         self.temp_choices = ProductMap(path=self.product_map.path)  # choices not saved for next month
@@ -204,11 +203,11 @@ class Session:
     # --------------------------------------------------------------- analysis
     @property
     def uses_pdfs(self) -> bool:
-        """Invoice PDFs are optional. They are used only when some were loaded and the Settings allow it.
+        """Invoice PDFs are optional. They are used whenever some were loaded.
 
         Otherwise the app enters the sales only, and the person uploads the PDFs on the website.
         """
-        return self.use_pdfs and self._index is not None and bool(self._index.pdfs)
+        return self._index is not None and bool(self._index.pdfs)
 
     def _combined_map(self) -> ProductMap:
         merged = {**self.product_map.entries, **self.temp_choices.entries}

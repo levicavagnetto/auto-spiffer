@@ -319,8 +319,18 @@ when the runner lacks it, builds the installer, and attaches it to the release b
 pre-releases or drafts) with a 5-second timeout and returns `None` on any failure. `is_newer()` compares numbers, and
 a suffixed test build (`0.3.0-rc1`) sorts just below its release. At startup `App` runs the lookup on the `Worker`
 thread, only when Settings > Updates is on, and only the real program passes the lookup in, so tests never use the
-network. A newer release shows a notice and an **Update** button in the sidebar that opens the release page in the
-browser. Downloading and installing from inside the app is not done (a possible follow-up).
+network. A newer release shows a notice and an **Update** button in the sidebar.
+
+**Installing an update.** `latest_release()` also returns the release's `AutoSpiffer-Setup-<tag>.exe`, but only
+when GitHub lists it with an https link, a size and a SHA-256 digest. Update (in the installed program, after a Yes)
+downloads it on the `Worker` thread to `%TEMP%\AutoSpiffer-update\`, showing the percentage in the sidebar, and
+throws it away unless the size and SHA-256 match. It then starts it detached with `/SILENT /SUPPRESSMSGBOXES
+/NORESTART /CLOSEAPPLICATIONS /RELAUNCH /LOG=...` and quits (closing the browser like the window's close button,
+without its questions). The installer's `[Run]` section reopens the app only for a silent install started with
+`/RELAUNCH`, so a manual install behaves as before. Update is refused during a run. Run from source, without an
+installer in the release, or when the download fails, Update opens the release page instead. Copies before 0.3.2
+only open the page, so the first upgrade past them is manual. `AUTO_SPIFFER_UPDATE_URL` points the lookup at one
+release (`.../releases/tags/v0.4.0-rc1`) to try an update before shipping it.
 
 ### 5.10 The app window
 

@@ -23,8 +23,9 @@ the page and submit it yourself.
 3. Windows may warn that the program is unknown (it is not code-signed). Click **More info**, then **Run anyway**.
 
 **Updating.** When a newer version is out, the left menu shows *Version X is available* with an **Update**
-button. It opens the download page: download the new Setup and run it over the old one. Your settings and
-months are kept. Turn the check off in **Settings > Updates**. **Uninstalling** (Windows Settings > Apps)
+button. Click it and the app downloads the new version, closes, installs it and opens again by itself (about
+a minute). Your settings and months are kept. If that does not work it offers the download page instead: download
+the new Setup and run it over the old one. Turn the check off in **Settings > Updates**. **Uninstalling** (Windows Settings > Apps)
 removes the program but leaves your `data` and `output` folders.
 
 (A zip of the program folder is also on each release. Unzip it anywhere you can write to and run
@@ -142,6 +143,8 @@ its files.
 - **Release:** set `__version__` in `auto_spiffer\__init__.py`, commit and push `main`, then
   `git tag vX.Y.Z` and `git push origin vX.Y.Z`. GitHub Actions checks the tag against the version, runs the
   tests, builds the exe, zip and installer, and publishes the release. A tag with a suffix (`v0.3.0-rc1`,
-  with the same text in `__version__`) is published as a pre-release, which the in-app update check ignores.
+  with the same text in `__version__`) is published as a pre-release, which the in-app update check ignores. To try
+  the Update button on one before shipping, start the installed app with `AUTO_SPIFFER_UPDATE_URL` set to
+  `https://api.github.com/repos/levicavagnetto/auto-spiffer/releases/tags/v0.3.0-rc1`.
 - `docs\DESIGN.md` explains how it works. The plan and task list are in `docs\plans\`, and the original
   window mockups are in `docs\mockups\` (`python docs\mockups\mockup_gui.py B`).

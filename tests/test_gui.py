@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from auto_spiffer import paths
+from auto_spiffer import paths, updates
 from auto_spiffer.brands import BrandTable
 from auto_spiffer.catalog import list_history, save_catalog
 from auto_spiffer.catalog_import import parse_claimform
@@ -785,15 +785,80 @@ def test_update_notice_appears_for_a_newer_release_and_opens_its_page(update_app
     app = update_app(lambda: ("v99.0.0", PAGE))
     assert "99.0.0" in app.update_text.cget("text")
     assert app.update_box.winfo_manager() == "pack"
-    app.open_update_page()
+    app.update_now()  # run from source: it cannot install itself, so the page opens
     assert ("opened", PAGE) in app.messages
+
+
+INSTALLER = updates.Installer("https://x/AutoSpiffer-Setup-v99.0.0.exe", 10, "00" * 32)
+
+
+def installing_app(update_app, download=None, start=None):
+    """An app that found v99 with an installer, and can install itself (as the installed program can)."""
+    app = update_app(lambda: updates.Release("v99.0.0", PAGE, INSTALLER))
+    app.can_install = True
+    app.calls = []
+    app.download = download or (lambda inst, progress: app.calls.append(("download", inst)) or "setup.exe")
+    app.start_installer = start or (lambda path: app.calls.append(("start", path)))
+    app.quit = lambda: app.calls.append(("quit",))
+    return app
+
+
+def test_update_downloads_the_installer_runs_it_and_closes(update_app):
+    app = installing_app(update_app)
+    app.update_now()
+    title, message = app.messages[-1]
+    assert title == "Update Auto Spiffer" and "99.0.0" in message and "open again" in message
+    assert app.calls == [("download", INSTALLER), ("start", "setup.exe"), ("quit",)]
+
+
+def test_update_can_be_declined(update_app):
+    app = installing_app(update_app)
+    app.confirm_answer = False
+    app.update_now()
+    assert app.calls == [] and not app.updating
+
+
+def test_update_waits_for_a_run_to_stop(update_app):
+    app = installing_app(update_app)
+    app.pages["run"].running = True
+    try:
+        app.update_now()
+    finally:
+        app.pages["run"].running = False
+    assert app.calls == [] and app.messages[-1] == ("Update", "Stop the run first, then click Update.")
+
+
+def test_a_failed_download_offers_the_page_and_the_app_stays_open(update_app):
+    def broken(_inst, progress):
+        raise updates.UpdateError("The downloaded update did not match the one on GitHub, so it was not installed.")
+    app = installing_app(update_app, download=broken)
+    app.update_now()
+    title, message = app.messages[-2]
+    assert title == "Update did not work" and "did not match" in message
+    assert app.messages[-1] == ("opened", PAGE) and app.calls == []
+    assert not app.updating and app.update_text.cget("text") == "Version 99.0.0 is available"
+
+
+def test_an_installer_that_will_not_start_does_not_close_the_app(update_app):
+    def broken(_path):
+        raise updates.UpdateError("The update could not be started (access denied).")
+    app = installing_app(update_app, start=broken)
+    app.update_now()
+    assert ("quit",) not in app.calls and "could not be started" in app.messages[-2][1]
+
+
+def test_without_an_installer_in_the_release_update_opens_the_page(update_app):
+    app = update_app(lambda: updates.Release("v99.0.0", PAGE, None))
+    app.can_install = True
+    app.update_now()
+    assert app.messages == [("opened", PAGE)]
 
 
 @pytest.mark.parametrize("answer", [None, ("v0.0.1", "x"), ("nightly", "x")])
 def test_no_update_notice_when_up_to_date_or_the_lookup_failed(update_app, answer):
     app = update_app(lambda: answer)
     assert app.update_box.winfo_manager() == ""
-    app.open_update_page()  # nothing to open
+    app.update_now()  # nothing to open
     assert app.messages == []
 
 

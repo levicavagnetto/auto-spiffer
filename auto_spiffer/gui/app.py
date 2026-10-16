@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 import tkinter as tk
 import webbrowser
 from tkinter import messagebox, ttk
@@ -36,7 +37,7 @@ PLAIN_ERRORS = (ReportError, CatalogError, InvoiceError, FillError, ValueError, 
 class App:
     def __init__(self, root: tk.Tk, session: Optional[Session] = None, settings: Optional[Settings] = None,
                  synchronous: bool = False, restore: bool = True, first_run_checks: bool = True,
-                 update_check: Optional[Callable[[], Optional[tuple[str, str]]]] = None):
+                 update_check: Optional[Callable[[], Optional[updates.Release]]] = None):
         """`update_check` looks up the latest release; only the real program passes it, so tests never use the network."""
         self.root = root
         self.synchronous = synchronous
@@ -48,7 +49,12 @@ class App:
         self.browser_headless = False  # tests set this so no browser window appears
         self.confirm_answer = True     # in test mode, what a Yes/No question is answered with
         self.browser_problem = None
-        self.update_page = ""          # the release page the Update button opens
+        self.release: Optional[updates.Release] = None  # a newer release, once one is found
+        self.updating = False          # the update is downloading
+        # Only the installed program can install over itself; run from source, Update opens the page.
+        self.can_install = bool(getattr(sys, "frozen", False))
+        self.download = updates.download_installer        # tests replace these two so nothing is
+        self.start_installer = updates.start_installer    # downloaded or run
         self.open_url = webbrowser.open  # tests replace this so no browser starts
         self.session.allow_missing_pdf = bool(self.settings.get("allow_missing_pdf"))
 
@@ -120,7 +126,7 @@ class App:
                                     fg=theme.SIDEBAR_TEXT, padx=14, pady=4, font=(theme.FONT, 9, "bold"),
                                     cursor="hand2")
         self.update_link.pack(anchor="w", padx=14, pady=(2, 10))
-        self.update_link.bind("<Button-1>", lambda _e: self.open_update_page())
+        self.update_link.bind("<Button-1>", lambda _e: self.update_now())
         self.workspace_label = tk.Label(side, text="", bg=theme.SIDEBAR_BG, fg=theme.SIDEBAR_MUTED,
                                         anchor="w", padx=14, font=(theme.FONT, 8))
         self.workspace_label.pack(fill="x")
@@ -303,13 +309,69 @@ class App:
     def _show_update(self, found) -> None:
         if not found or not updates.is_newer(found[0], __version__):
             return
-        tag, self.update_page = found
-        self.update_text.config(text=f"Version {tag.lstrip('v')} is available")
+        self.release = updates.Release(*found)
+        self.update_text.config(text=f"Version {self.version_found()} is available")
         self.update_box.pack(fill="x", before=self.workspace_label)
 
+    def version_found(self) -> str:
+        return self.release.tag.lstrip("v") if self.release else ""
+
     def open_update_page(self) -> None:
-        if self.update_page:
-            self.open_url(self.update_page)
+        if self.release:
+            self.open_url(self.release.page)
+
+    def update_now(self) -> None:
+        """The Update button: download the new installer and run it over this copy of the app.
+        Falls back to the release page when this copy cannot install itself."""
+        if self.release is None or self.updating:
+            return
+        if not self.can_install or self.release.installer is None:
+            self.open_update_page()
+            return
+        run = self.pages["run"]
+        if run.running:
+            self.info("Update", "Stop the run first, then click Update.")
+            return
+        question = (f"Install version {self.version_found()} now?\n\n"
+                    "Auto Spiffer will close, install the update and open again by itself.")
+        if run.browser_open():
+            question += " The browser window it opened will close too."
+        if not self.confirm("Update Auto Spiffer", question):
+            return
+        self.updating = True
+        self._download_progress = 0
+        self.update_link.config(cursor="")
+        self._show_download_progress()
+
+        def progress(done: int, total: int) -> None:  # from the download thread: only store it
+            self._download_progress = int(100 * done / total)
+
+        def downloaded(path) -> None:
+            try:
+                self.start_installer(path)
+            except Exception as exc:
+                failed(exc)
+                return
+            log.info("Started the installer for version %s: %s", self.version_found(), path)
+            self.quit()
+
+        def failed(exc: Exception) -> None:
+            self.updating = False
+            self.update_link.config(cursor="hand2")
+            self.update_text.config(text=f"Version {self.version_found()} is available")
+            log.warning("The update did not work: %s", exc)
+            reason = str(exc) if isinstance(exc, updates.UpdateError) else "The update did not work."
+            if self.confirm("Update did not work", reason + "\n\nOpen the download page to install it yourself?"):
+                self.open_update_page()
+
+        self.worker.run(lambda: self.download(self.release.installer, progress=progress), downloaded, failed)
+
+    def _show_download_progress(self) -> None:
+        if not self.updating:
+            return
+        self.update_text.config(text=f"Downloading version {self.version_found()}... {self._download_progress}%")
+        if not self.synchronous:
+            self.root.after(200, self._show_download_progress)
 
     # ---------------------------------------------------------- first run, errors
     def _first_run_checks(self) -> None:
@@ -341,7 +403,11 @@ class App:
                                 "The browser window opened by Auto Spiffer will close too. "
                                 "Have you finished reviewing and submitting the claim?"):
                 return
-        run.shutdown()
+        self.quit()
+
+    def quit(self) -> None:
+        """Close without asking: stop a run, close the browser, remember the window, and exit."""
+        self.pages["run"].shutdown()
         if self.root.state() == "normal":  # a minimized or hidden window reports a meaningless size
             width, height = self.root.winfo_width(), self.root.winfo_height()
             if width >= 800 and height >= 500:

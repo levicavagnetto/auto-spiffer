@@ -7,6 +7,10 @@
 ; The install is per user (no administrator rights) and goes to %LOCALAPPDATA%\Programs\Auto Spiffer,
 ; because the app keeps its data\ and output\ folders next to the program and must be able to write there.
 ; Those two folders are never listed here, so an upgrade or an uninstall leaves them alone.
+;
+; The app's Update button downloads the new installer and runs it as
+;     AutoSpiffer-Setup-vX.Y.Z.exe /SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RELAUNCH
+; (see auto_spiffer/updates.py), so a silent install must keep working without questions.
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
@@ -48,3 +52,16 @@ Name: "{autodesktop}\Auto Spiffer"; Filename: "{app}\AutoSpiffer.exe"; Tasks: de
 
 [Run]
 Filename: "{app}\AutoSpiffer.exe"; Description: "Launch Auto Spiffer"; Flags: nowait postinstall skipifsilent
+; The app's Update button runs this installer with /SILENT /RELAUNCH: open the app again when done.
+Filename: "{app}\AutoSpiffer.exe"; Flags: nowait; Check: RelaunchAfterUpdate
+
+[Code]
+function RelaunchAfterUpdate: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if not WizardSilent then Exit;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), '/RELAUNCH') = 0 then Result := True;
+end;

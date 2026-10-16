@@ -204,7 +204,7 @@ class RunPage(ttk.Frame):
             began = time.monotonic()
             claim = sess.claim_page()
             if test_mode:  # test mode pretends the page's program dates are the sales' dates
-                claim.page.evaluate("w => { window.__stub.window = w; }", list(window))
+                claim.page.evaluate("w => window.__stub.setWindow(w)", list(window))
             check = check_page(claim.read_info(), rows, catalog)
             done = time.monotonic()
             timing = (f"Ready to enter {done - clicked:.1f}s after start (waited for the browser "

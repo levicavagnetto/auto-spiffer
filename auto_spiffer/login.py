@@ -220,24 +220,46 @@ def login_and_navigate(page, cfg, creds: Credentials, month: str = "", program: 
     """Log in (once), open the claim page, and pick the month's program. Never raises.
     `stop` is asked often: when it returns True the person has taken over and this ends quietly."""
     started = time.monotonic()
+    steps = _Steps()
     try:
-        result = _login_and_navigate(page, cfg, creds, month, program, stop)
+        result = _login_and_navigate(page, cfg, creds, month, program, stop, steps)
     except _Stopped:
         result = LoginResult(False, "")
     except Exception as exc:  # the person finishes by hand, whatever went wrong
         detail = str(exc).splitlines()[0] if str(exc) else exc.__class__.__name__
         result = LoginResult(False, f"The automatic login stopped ({detail}). Finish by hand.")
-    logging.info("Automatic login took %.1fs: %s", time.monotonic() - started, result.message or "(stepped aside)")
+    logging.info("Automatic login took %.1fs: %s (%s)", time.monotonic() - started,
+                 result.message or "(stepped aside)", steps.text())
     return result
 
 
-def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str, stop) -> LoginResult:
+class _Steps:
+    """How long each part of the automatic login took, for the log."""
+
+    def __init__(self):
+        self._last = time.monotonic()
+        self._done: list[str] = []
+
+    def mark(self, name: str) -> None:
+        now = time.monotonic()
+        self._done.append(f"{name} {now - self._last:.1f}s")
+        self._last = now
+
+    def text(self) -> str:
+        return ", ".join(self._done) or "no steps"
+
+
+def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str, stop,
+                        steps: Optional["_Steps"] = None) -> LoginResult:
+    steps = steps or _Steps()
     lg = cfg.login
     waits = cfg.timeouts
 
     if _count_visible(page, cfg.selectors["date"]):
         return LoginResult(True, "Already on the claim page.")  # nothing to do: the person got there first
-    if _wait_visible(page, lg.password, lg.form_wait, stop=stop):
+    found = _wait_visible(page, lg.password, lg.form_wait, stop=stop)
+    steps.mark("sign-in form" if found else "no sign-in form")
+    if found:
         user_box = page.locator(lg.username).first
         user_box.fill(creds.username, timeout=3000)
         page.locator(lg.password).first.fill(creds.password, timeout=3000)
@@ -249,10 +271,12 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str,
         if not _wait_gone(page, lg.password, lg.login_wait, stop):
             return LoginResult(False, "The site did not finish logging in (wrong password, a code, or a "
                                       "CAPTCHA?). The app only tries once. Finish logging in by hand.")
+        steps.mark("signed in")
 
     _settle(page, waits["action"], stop)  # the site may still be redirecting after the login
     page.wait_for_timeout(300)
     _goto(page, lg.claim_url, stop)
+    steps.mark("claim page")
     if _count_visible(page, lg.password):
         return LoginResult(False, "The site is asking for a login again. Log in by hand.")
     if page.locator(cfg.selectors["date"]).count() > 0:
@@ -262,8 +286,11 @@ def _login_and_navigate(page, cfg, creds: Credentials, month: str, program: str,
         return LoginResult(False, "Logged in and on the claim page list. No month is loaded, so pick the "
                                   "program yourself.")
     chosen = _choose_program(page, cfg, month, program, stop)
+    steps.mark("program chosen" if chosen else "program not found")
     if chosen:
-        return _open_claim_form(page, cfg, chosen, stop)
+        result = _open_claim_form(page, cfg, chosen, stop)
+        steps.mark("claim form")
+        return result
     saved = _save_page(page)
     where = f" The page was saved to {saved} so the app can be taught its layout." if saved else ""
     return LoginResult(False, "Logged in, but this month's program was not found in the list. Pick the "

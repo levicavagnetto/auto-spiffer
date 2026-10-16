@@ -91,7 +91,7 @@ def test_run_page_enters_everything_in_test_mode(app, invoice_folder):
         # the browser stays open for review; there is nothing left to run
         assert run.browser_open() and run.start_button.instate(["!disabled"])
         run.start_run()
-        assert any("no lines ready" in m for _t, m in app.messages)
+        assert any("No lines are ready" in m for _t, m in app.messages)
     finally:
         run.shutdown()
     assert not run.browser_open()

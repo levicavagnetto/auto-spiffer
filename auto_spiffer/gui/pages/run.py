@@ -55,7 +55,7 @@ class RunPage(ttk.Frame):
         self.pause_button.pack(side="left")
         self.stop_button = ttk.Button(row, text="Stop", command=self.stop_run)
         self.stop_button.pack(side="left", padx=8)
-        self.reenter_button = ttk.Button(row, text="Re-enter this month...", command=self.reenter_month)
+        self.reenter_button = ttk.Button(row, text="Enter this month again...", command=self.reenter_month)
         self.reenter_button.pack(side="right")
 
         # Test mode (the saved page) and "only the first N lines" are not shown in the window. They are
@@ -189,7 +189,7 @@ class RunPage(ttk.Frame):
             return
         rows = self.rows_to_run()
         if not rows:
-            self.app.info("Nothing to enter", "There are no lines ready to enter.")
+            self.explain_nothing_to_enter()
             return
         self.browser.cancel_login()  # the person is taking over: the automatic login must not delay the run
         catalog = self.session.catalog
@@ -295,6 +295,19 @@ class RunPage(ttk.Frame):
                                     "then submit it yourself." + reminder)
         self.app.refresh_all()
 
+    def explain_nothing_to_enter(self) -> None:
+        """Start autofill with no lines ready: say why, and when it is because they were all entered
+        before, offer to enter them again (through the usual re-enter warning)."""
+        if self.session.entered_records():
+            ask = ("The lines for this month have already been entered by this app.\n\n"
+                   "If you did NOT submit them on the website (or the claim was deleted), you can enter "
+                   "them again.\n\nEnter them again?")
+            if self.app.confirm("Already entered", ask) and self.reenter_month():
+                self.write("Click Start autofill to enter the lines again.")
+            return
+        self.app.info("Nothing to enter", "No lines are ready to enter. Go back to the Review page to "
+                                          "see why each line is not ready.")
+
     # -------------------------------------------------------------- re-enter
     def reenter_month(self) -> bool:
         """Forget what was recorded as entered, so the lines can be entered again. Asks first."""
@@ -303,17 +316,13 @@ class RunPage(ttk.Frame):
             return False
         shown = ", ".join(sorted({e.invoice for e in records})[:8])
         more = " ..." if len({e.invoice for e in records}) > 8 else ""
-        message = (f"{len(records)} line(s) of this month are recorded as already entered "
-                   f"(invoices {shown}{more}).\n\n"
-                   "Only go on if you did NOT submit them, or they are gone from the website page. "
-                   "Their invoice PDFs will be uploaded again too.\n\n"
-                   "Entering sales twice that were already submitted can get a dealer removed from the "
-                   "program.\n\n"
-                   "Forget these records so they can be entered again?")
-        if not self.app.confirm("Re-enter this month", message, warning=True):
+        message = (f"{len(records)} line(s) were already entered (invoices {shown}{more}).\n\n"
+                   "Only do this if they were NOT submitted on the website.")
+        if not self.app.confirm("Enter this month again", message, warning=True):
             return False
         removed = self.session.reenter_month()
         self.counter.config(text="0 of 0 sales")
+        self.bar.config(value=0)
         self.write(f"Forgot {removed} record(s). The lines can be entered again.")
         self.footer.config(text="Nothing has been submitted. When the run finishes you review the page and "
                                 "submit it yourself.")

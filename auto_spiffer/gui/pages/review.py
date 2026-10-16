@@ -124,7 +124,7 @@ class ReviewPage(ttk.Frame):
         already = counts.get("already_entered", (0, 0))[0]
         if already:
             notes.append(f"{already} line(s) are recorded as already entered. To enter them again, use "
-                         "'Re-enter this month' on the Run page.")
+                         "'Enter this month again' on the Run page.")
         self.note.config(text="     ".join(notes))
         names = [("ready", "Ready"), ("attention", "Needs attention"), ("not_eligible", "Not eligible"),
                  ("problem", "Problem"), ("already_entered", "Already entered"), ("excluded", "Excluded"),

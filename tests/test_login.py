@@ -145,6 +145,16 @@ def test_login_then_picks_the_months_program(site):
     assert state["attempts"] == 1
 
 
+def test_the_log_says_how_long_each_login_step_took(site, caplog):
+    page, cfg, state = site
+    state["picker"] = PICKER.replace(NEXT_BUTTON, "")
+    with caplog.at_level("INFO"):
+        login.login_and_navigate(page, cfg, login.Credentials("shop", "right"), "2026-09")
+    line = next(r.getMessage() for r in caplog.records if r.getMessage().startswith("Automatic login took"))
+    for step in ("sign-in form", "signed in", "claim page", "program chosen", "claim form"):
+        assert f"{step} " in line, (step, line)
+
+
 def test_wrong_password_tries_once_and_stops(site):
     page, cfg, state = site
     result = login.login_and_navigate(page, cfg, login.Credentials("shop", "wrong"), "2026-09")

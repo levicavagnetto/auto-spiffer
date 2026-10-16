@@ -14,7 +14,7 @@ from auto_spiffer.catalog_import import parse_claimform
 from auto_spiffer.cli import main
 from auto_spiffer.demo_pdfs import make_invoice_pdf
 from auto_spiffer.fill import (ClaimPage, FillConfig, FillError, Filler, GridRow, PageInfo, RunControl,
-                               RunSummary, check_page, file_hash, load_config)
+                               RunSummary, check_page, file_hash, load_config, timing_text)
 from auto_spiffer.models import ClaimRow
 from auto_spiffer.page_stub import install_stub
 from auto_spiffer.state import State
@@ -205,6 +205,98 @@ def test_two_different_tires_on_one_invoice(page):
         return claim.add_row(row(tire=ALTIMAX)).ok, claim.add_row(row(tire=NOKIAN, qty=2)).ok, claim.grid_rows()
     a, b, rows = on_page(page, job)
     assert a and b and [(r.product, r.qty) for r in rows] == [(ALTIMAX, 4), (NOKIAN, 2)]
+
+
+# ------------------------------------------------- entering without typing
+def test_a_line_goes_in_through_the_pages_own_controls(page):
+    """No typing: the date, invoice and quantity controls and the tire list are set the way the page
+    itself sets them, so what the website receives is the same as when a person types."""
+    def job(claim, sess):
+        why = claim.fill_directly(row())
+        sent = stub(sess, "Object.fromEntries(Array.from(new FormData(document.forms[0])).filter(([k]) => "
+                          "/InvoiceDateRadDatePicker$|InvoiceNumberTextBox_ClientState|ProductDropdownList|"
+                          "QtyClaimedRadNumericTextBox$/.test(k)))")
+        shown = stub(sess, "document.querySelector('#DefaultContent_ProductDropdownList_chosen .chosen-single span')"
+                           ".innerText")
+        return why, sent, shown
+    why, sent, shown = on_page(page, job)
+    assert why is None
+    assert sent["ctl00$DefaultContent$InvoiceDateRadDatePicker"] == "2026-09-05"
+    assert '"valueAsString":"214341"' in sent["ctl00_DefaultContent_InvoiceNumberTextBox_ClientState"]
+    assert sent["ctl00$DefaultContent$QtyClaimedRadNumericTextBox"] == "4"
+    assert shown == ALTIMAX  # the dropdown the person sees shows the tire too
+
+
+def test_add_row_fills_directly(page):
+    def job(claim, _s):
+        return claim.add_row(row()), claim.last_timing, claim.grid_rows()
+    result, timing, rows = on_page(page, job)
+    assert result.ok and timing["how"] == "direct" and "why_typed" not in timing
+    assert rows == [GridRow(date(2026, 9, 5), "214341", ALTIMAX, 4)]
+
+
+def test_without_the_pages_controls_the_line_is_typed(page):
+    def job(claim, sess):
+        stub(sess, "window.$find = () => null")
+        return claim.add_row(row()), claim.last_timing, claim.grid_rows()
+    result, timing, rows = on_page(page, job)
+    assert result.ok and timing["how"] == "typed"
+    assert timing["why_typed"] == "the boxes were not found as controls"
+    assert rows == [GridRow(date(2026, 9, 5), "214341", ALTIMAX, 4)]
+
+
+def test_a_control_that_does_not_take_the_value_falls_back_to_typing(page):
+    def job(claim, sess):
+        stub(sess, "$find('ctl00_DefaultContent_QtyClaimedRadNumericTextBox').set_value = () => {}")
+        return claim.add_row(row()), claim.last_timing
+    result, timing = on_page(page, job)
+    assert result.ok and timing["how"] == "typed"
+    assert timing["why_typed"] == "the boxes did not show the line afterwards"
+
+
+def test_the_next_line_waits_while_the_website_is_busy(page):
+    def job(claim, sess):
+        stub(sess, "(() => { const p = Sys.WebForms.PageRequestManager.getInstance(); const until = "
+                   "performance.now() + 400; p.get_isInAsyncPostBack = () => performance.now() < until; })()")
+        began = time.monotonic()
+        idle = claim.wait_until_idle(5)
+        waited = time.monotonic() - began
+        stub(sess, "Sys.WebForms.PageRequestManager.getInstance().get_isInAsyncPostBack = () => true")
+        return idle, waited, claim.wait_until_idle(0.2)
+    idle, waited, never = on_page(page, job)
+    assert idle and 0.3 < waited < 2
+    assert never is False
+
+
+def test_an_answer_without_the_new_line_does_not_wait_the_full_time(page):
+    """The website answered Add (its background request finished) but no line and no message came:
+    give up after a moment instead of waiting the whole Add timeout."""
+    def job(claim, sess):
+        stub(sess, "window.__doPostBack = () => setTimeout(() => { window.__spiffer.answered += 1; }, 50)")
+        began = time.monotonic()
+        result = claim.add_row(row())
+        return result, time.monotonic() - began
+    result, took = on_page(page, job)
+    assert result.outcome == "timeout" and "answered" in result.message
+    assert took < 5
+
+
+def test_every_line_is_timed_in_the_log(page, tmp_path, caplog):
+    rows = [row(invoice="1"), row(invoice="2", tire=NOKIAN)]
+    with caplog.at_level("INFO", logger="auto_spiffer.fill"):
+        on_page(page, lambda claim, _s: Filler(claim, State(path=tmp_path / "s.json"), snapshot_dir=tmp_path)
+                .run(rows))
+    lines = [r.getMessage() for r in caplog.records if "try 1" in r.getMessage()]
+    assert len(lines) == 2
+    assert all("added in" in l and "filled direct" in l and "Add answered" in l for l in lines)
+
+
+def test_timing_text():
+    assert timing_text({}) == "no timing"
+    assert timing_text({"busy_before": True, "waited": 1.234, "how": "typed", "fill": 0.5,
+                        "why_typed": "x", "add": 0.3, "server": 0.27}) == (
+        "website still busy before the line, waited 1.23s, filled typed 0.50s, typed because x, "
+        "Add answered 0.30s, server 0.27s")
 
 
 # --------------------------------------------------------------- never submit

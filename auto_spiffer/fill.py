@@ -1,7 +1,8 @@
 """Entering sales on the ATD ProRewards "Submit a Sales Claim" page, with Playwright.
 
 Three layers:
-  ClaimPage  one Playwright page: find the fields, type into them, click Add, read the list, upload.
+  ClaimPage  one Playwright page: find the fields, fill them, click Add, read the list, upload.
+             A line is put in through the page's own controls (no typing); typing is the fallback.
   Filler     the loop over sales: skip what is already there, retry once, upload each invoice's PDF.
   check_page what must be true BEFORE entering anything (right program, dates, every tire in the list).
 
@@ -11,6 +12,7 @@ never-click list in config.toml, so that rule is enforced in code, not just by h
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 import threading
 import time
@@ -28,6 +30,9 @@ from auto_spiffer.state import State
 
 TYPE_DELAY_MS = 5      # pause between typed characters
 SETTLE_SECONDS = 0.6   # how long to wait for the page to reformat a box after Tab
+ANSWER_GRACE = 1.5     # after the website answered Add, how long to look for the new line or a message
+
+log = logging.getLogger(__name__)
 
 
 class FillError(Exception):
@@ -146,6 +151,55 @@ def _direct_click(locator, seconds: float) -> None:
     locator.evaluate("e => e.click()", timeout=seconds * 1000)
 
 
+def _id_of(selector: str) -> Optional[str]:
+    """'abc' for the selector '#abc'; None for anything that is not a plain id."""
+    match = re.fullmatch(r"#([\w-]+)", selector.strip())
+    return match.group(1) if match else None
+
+
+# Puts one line into the four boxes through the page's own controls (Telerik and the Chosen dropdown),
+# the way the page itself would, instead of typing. Returns None when done, else why not.
+FILL_JS = r"""([ids, ymd, invoice, label, qty]) => {
+  try {
+    const [dateId, pickerId, invoiceId, selectId, qtyId] = ids;
+    if (!window.$find || !window.jQuery) return 'the page has no controls to set';
+    const dateBox = $find(dateId), picker = pickerId ? $find(pickerId) : null;
+    const invoiceBox = $find(invoiceId), qtyBox = $find(qtyId);
+    const select = document.getElementById(selectId);
+    if (!dateBox || !invoiceBox || !qtyBox || !select) return 'the boxes were not found as controls';
+    const option = Array.from(select.options).find(o => o.text.replace(/\s+/g, ' ').trim() === label);
+    if (!option) return 'the tire is not in the list';
+    const when = new Date(ymd[0], ymd[1] - 1, ymd[2]);
+    if (picker && picker.get_dateInput && picker.get_dateInput()) picker.set_selectedDate(when);
+    else dateBox.set_selectedDate(when);
+    invoiceBox.set_value(invoice);
+    select.value = option.value;
+    jQuery(select).trigger('change').trigger('chosen:updated');
+    qtyBox.set_value(qty);
+    return null;
+  } catch (e) {
+    return String(e && e.message || e);
+  }
+}"""
+
+# The website sends Add to its server in the background (an ASP.NET partial update). These say when
+# such a request is running, and count the ones that finished, so the app knows when the answer is in.
+BUSY_JS = r"""() => {
+  try { return Sys.WebForms.PageRequestManager.getInstance().get_isInAsyncPostBack(); }
+  catch (e) { return false; }
+}"""
+WATCH_JS = r"""() => {
+  let prm;
+  try { prm = Sys.WebForms.PageRequestManager.getInstance(); } catch (e) { return false; }
+  if (!window.__spiffer) {
+    const w = window.__spiffer = { answered: 0, began: 0, took: 0 };
+    prm.add_beginRequest(() => { w.began = performance.now(); });
+    prm.add_endRequest(() => { w.answered += 1; w.took = performance.now() - w.began; });
+  }
+  return true;
+}"""
+
+
 def file_hash(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -190,6 +244,7 @@ REQUIRED = ("date","invoice", "product_select", "product_chosen", "qty", "add", 
 class ClaimPage:
     def __init__(self, page, cfg: FillConfig):
         self.page, self.cfg = page, cfg
+        self.last_timing: dict = {}  # how the last add_row went, for the log
 
     # --------------------------------------------------------------- finding things
     def sel(self, key: str) -> str:
@@ -401,27 +456,88 @@ class ClaimPage:
         if self._selected_product() != label:
             raise FillError(f"Could not select '{label}' in the product list.")
 
-    # --------------------------------------------------------------- adding
-    def add_row(self, row: ClaimRow) -> AddResult:
-        """Fill the four boxes, click Add, and wait to see what the page did."""
-        before = self.grid_rows()
+    # --------------------------------------------------------------- filling
+    def _boxes_hold(self, row: ClaimRow) -> bool:
+        """True when the four boxes show exactly this line."""
+        timeout = self.cfg.timeouts["action"] * 1000
+        return (_parse_page_date(self.loc("date").first.input_value(timeout=timeout)) == row.sale_date
+                and self.loc("invoice").first.input_value(timeout=timeout).strip() == row.invoice
+                and re.sub(r"\D", "", self.loc("qty").first.input_value(timeout=timeout)) == str(row.qty)
+                and self._selected_product() == row.product_text)
+
+    def fill_directly(self, row: ClaimRow) -> Optional[str]:
+        """Set the four boxes through the page's own controls, with no typing: fast, and the same whether
+        the browser window is in front, behind, or minimized. Returns None when the boxes then show the
+        line, else why not (the caller types the line instead)."""
+        date_id = _id_of(self.sel("date"))
+        ids = [date_id, date_id[: -len("_dateInput")] if date_id and date_id.endswith("_dateInput") else None,
+               _id_of(self.sel("invoice")), _id_of(self.sel("product_select")), _id_of(self.sel("qty"))]
+        if not all(ids[i] for i in (0, 2, 3, 4)):
+            return "the boxes in config.toml are not plain ids"
+        day = row.sale_date
+        why = self.page.evaluate(FILL_JS, [ids, [day.year, day.month, day.day], row.invoice,
+                                           row.product_text, row.qty])
+        if why:
+            return why
+        return None if self._boxes_hold(row) else "the boxes did not show the line afterwards"
+
+    def fill_by_typing(self, row: ClaimRow) -> None:
+        """Type the line into the four boxes, as a person would. Slower; the fallback."""
         self.set_date(row.sale_date_str)
         self.set_invoice(row.invoice)
         self.select_product(row.product_text, row.model)
         self.set_qty(row.qty)
+
+    def wait_until_idle(self, seconds: float) -> bool:
+        """Wait while the website is still busy with a request in the background (an earlier Add, or the
+        page still being set up). False if it was still busy after `seconds`."""
+        deadline = time.monotonic() + seconds
+        while self.page.evaluate(BUSY_JS):
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(0.05)
+        return True
+
+    # --------------------------------------------------------------- adding
+    def add_row(self, row: ClaimRow) -> AddResult:
+        """Fill the four boxes, click Add, and wait to see what the page did."""
+        began = time.monotonic()
+        timing = self.last_timing = {"busy_before": not self.wait_until_idle(self.cfg.timeouts["action"])}
+        before = self.grid_rows()
+        filling = time.monotonic()
+        timing["waited"] = filling - began
+        why = self.fill_directly(row)
+        if why:
+            timing["why_typed"] = why
+            self.fill_by_typing(row)
+        timing["how"] = "typed" if why else "direct"
+        timing["fill"] = time.monotonic() - filling
         popup = self.open_popup()
         if popup:
             raise FillError(f"A message box ({popup.replace('_', ' ')}) is open on the website, so Add "
                             "was not clicked.")
         if not self._visible("add"):
             raise FillError("The Add button is not showing on the website, so it was not clicked.")
+        answered = self._answers() if self.page.evaluate(WATCH_JS) else None
+        clicked = time.monotonic()
         self._click("add")
-        return self._wait_for_add(row, before)
+        result = self._wait_for_add(row, before, answered)
+        timing["add"] = time.monotonic() - clicked
+        if answered is not None and self._answers() > answered:
+            timing["server"] = self.page.evaluate("() => window.__spiffer.took") / 1000
+        return result
 
-    def _wait_for_add(self, row: ClaimRow, before: list[GridRow]) -> AddResult:
+    def _answers(self) -> int:
+        return self.page.evaluate("() => window.__spiffer ? window.__spiffer.answered : 0")
+
+    def _wait_for_add(self, row: ClaimRow, before: list[GridRow], answered: Optional[int] = None) -> AddResult:
+        """Wait for the new line (or the website's message box). `answered` is how many of the website's
+        background requests had finished before Add was clicked: once one more has, the answer is on
+        the page, so a line that still has not shown up is not coming."""
         want = (row.sale_date, row.invoice, row.product_text)
         was = sum(1 for r in before if r.key == want)
         deadline = time.monotonic() + self.cfg.timeouts["add"]
+        answer_seen = None
         while time.monotonic() < deadline:
             if self._visible("duplicate_popup"):
                 return AddResult("duplicate", "The page says this line was already entered.")
@@ -433,7 +549,12 @@ class ClaimPage:
                 if any(r.qty == row.qty for r in matching):
                     return AddResult("added")
                 return AddResult("mismatch", f"The list shows quantity {matching[-1].qty}, expected {row.qty}.")
-            time.sleep(0.15)
+            if (answered is not None and answer_seen is None and self._answers() > answered
+                    and not self.page.evaluate(BUSY_JS)):  # answered, and nothing else is still on its way
+                answer_seen = time.monotonic()
+            if answer_seen is not None and time.monotonic() - answer_seen > ANSWER_GRACE:
+                return AddResult("timeout", "The website answered Add but did not show the new line.")
+            time.sleep(0.05)
         return AddResult("timeout", f"The page did not show the new line within {self.cfg.timeouts['add']:.0f} seconds.")
 
     def cancel_duplicate(self) -> None:
@@ -583,6 +704,26 @@ class RunSummary:
         return out
 
 
+def timing_text(timing: dict) -> str:
+    """One add_row's timing for the log, e.g. 'filled direct 0.01s, Add answered 0.28s, server 0.27s'."""
+    if not timing:
+        return "no timing"
+    parts = []
+    if timing.get("busy_before"):
+        parts.append("website still busy before the line")
+    if timing.get("waited", 0) >= 0.05:
+        parts.append(f"waited {timing['waited']:.2f}s")
+    if "how" in timing:
+        parts.append(f"filled {timing['how']} {timing['fill']:.2f}s")
+    if timing.get("why_typed"):
+        parts.append(f"typed because {timing['why_typed']}")
+    if "add" in timing:
+        parts.append(f"Add answered {timing['add']:.2f}s")
+    if "server" in timing:
+        parts.append(f"server {timing['server']:.2f}s")
+    return ", ".join(parts)
+
+
 Emit = Callable[[dict], None]
 
 
@@ -654,10 +795,14 @@ class Filler:
 
         last = ""
         for attempt in (1, 2):
+            began = time.monotonic()
+            self.claim.last_timing = {}
             try:
                 result = self.claim.add_row(row)
             except FillError as exc:
                 result = AddResult("rejected", str(exc))
+            log.info("%s  try %d: %s in %.2fs (%s)", label, attempt, result.outcome,
+                     time.monotonic() - began, timing_text(self.claim.last_timing))
             if result.ok:
                 self.state.mark_entered(row.invoice, row.product_text, row.qty, row.sale_date_str)
                 self.state.save()
@@ -694,7 +839,9 @@ class Filler:
             if self.state.is_uploaded(digest):
                 self._log(f"{invoice}  {name}  already uploaded earlier, skipped", status="skipped")
                 return
+            began = time.monotonic()
             self.claim.upload(pdf)
+            log.info("%s  uploaded %s in %.2fs", invoice, name, time.monotonic() - began)
         except Exception as exc:  # a failed upload is reported, and the run goes on
             summary.upload_failed.append((invoice, name, str(exc)))
             self._log(f"{invoice}  {name}  UPLOAD FAILED: {exc}", status="failed")

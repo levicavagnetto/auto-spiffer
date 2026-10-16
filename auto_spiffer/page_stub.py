@@ -33,6 +33,16 @@ STUB_JS = r"""
       return [f(j.minDateStr), f(j.maxDateStr)];
     } catch (e) { return [null, null]; }
   }
+  // The program's first and last sale date, ['mm/dd/yyyy', 'mm/dd/yyyy'] or null for the page's own.
+  // The page's date box gets the same limits, as on the live site, where the two always agree.
+  S.setWindow = function (w) {
+    S.window = w;
+    const picker = window.$find && $find('ctl00_DefaultContent_InvoiceDateRadDatePicker');
+    if (!w || !picker) return;
+    const [lo, hi] = [parseDate(w[0]), parseDate(w[1])];
+    picker.set_minDate(lo);
+    picker.set_maxDate(hi);
+  };
   function show(id) { const e = $id(id); if (e) e.style.display = 'block'; }
   function hide(id) { const e = $id(id); if (e) e.style.display = 'none'; }
 
@@ -143,4 +153,4 @@ def install_stub(page, window: Optional[tuple[str, str]] = None) -> None:
     """Install the test stub. `window` = (first, last) allowed sale date as mm/dd/yyyy, or None to
     keep the page's own program dates."""
     page.evaluate(STUB_JS)
-    page.evaluate("w => { window.__stub.window = w; }", list(window) if window else None)
+    page.evaluate("w => window.__stub.setWindow(w)", list(window) if window else None)

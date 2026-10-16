@@ -634,7 +634,7 @@ def test_reenter_asks_first_with_a_clear_warning_and_can_be_declined(app, invoic
     record_some(app, "214341", "214533")
     review = app.pages["review"]
     assert [v[6] for v in row_values(app)].count("Already entered") == 2
-    assert "recorded as already entered" in review.note.cget("text") and "Re-enter this month" in review.note.cget("text")
+    assert "recorded as already entered" in review.note.cget("text") and "Enter this month again" in review.note.cget("text")
     review.skip_var.set(True)
     review._skip_changed()
     app.show("run")
@@ -644,8 +644,8 @@ def test_reenter_asks_first_with_a_clear_warning_and_can_be_declined(app, invoic
     app.confirm_answer = False
     assert run.reenter_month() is False
     title, message = app.messages[-1]
-    assert title == "Re-enter this month" and "214341" in message and "214533" in message
-    assert "did NOT submit" in message and "removed from the program" in message
+    assert title == "Enter this month again" and "214341" in message and "214533" in message
+    assert "NOT submitted" in message
     assert [v[6] for v in row_values(app)].count("Already entered") == 2  # declined: nothing changed
 
 
@@ -657,12 +657,44 @@ def test_reenter_makes_the_lines_ready_again(app, invoice_folder):
     review._skip_changed()
     app.show("run")
     run = app.pages["run"]
+    run.counter.config(text="2 of 17 sales")  # left over from a stopped run
+    run.bar.config(value=12)
     assert run.reenter_month() is True
     assert "Forgot 2 record(s)" in run.log.get("1.0", "end")
+    assert run.counter.cget("text") == "0 of 17 sales" and float(run.bar.cget("value")) == 0
     statuses = [v[6] for v in row_values(app)]
     assert statuses.count("Ready") == 17 and "Already entered" not in statuses
     assert run.reenter_button.instate(["disabled"])  # nothing left to forget
-    assert review.note.cget("text").count("Re-enter") == 0
+    assert review.note.cget("text").count("Enter this month again") == 0
+
+
+def test_nothing_to_enter_because_all_were_entered_offers_to_enter_them_again(app, invoice_folder):
+    load_everything(app, invoice_folder)
+    record_some(app, *{r.invoice for r in app.session.result.claim_rows})
+    app.pages["review"].skip_var.set(True)
+    app.pages["review"]._skip_changed()
+    run = app.pages["run"]
+    assert run.rows_to_run() == []
+
+    app.confirm_answer = False
+    run.explain_nothing_to_enter()
+    title, message = app.messages[-1]
+    assert title == "Already entered" and "already been entered" in message and "NOT submit" in message
+    assert run.rows_to_run() == []  # declined: nothing changed
+
+    app.confirm_answer = True
+    run.explain_nothing_to_enter()
+    assert [t for t, _ in app.messages[-2:]] == ["Already entered", "Enter this month again"]  # the usual warning too
+    assert run.rows_to_run() and "Click Start autofill" in run.log.get("1.0", "end")
+
+
+def test_nothing_to_enter_otherwise_points_to_the_review_page(app, invoice_folder):
+    load_everything(app, invoice_folder)
+    app.session.report.rows.clear()
+    run = app.pages["run"]
+    run.explain_nothing_to_enter()
+    title, message = app.messages[-1]
+    assert title == "Nothing to enter" and "Review page" in message
 
 
 def test_reenter_is_not_offered_during_a_run(app, invoice_folder):

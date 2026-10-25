@@ -8,3 +8,6 @@ coverage/
 .env.*
 .DS_Store
 Thumbs.db
+
+# Real customer and dealer data: never commit (see AGENTS.md)
+private-data/

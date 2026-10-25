@@ -1,5 +1,16 @@
 schema: spec-driven
 
+context: |
+  Auto Spiffer 1.0: a Windows-only Electron + TypeScript desktop app (React, Tailwind v4, shadcn/ui) that enters a tire
+  shop's monthly ATD ProRewards sales claims. Read AGENTS.md and docs/ before planning; docs/architecture.md holds the
+  decided stack and decisions (ask the user before changing one).
+  Hard rules: never click Next/Submit/Yes on the ProRewards site; no memory of entered months or lines (only saved tire
+  matches, settings, password, cookies); real sales data, invoice numbers and dealer ids never go in git (private-data/
+  is gitignored); only confident tire matches are entered.
+  Changes are built in order: add-app-shell, add-site-tab-driver, add-sales-import, add-tire-matching, add-claim-entry,
+  add-site-sign-in, add-packaging-updates.
+  Write user-facing text in plain shop language.
+
 # Project context (optional)
 # Add only constraints that should guide OpenSpec artifacts and workflows.
 # Include constraints an agent cannot infer by reading the code.

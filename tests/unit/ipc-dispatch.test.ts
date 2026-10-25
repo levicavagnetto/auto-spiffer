@@ -12,7 +12,18 @@ const handlers: CallHandlers = {
     windowBounds: { width: 1280, height: 800 }
   }),
   getSystemTheme: () => false,
-  getAppVersion: () => '1.0.0'
+  getAppVersion: () => '1.0.0',
+  setSiteBounds: () => undefined,
+  getSiteStatus: () => ({ address: '', state: 'notOpened' }),
+  reloadSite: () => undefined,
+  isClaimPage: () => false,
+  readSitePage: () => null,
+  getLiveCheckAvailable: () => false,
+  testAddLine: () => ({
+    kind: 'rejected',
+    timing: { fillMs: 0, addMs: 0, method: 'none' }
+  }),
+  testUpload: () => undefined
 }
 
 describe('IPC dispatch', () => {

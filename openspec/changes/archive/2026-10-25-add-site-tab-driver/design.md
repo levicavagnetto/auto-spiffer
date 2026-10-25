@@ -51,6 +51,16 @@ TypeScript port of the legacy stub (Add appends a grid row or shows a popup; upl
 recorded). They skip when `private-data/` is missing. A committed, trimmed fixture page (no dealer name, ids or
 ViewState; a 6-option dropdown; the same control ids) is made for the CI-safe tests.
 
+Playwright's Electron launcher adds `--remote-debugging-port=0` to run its tests. Verify that uploads work in
+the Playwright test, then check the absence of a remote debugging switch in a separate normal Electron launch.
+The normal launch is the one that proves the app itself opens no debugging port.
+
+For the user-run live proof, show a collapsible check form above the site tab only in development. It reads the
+current claim page's tire labels, accepts one sale and an invoice PDF path, calls the same main-process driver,
+and reports the Add result and timings before enabling Upload. The form retains no sale data after it closes.
+The IPC handlers for Add and Upload reject calls in a packaged app. This check form is removed when the normal
+claim-entry flow is built.
+
 ### D5. Plan B
 If uploads or filling cannot be made to work in the view, the same `SiteDriver` interface is implemented with
 Playwright for Node launching Edge (`channel: 'msedge'`), as the old app did. Ask the user first: it brings back

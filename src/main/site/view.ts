@@ -1,0 +1,79 @@
+import { app, BrowserWindow, WebContentsView, session, shell } from 'electron'
+import { pathToFileURL } from 'node:url'
+import type { SiteStatus } from '../../shared/ipc'
+import { isSiteNavigation, shouldOpenExternalWindow } from './links'
+
+const siteUrl = 'https://prorewards.acbrewards.com/'
+
+export function createSiteView(
+  window: BrowserWindow,
+  onStatus: (status: SiteStatus) => void
+): {
+  view: WebContentsView
+  setBounds: (bounds: Electron.Rectangle | null) => void
+  getStatus: () => SiteStatus
+  reload: () => void
+} {
+  const view = new WebContentsView({
+    webPreferences: {
+      session: session.fromPartition('persist:prorewards'),
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false,
+      webSecurity: true
+    }
+  })
+  const testFile = !app.isPackaged
+    ? process.env.AUTO_SPIFFER_TEST_SITE_FILE
+    : undefined
+  if (testFile) {
+    view.webContents.session.webRequest.onBeforeRequest((details, callback) => {
+      callback({ cancel: !details.url.startsWith('file:') })
+    })
+  }
+  window.contentView.addChildView(view)
+  view.setVisible(false)
+  let loaded = false
+  let status: SiteStatus = { address: siteUrl, state: 'notOpened' }
+  const publish = (state: SiteStatus['state']): void => {
+    status = { address: view.webContents.getURL() || siteUrl, state }
+    onStatus(status)
+  }
+  view.webContents.on('did-start-loading', () => publish('loading'))
+  view.webContents.on('did-stop-loading', () => {
+    if (status.state !== 'error') publish('ready')
+  })
+  view.webContents.on('did-fail-load', (_event, code) => {
+    if (code !== -3) publish('error')
+  })
+  view.webContents.on('did-navigate', () => {
+    if (status.state !== 'error') publish('ready')
+  })
+  view.webContents.on('will-navigate', (event, address) => {
+    if (isSiteNavigation(address)) return
+    event.preventDefault()
+    if (shouldOpenExternalWindow(address)) void shell.openExternal(address)
+  })
+  view.webContents.setWindowOpenHandler(({ url }) => {
+    if (shouldOpenExternalWindow(url)) void shell.openExternal(url)
+    return { action: 'deny' }
+  })
+  return {
+    view,
+    getStatus: () => status,
+    reload: () => view.webContents.reload(),
+    setBounds(bounds) {
+      if (!bounds) {
+        view.setVisible(false)
+        return
+      }
+      view.setBounds(bounds)
+      view.setVisible(true)
+      if (!loaded) {
+        loaded = true
+        const address = testFile ? pathToFileURL(testFile).href : siteUrl
+        void view.webContents.loadURL(address).catch(() => publish('error'))
+      }
+    }
+  }
+}

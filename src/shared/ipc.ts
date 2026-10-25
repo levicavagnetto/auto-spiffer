@@ -10,6 +10,53 @@ export const settingsSchema = z.object({
   })
 })
 
+const siteBoundsSchema = z
+  .object({
+    x: z.number().int().min(0),
+    y: z.number().int().min(0),
+    width: z.number().int().min(1),
+    height: z.number().int().min(1)
+  })
+  .strict()
+
+export const siteStatusSchema = z.object({
+  address: z.string(),
+  state: z.enum(['notOpened', 'loading', 'ready', 'error'])
+})
+
+export const siteLineSchema = z.object({
+  saleDate: z.date(),
+  invoice: z.string(),
+  product: z.string(),
+  qty: z.number()
+})
+
+export const sitePageSchema = z.object({
+  promotion: z.string().nullable(),
+  window: z.tuple([z.date().nullable(), z.date().nullable()]),
+  tires: z.array(z.string()),
+  lines: z.array(siteLineSchema)
+})
+
+const testSaleSchema = z
+  .object({
+    saleDate: z.date(),
+    invoice: z.string().trim().min(1).max(100),
+    product: z.string().trim().min(1),
+    qty: z.number().int().positive().max(1000)
+  })
+  .strict()
+
+const addOutcomeSchema = z.object({
+  kind: z.enum(['added', 'duplicate', 'rejected', 'mismatch', 'timeout']),
+  message: z.string().optional(),
+  timing: z.object({
+    fillMs: z.number().nonnegative(),
+    addMs: z.number().nonnegative(),
+    method: z.enum(['direct', 'typed', 'none'])
+  })
+})
+
 export const calls = {
   getSettings: {
     name: 'getSettings',
@@ -26,6 +73,46 @@ export const calls = {
     name: 'getAppVersion',
     input: z.undefined(),
     output: z.string()
+  },
+  setSiteBounds: {
+    name: 'setSiteBounds',
+    input: siteBoundsSchema.nullable(),
+    output: z.undefined()
+  },
+  getSiteStatus: {
+    name: 'getSiteStatus',
+    input: z.undefined(),
+    output: siteStatusSchema
+  },
+  reloadSite: {
+    name: 'reloadSite',
+    input: z.undefined(),
+    output: z.undefined()
+  },
+  isClaimPage: {
+    name: 'isClaimPage',
+    input: z.undefined(),
+    output: z.boolean()
+  },
+  readSitePage: {
+    name: 'readSitePage',
+    input: z.undefined(),
+    output: sitePageSchema.nullable()
+  },
+  getLiveCheckAvailable: {
+    name: 'getLiveCheckAvailable',
+    input: z.undefined(),
+    output: z.boolean()
+  },
+  testAddLine: {
+    name: 'testAddLine',
+    input: testSaleSchema,
+    output: addOutcomeSchema
+  },
+  testUpload: {
+    name: 'testUpload',
+    input: z.string().min(1).max(4096),
+    output: z.undefined()
   }
 } as const
 
@@ -33,13 +120,15 @@ export const events = {
   themeChanged: z.boolean(),
   appError: z.string(),
   progress: z.object({ current: z.number().int(), total: z.number().int() }),
-  logLine: z.string()
+  logLine: z.string(),
+  siteStatusChanged: siteStatusSchema
 } as const
 
 export type CallName = keyof typeof calls
 export type EventName = keyof typeof events
 export type Settings = z.output<typeof settingsSchema>
 export type Theme = z.output<typeof themeSchema>
+export type SiteStatus = z.output<typeof siteStatusSchema>
 
 export type CallHandlers = {
   [Name in CallName]: (

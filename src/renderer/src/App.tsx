@@ -6,6 +6,7 @@ import { Review } from './screens/Review'
 import { EnterClaims } from './screens/EnterClaims'
 import { ProRewards } from './screens/ProRewards'
 import { Settings } from './screens/Settings'
+import type { SalesSnapshot } from '../../shared/sales'
 
 const titles: Record<Screen, string> = {
   sales: 'Sales',
@@ -29,6 +30,8 @@ export default function App(): React.JSX.Element {
   const [theme, setTheme] = useState<Theme>('system')
   const [settingsReady, setSettingsReady] = useState(false)
   const [systemDark, setSystemDark] = useState(false)
+  const [salesSnapshot, setSalesSnapshot] = useState<SalesSnapshot | null>(null)
+  const [reviewReady, setReviewReady] = useState(false)
 
   useEffect(() => window.api.on('appError', setError), [])
   useEffect(() => window.api.on('themeChanged', setSystemDark), [])
@@ -39,6 +42,7 @@ export default function App(): React.JSX.Element {
       setSettingsReady(true)
     })
     void window.api.getSystemTheme().then(setSystemDark)
+    void window.api.getSalesSnapshot().then(setSalesSnapshot)
   }, [])
   useEffect(() => {
     document.documentElement.classList.toggle(
@@ -58,7 +62,18 @@ export default function App(): React.JSX.Element {
 
   const content =
     current === 'sales' ? (
-      <Sales />
+      <Sales
+        snapshot={salesSnapshot}
+        onSnapshot={(next, newExport) => {
+          setSalesSnapshot(next)
+          if (newExport) setReviewReady(false)
+        }}
+        onMatch={() => {
+          setReviewReady(true)
+          setCurrent('review')
+        }}
+        onShowWebsite={() => setCurrent('website')}
+      />
     ) : current === 'review' ? (
       <Review />
     ) : current === 'enter' ? (
@@ -76,7 +91,16 @@ export default function App(): React.JSX.Element {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar current={current} onNavigate={setCurrent} version={version} />
+      <Sidebar
+        current={current}
+        onNavigate={setCurrent}
+        version={version}
+        month={salesSnapshot?.state.month}
+        tireLines={
+          salesSnapshot?.state.sales.filter((sale) => !sale.notATire).length
+        }
+        reviewEnabled={reviewReady}
+      />
       <main className="min-w-0 flex-1">
         <header className="flex h-[60px] items-center border-b border-border px-8">
           <div>

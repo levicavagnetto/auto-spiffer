@@ -23,7 +23,20 @@ const handlers: CallHandlers = {
     kind: 'rejected',
     timing: { fillMs: 0, addMs: 0, method: 'none' }
   }),
-  testUpload: () => undefined
+  testUpload: () => undefined,
+  getSalesSnapshot: () => null,
+  pickSalesExport: () => null,
+  loadSalesExport: () => {
+    throw new Error('No fixture')
+  },
+  pickInvoicePdfs: () => null,
+  pickInvoiceFolder: () => null,
+  addInvoicePaths: () => {
+    throw new Error('No fixture')
+  },
+  removeInvoicePdf: () => {
+    throw new Error('No fixture')
+  }
 }
 
 describe('IPC dispatch', () => {

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { salesSnapshotSchema } from './sales'
 
 export const themeSchema = z.enum(['light', 'dark', 'system'])
 
@@ -113,6 +114,41 @@ export const calls = {
     name: 'testUpload',
     input: z.string().min(1).max(4096),
     output: z.undefined()
+  },
+  getSalesSnapshot: {
+    name: 'getSalesSnapshot',
+    input: z.undefined(),
+    output: salesSnapshotSchema.nullable()
+  },
+  pickSalesExport: {
+    name: 'pickSalesExport',
+    input: z.undefined(),
+    output: salesSnapshotSchema.nullable()
+  },
+  loadSalesExport: {
+    name: 'loadSalesExport',
+    input: z.string().min(1).max(4096),
+    output: salesSnapshotSchema
+  },
+  pickInvoicePdfs: {
+    name: 'pickInvoicePdfs',
+    input: z.undefined(),
+    output: salesSnapshotSchema.nullable()
+  },
+  pickInvoiceFolder: {
+    name: 'pickInvoiceFolder',
+    input: z.undefined(),
+    output: salesSnapshotSchema.nullable()
+  },
+  addInvoicePaths: {
+    name: 'addInvoicePaths',
+    input: z.array(z.string().min(1).max(4096)).max(1000),
+    output: salesSnapshotSchema
+  },
+  removeInvoicePdf: {
+    name: 'removeInvoicePdf',
+    input: z.string().min(1).max(4096),
+    output: salesSnapshotSchema
   }
 } as const
 
@@ -145,6 +181,7 @@ export type AppApi = {
       : [input: z.input<(typeof calls)[Name]['input']>]
   ) => Promise<z.output<(typeof calls)[Name]['output']>>
 } & {
+  getPathForFile(file: File): string
   on<Name extends EventName>(
     event: Name,
     callback: (data: z.output<(typeof events)[Name]>) => void

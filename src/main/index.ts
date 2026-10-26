@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme } from 'electron'
+import { app, BrowserWindow, dialog, nativeTheme } from 'electron'
 import { join } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { registerIpc } from './ipc'
@@ -6,9 +6,12 @@ import { openSettings, type SettingsAccess } from './settings'
 import { configureLog, reportUnexpected } from './log'
 import { createSiteView } from './site/view'
 import { createSiteDriver } from './site/driver'
+import { InvoiceWorker } from './invoices/reader'
+import { SalesSession } from './sales/session'
 
 app.setName('Auto Spiffer')
 let mainWindow: BrowserWindow | undefined
+let invoiceWorker: InvoiceWorker | undefined
 
 function createWindow(settings: SettingsAccess): BrowserWindow {
   const bounds = settings.read().windowBounds
@@ -97,6 +100,8 @@ if (!app.requestSingleInstanceLock()) {
       (message) => logger.warn(message),
       join(app.getPath('userData'), 'logs')
     )
+    invoiceWorker = new InvoiceWorker()
+    const sales = new SalesSession((path) => invoiceWorker!.read(path))
     if (
       !app.isPackaged &&
       (process.env.AUTO_SPIFFER_TEST_SITE_FILE ||
@@ -133,7 +138,40 @@ if (!app.requestSingleInstanceLock()) {
             throw new Error('This check is only available in development.')
           await siteDriver.upload(pdfPath)
           return undefined
-        }
+        },
+        getSalesSnapshot: () => sales.snapshot(),
+        pickSalesExport: async () => {
+          const choice = await dialog.showOpenDialog(mainWindow!, {
+            title: 'Choose Material Sales export',
+            properties: ['openFile'],
+            filters: [{ name: 'Excel workbooks', extensions: ['xlsx'] }]
+          })
+          return choice.canceled
+            ? sales.snapshot()
+            : sales.loadExport(choice.filePaths[0]!)
+        },
+        loadSalesExport: (path) => sales.loadExport(path),
+        pickInvoicePdfs: async () => {
+          const choice = await dialog.showOpenDialog(mainWindow!, {
+            title: 'Choose invoice PDFs',
+            properties: ['openFile', 'multiSelections'],
+            filters: [{ name: 'Invoice PDFs', extensions: ['pdf'] }]
+          })
+          return choice.canceled
+            ? sales.snapshot()
+            : sales.addPaths(choice.filePaths)
+        },
+        pickInvoiceFolder: async () => {
+          const choice = await dialog.showOpenDialog(mainWindow!, {
+            title: 'Choose invoice folder',
+            properties: ['openDirectory']
+          })
+          return choice.canceled
+            ? sales.snapshot()
+            : sales.addPaths(choice.filePaths)
+        },
+        addInvoicePaths: (paths) => sales.addPaths(paths),
+        removeInvoicePdf: (path) => sales.removePdf(path)
       },
       (message) => logger.warn(message)
     )
@@ -141,3 +179,6 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 app.on('window-all-closed', () => app.quit())
+app.on('before-quit', () => {
+  void invoiceWorker?.close()
+})

@@ -43,12 +43,25 @@ const navItems = [
 export function Sidebar({
   current,
   onNavigate,
-  version
+  version,
+  month,
+  tireLines,
+  reviewEnabled = false
 }: {
   current: Screen
   onNavigate: (screen: Screen) => void
   version: string
+  month?: string
+  tireLines?: number
+  reviewEnabled?: boolean
 }): React.JSX.Element {
+  const monthName = month
+    ? new Intl.DateTimeFormat('en-US', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC'
+      }).format(new Date(`${month}-01T00:00:00Z`))
+    : null
   return (
     <aside className="flex h-screen w-[248px] shrink-0 flex-col border-r border-border bg-sidebar px-3 py-4">
       <div className="flex items-center gap-2 px-2 pb-6">
@@ -60,12 +73,19 @@ export function Sidebar({
           This month
         </div>
         <div className="mt-1 text-sm text-muted-foreground">
-          No sales loaded
+          {monthName ?? 'No sales loaded'}
         </div>
+        {monthName && (
+          <div className="mt-1 text-xs text-muted-foreground">
+            {tireLines ?? 0} tire line{tireLines === 1 ? '' : 's'}
+          </div>
+        )}
       </div>
       <nav aria-label="Main navigation" className="mt-5 flex flex-col gap-1">
         {navItems.map((item, index) => {
-          const disabled = item.screen === 'review' || item.screen === 'enter'
+          const disabled =
+            (item.screen === 'review' && !reviewEnabled) ||
+            item.screen === 'enter'
           const reason =
             item.screen === 'review'
               ? "Load the month's sales first"

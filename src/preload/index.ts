@@ -1,7 +1,9 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { calls, events, type AppApi, type EventName } from '../shared/ipc'
 
 const api = {} as AppApi
+
+api.getPathForFile = (file) => webUtils.getPathForFile(file)
 
 for (const name of Object.keys(calls) as (keyof typeof calls)[]) {
   Object.assign(api, {

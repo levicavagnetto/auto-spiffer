@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { testUserData } from './test-user-data'
 
-test('Sales screen imports a workbook and PDF, then opens Review', async () => {
+test('Sales screen imports a workbook and PDF, then asks for the claim page', async () => {
   const { args, folder, remove } = testUserData()
   const exportPath = join(folder, 'sales.xlsx')
   const pdfPath = join(folder, 'invoice.pdf')
@@ -52,10 +52,10 @@ test('Sales screen imports a workbook and PDF, then opens Review', async () => {
     await page.getByRole('button', { name: 'Remove invoice.pdf' }).click()
     await expect(page.getByText('0 PDFs loaded')).toBeVisible()
     await page.getByRole('button', { name: 'Match tires' }).click()
-    await expect(page.getByRole('button', { name: 'Review' })).toBeEnabled()
-    await expect(
-      page.getByRole('heading', { name: 'Review', exact: true })
-    ).toBeVisible()
+    await expect(page.getByRole('alert')).toContainText(
+      'Open the claim page for September 2026'
+    )
+    await expect(page.getByRole('button', { name: 'Review' })).toBeDisabled()
   } finally {
     await app.close()
     remove()

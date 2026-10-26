@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { salesSnapshotSchema } from './sales'
+import { reviewSnapshotSchema, savedMatchListSchema } from './review'
 
 export const themeSchema = z.enum(['light', 'dark', 'system'])
 
@@ -149,6 +150,42 @@ export const calls = {
     name: 'removeInvoicePdf',
     input: z.string().min(1).max(4096),
     output: salesSnapshotSchema
+  },
+  getReviewSnapshot: {
+    name: 'getReviewSnapshot',
+    input: z.undefined(),
+    output: reviewSnapshotSchema.nullable()
+  },
+  matchTires: {
+    name: 'matchTires',
+    input: z.undefined(),
+    output: reviewSnapshotSchema
+  },
+  decideTire: {
+    name: 'decideTire',
+    input: z
+      .object({
+        signature: z.string().min(1),
+        label: z.string().nullable(),
+        remember: z.boolean()
+      })
+      .strict(),
+    output: reviewSnapshotSchema
+  },
+  setLineLeftOut: {
+    name: 'setLineLeftOut',
+    input: z.object({ id: z.string().min(1), leftOut: z.boolean() }).strict(),
+    output: reviewSnapshotSchema
+  },
+  listSavedMatches: {
+    name: 'listSavedMatches',
+    input: z.undefined(),
+    output: savedMatchListSchema
+  },
+  removeSavedMatch: {
+    name: 'removeSavedMatch',
+    input: z.string().min(1),
+    output: z.undefined()
   }
 } as const
 

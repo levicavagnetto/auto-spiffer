@@ -8,6 +8,8 @@ import { createSiteView } from './site/view'
 import { createSiteDriver } from './site/driver'
 import { InvoiceWorker } from './invoices/reader'
 import { SalesSession } from './sales/session'
+import { ReviewSession } from './matching/session'
+import { openSavedMatches } from './matching/saved-matches'
 
 app.setName('Auto Spiffer')
 let mainWindow: BrowserWindow | undefined
@@ -102,6 +104,19 @@ if (!app.requestSingleInstanceLock()) {
     )
     invoiceWorker = new InvoiceWorker()
     const sales = new SalesSession((path) => invoiceWorker!.read(path))
+    const savedMatches = openSavedMatches(
+      app.getPath('userData'),
+      (message) => logger.warn(message),
+      (message) => mainWindow?.webContents.send('app:event:appError', message)
+    )
+    const review = new ReviewSession(
+      () => sales.snapshot(),
+      () =>
+        site.getStatus().state === 'notOpened'
+          ? Promise.resolve(null)
+          : siteDriver.readPage(),
+      savedMatches
+    )
     if (
       !app.isPackaged &&
       (process.env.AUTO_SPIFFER_TEST_SITE_FILE ||
@@ -146,11 +161,16 @@ if (!app.requestSingleInstanceLock()) {
             properties: ['openFile'],
             filters: [{ name: 'Excel workbooks', extensions: ['xlsx'] }]
           })
-          return choice.canceled
-            ? sales.snapshot()
-            : sales.loadExport(choice.filePaths[0]!)
+          if (choice.canceled) return sales.snapshot()
+          const result = await sales.loadExport(choice.filePaths[0]!)
+          review.reset()
+          return result
         },
-        loadSalesExport: (path) => sales.loadExport(path),
+        loadSalesExport: async (path) => {
+          const result = await sales.loadExport(path)
+          review.reset()
+          return result
+        },
         pickInvoicePdfs: async () => {
           const choice = await dialog.showOpenDialog(mainWindow!, {
             title: 'Choose invoice PDFs',
@@ -171,7 +191,16 @@ if (!app.requestSingleInstanceLock()) {
             : sales.addPaths(choice.filePaths)
         },
         addInvoicePaths: (paths) => sales.addPaths(paths),
-        removeInvoicePdf: (path) => sales.removePdf(path)
+        removeInvoicePdf: (path) => sales.removePdf(path),
+        getReviewSnapshot: () => review.snapshot(),
+        matchTires: () => review.match(),
+        decideTire: (input) => review.decide(input),
+        setLineLeftOut: (input) => review.setLeftOut(input),
+        listSavedMatches: () => review.savedMatches(),
+        removeSavedMatch: (signature) => {
+          review.removeSaved(signature)
+          return undefined
+        }
       },
       (message) => logger.warn(message)
     )

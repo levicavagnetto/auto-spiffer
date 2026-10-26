@@ -46,7 +46,9 @@ export function Sidebar({
   version,
   month,
   tireLines,
-  reviewEnabled = false
+  reviewEnabled = false,
+  enterEnabled = false,
+  savedMatchCount
 }: {
   current: Screen
   onNavigate: (screen: Screen) => void
@@ -54,6 +56,8 @@ export function Sidebar({
   month?: string
   tireLines?: number
   reviewEnabled?: boolean
+  enterEnabled?: boolean
+  savedMatchCount?: number
 }): React.JSX.Element {
   const monthName = month
     ? new Intl.DateTimeFormat('en-US', {
@@ -85,7 +89,7 @@ export function Sidebar({
         {navItems.map((item, index) => {
           const disabled =
             (item.screen === 'review' && !reviewEnabled) ||
-            item.screen === 'enter'
+            (item.screen === 'enter' && !enterEnabled)
           const reason =
             item.screen === 'review'
               ? "Load the month's sales first"
@@ -110,6 +114,12 @@ export function Sidebar({
                 >
                   <Icon className="size-4" aria-hidden="true" />
                   {item.label}
+                  {item.screen === 'savedMatches' &&
+                    savedMatchCount !== undefined && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {savedMatchCount}
+                      </span>
+                    )}
                 </button>
               </span>
             </div>

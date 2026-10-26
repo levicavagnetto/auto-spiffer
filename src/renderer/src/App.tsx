@@ -7,6 +7,7 @@ import { EnterClaims } from './screens/EnterClaims'
 import { ProRewards } from './screens/ProRewards'
 import { Settings } from './screens/Settings'
 import type { SalesSnapshot } from '../../shared/sales'
+import type { ReviewSnapshot, SavedMatchList } from '../../shared/review'
 
 const titles: Record<Screen, string> = {
   sales: 'Sales',
@@ -32,6 +33,10 @@ export default function App(): React.JSX.Element {
   const [systemDark, setSystemDark] = useState(false)
   const [salesSnapshot, setSalesSnapshot] = useState<SalesSnapshot | null>(null)
   const [reviewReady, setReviewReady] = useState(false)
+  const [reviewSnapshot, setReviewSnapshot] = useState<ReviewSnapshot | null>(
+    null
+  )
+  const [savedMatches, setSavedMatches] = useState<SavedMatchList>([])
 
   useEffect(() => window.api.on('appError', setError), [])
   useEffect(() => window.api.on('themeChanged', setSystemDark), [])
@@ -43,7 +48,15 @@ export default function App(): React.JSX.Element {
     })
     void window.api.getSystemTheme().then(setSystemDark)
     void window.api.getSalesSnapshot().then(setSalesSnapshot)
+    void window.api.getReviewSnapshot().then((next) => {
+      setReviewSnapshot(next)
+      setReviewReady(Boolean(next))
+    })
+    void window.api.listSavedMatches().then(setSavedMatches)
   }, [])
+  useEffect(() => {
+    void window.api.listSavedMatches().then(setSavedMatches)
+  }, [reviewSnapshot])
   useEffect(() => {
     document.documentElement.classList.toggle(
       'dark',
@@ -66,16 +79,25 @@ export default function App(): React.JSX.Element {
         snapshot={salesSnapshot}
         onSnapshot={(next, newExport) => {
           setSalesSnapshot(next)
-          if (newExport) setReviewReady(false)
+          if (newExport) {
+            setReviewReady(false)
+            setReviewSnapshot(null)
+          }
         }}
-        onMatch={() => {
+        onMatch={async () => {
+          const next = await window.api.matchTires()
+          setReviewSnapshot(next)
           setReviewReady(true)
           setCurrent('review')
         }}
         onShowWebsite={() => setCurrent('website')}
       />
     ) : current === 'review' ? (
-      <Review />
+      <Review
+        snapshot={reviewSnapshot}
+        onSnapshot={setReviewSnapshot}
+        onEnter={() => setCurrent('enter')}
+      />
     ) : current === 'enter' ? (
       <EnterClaims />
     ) : current === 'website' ? (
@@ -86,6 +108,16 @@ export default function App(): React.JSX.Element {
         onThemeChange={changeTheme}
         ready={settingsReady}
         savedMatchesOnly={current === 'savedMatches'}
+        savedMatches={savedMatches}
+        onRemoveSaved={(signature) => {
+          void window.api
+            .removeSavedMatch(signature)
+            .then(() => window.api.listSavedMatches())
+            .then(setSavedMatches)
+            .catch(() =>
+              setError('Could not remove that saved match. Try again.')
+            )
+        }}
       />
     )
 
@@ -100,6 +132,17 @@ export default function App(): React.JSX.Element {
           salesSnapshot?.state.sales.filter((sale) => !sale.notATire).length
         }
         reviewEnabled={reviewReady}
+        enterEnabled={
+          Boolean(
+            reviewSnapshot?.lines.some(
+              (line) => line.status === 'ready' && !line.leftOut
+            )
+          ) &&
+          !reviewSnapshot?.lines.some(
+            (line) => line.status === 'needs-decision' && !line.leftOut
+          )
+        }
+        savedMatchCount={savedMatches.length}
       />
       <main className="min-w-0 flex-1">
         <header className="flex h-[60px] items-center border-b border-border px-8">

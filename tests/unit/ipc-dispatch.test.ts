@@ -36,7 +36,19 @@ const handlers: CallHandlers = {
   },
   removeInvoicePdf: () => {
     throw new Error('No fixture')
-  }
+  },
+  getReviewSnapshot: () => null,
+  matchTires: () => {
+    throw new Error('No fixture')
+  },
+  decideTire: () => {
+    throw new Error('No fixture')
+  },
+  setLineLeftOut: () => {
+    throw new Error('No fixture')
+  },
+  listSavedMatches: () => [],
+  removeSavedMatch: () => undefined
 }
 
 describe('IPC dispatch', () => {

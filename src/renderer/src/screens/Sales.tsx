@@ -40,7 +40,7 @@ export function Sales({
 }: {
   snapshot: SalesSnapshot | null
   onSnapshot: (next: SalesSnapshot, newExport: boolean) => void
-  onMatch: () => void
+  onMatch: () => Promise<void>
   onShowWebsite: () => void
 }): React.JSX.Element {
   const exportInput = useRef<HTMLInputElement>(null)
@@ -104,6 +104,24 @@ export function Sales({
       onSnapshot(await window.api.removeInvoicePdf(path), false)
     } catch {
       setError('Could not remove this PDF. Try again.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const match = async (): Promise<void> => {
+    setBusy(true)
+    setError('')
+    try {
+      await onMatch()
+    } catch (problem) {
+      const detail = problem instanceof Error ? problem.message : ''
+      setError(
+        detail.match(
+          /Open the claim page for .+ in the ProRewards tab first\./
+        )?.[0] ??
+          'Could not read the claim page. Open it in ProRewards and try again.'
+      )
     } finally {
       setBusy(false)
     }
@@ -406,7 +424,11 @@ export function Sales({
                 {monthLabel(snapshot.state.month)} · {tireCount} tire line
                 {tireCount === 1 ? '' : 's'} ready for review.
               </p>
-              <Button className="mt-4" disabled={busy} onClick={onMatch}>
+              <Button
+                className="mt-4"
+                disabled={busy}
+                onClick={() => void match()}
+              >
                 Match tires
               </Button>
             </section>

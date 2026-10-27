@@ -1,5 +1,6 @@
 import { _electron as electron, expect, test } from '@playwright/test'
 import { resolve } from 'node:path'
+import { readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { testUserData } from './test-user-data'
 
@@ -10,8 +11,10 @@ test('opens the Auto Spiffer window', async () => {
     const page = await app.firstWindow()
     await expect(page).toHaveTitle('Auto Spiffer')
     await expect(page.getByText('Auto Spiffer')).toBeVisible()
+    const version = JSON.parse(readFileSync('package.json', 'utf8'))
+      .version as string
     await expect(page.evaluate(() => window.api.getAppVersion())).resolves.toBe(
-      '1.0.0'
+      version
     )
   } finally {
     await app.close()

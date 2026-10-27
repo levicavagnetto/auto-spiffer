@@ -59,6 +59,9 @@ the number of lines needing a decision on Review, or `10/21` progress while ente
 **ProRewards** and its sign-in state (dot + "Signed in" / "Signed out"); at the bottom **Saved matches** (with
 the count) and **Settings**; then `Version 1.0.0 · up to date`. The current item has the muted fill and medium
 weight. Review and Enter claims are disabled, with a tooltip saying why, until the earlier step is done.
+The sidebar stays visible while a long screen scrolls. If its own contents exceed the window height, the sidebar
+scrolls internally so every navigation item remains reachable. Choosing a different screen starts that screen at
+the top.
 
 ## Screens
 
@@ -100,7 +103,10 @@ Two panes.
   with Reload, the address, and a chip "Auto Spiffer is typing" while a run is going.
 - Before a run: the left pane shows the plan (N lines, N PDFs) and a primary **Start entering** button.
 - After a run: a summary (entered, already on the page, failed with reasons, PDFs uploaded, uploads failed,
-  sales without a PDF), and "Check the page, then click Next and Submit on the website."
+  sales without a PDF), and "Check the page, then click Next and Submit on the website." Keep the result counts,
+  **Check page and run again** button, and submission reminder visible within the left pane. Group missing PDFs
+  under a count and show invoice numbers in a compact list; the details scroll inside the pane when they do not
+  fit, including at the minimum window size. The ProRewards tab remains usable beside it.
 
 ### ProRewards (sidebar item)
 The same tab, full width, for signing in by hand or looking at the site.

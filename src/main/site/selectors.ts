@@ -1,4 +1,11 @@
 export const selectors = {
+  loginEmail: '#UserLogin_UserName',
+  loginPassword: '#UserLogin_Password',
+  loginButton: '#UserLogin_Login',
+  programStep: '#DefaultContent_StepOneUpdatePanel',
+  programSelect: '#DefaultContent_PromotionDropDownList',
+  programWidget: '#DefaultContent_PromotionDropDownList_chosen',
+  programNext: '#DefaultContent_PromotionCodeNextLinkButton',
   date: '#ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput',
   dateState: '#ctl00_DefaultContent_InvoiceDateRadDatePicker_ClientState',
   invoice: '#ctl00_DefaultContent_InvoiceNumberTextBox',

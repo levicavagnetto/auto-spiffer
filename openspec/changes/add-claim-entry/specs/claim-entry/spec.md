@@ -100,6 +100,16 @@ uploaded, uploads failed, and sales whose PDFs must be uploaded by hand. Review 
 - **WHEN** a run ends with 19 added, 1 already on the page and 1 failed
 - **THEN** the summary shows those counts, the failed line's reason and picture, and the PDFs to upload by hand
 
+#### Scenario: Many invoices have no PDF
+- **WHEN** a completed run has more missing-PDF invoices than fit in the left pane at the minimum window size
+- **THEN** the summary shows their count and every invoice in a scrollable detail area, while the result counts,
+  rerun button and submission reminder stay visible inside the pane and the ProRewards tab remains usable
+
+#### Scenario: Long Review page
+- **WHEN** the person scrolls down a long Review list
+- **THEN** the sidebar stays visible and its navigation remains usable; choosing another screen shows that screen
+  from the top, including at the minimum window size
+
 ### Requirement: One run at a time, with guards
 The app SHALL refuse to start a run while one is going, while the tab is not on the claim page, or with no ready
 lines. Closing the app during a run SHALL ask first; if confirmed, the current line finishes and the run stops.

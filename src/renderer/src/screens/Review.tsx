@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '../components/ui/button'
 import type { ReviewLine, ReviewSnapshot } from '../../../shared/review'
+import type { RunState } from '../../../shared/run'
 
 type Filter = 'all' | ReviewLine['status']
 const filters: { key: Filter; label: string }[] = [
@@ -29,10 +30,12 @@ function dateLabel(date: string): string {
 
 export function Review({
   snapshot,
+  run,
   onSnapshot,
   onEnter
 }: {
   snapshot: ReviewSnapshot | null
+  run: RunState | null
   onSnapshot: (next: ReviewSnapshot) => void
   onEnter: () => void
 }): React.JSX.Element {
@@ -189,7 +192,17 @@ export function Review({
               >
                 <td className="p-3">
                   <span className="whitespace-nowrap rounded-full bg-muted px-2 py-1 text-xs">
-                    {line.leftOut ? 'Left out' : statusLabels[line.status]}
+                    {run?.summary?.added.includes(line.id)
+                      ? 'Entered'
+                      : run?.summary?.alreadyThere.includes(line.id)
+                        ? 'On page'
+                        : run?.summary?.failed.some(
+                              (item) => item.lineId === line.id
+                            )
+                          ? 'Failed'
+                          : line.leftOut
+                            ? 'Left out'
+                            : statusLabels[line.status]}
                   </span>
                 </td>
                 <td className="p-3 whitespace-nowrap">

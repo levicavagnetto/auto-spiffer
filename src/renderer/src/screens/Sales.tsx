@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { FileSpreadsheet, FolderOpen, UploadCloud } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import type { SalesSnapshot } from '../../../shared/sales'
+import type { SiteLocation, SitePage } from '../../../shared/ipc'
 
 function monthLabel(month: string): string {
   if (!month) return 'No month found'
@@ -36,12 +37,16 @@ export function Sales({
   snapshot,
   onSnapshot,
   onMatch,
-  onShowWebsite
+  onShowWebsite,
+  siteLocation,
+  sitePage
 }: {
   snapshot: SalesSnapshot | null
   onSnapshot: (next: SalesSnapshot, newExport: boolean) => void
   onMatch: () => Promise<void>
   onShowWebsite: () => void
+  siteLocation?: SiteLocation | null
+  sitePage?: SitePage | null
 }): React.JSX.Element {
   const exportInput = useRef<HTMLInputElement>(null)
   const pdfInput = useRef<HTMLInputElement>(null)
@@ -407,15 +412,32 @@ export function Sales({
             <section className="rounded-xl border border-border bg-card p-5">
               <h2 className="font-semibold">ProRewards</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Not signed in
+                {siteLocation === 'claim' ||
+                siteLocation === 'program-choice' ||
+                siteLocation === 'other'
+                  ? 'Signed in'
+                  : 'Not signed in'}
               </p>
+              {sitePage && (
+                <div className="mt-2 text-sm text-muted-foreground">
+                  <p>{sitePage.promotion}</p>
+                  {sitePage.window[0] && sitePage.window[1] && (
+                    <p>
+                      {dateLabel(sitePage.window[0].toISOString().slice(0, 10))}{' '}
+                      to{' '}
+                      {dateLabel(sitePage.window[1].toISOString().slice(0, 10))}
+                    </p>
+                  )}
+                  <p>{sitePage.tires.length} tires, read from the claim page</p>
+                </div>
+              )}
               <Button
                 variant="outline"
                 size="sm"
                 className="mt-4"
                 onClick={onShowWebsite}
               >
-                Show website
+                {siteLocation === 'login' ? 'Sign in' : 'Show website'}
               </Button>
             </section>
             <section className="rounded-xl border border-border bg-card p-5">

@@ -2,19 +2,19 @@ import { _electron as electron, expect, test } from '@playwright/test'
 import ExcelJS from 'exceljs'
 import { PDFDocument, StandardFonts } from 'pdf-lib'
 import { writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { testUserData } from './test-user-data'
 
-test('Sales screen imports a workbook and PDF, then asks for the claim page', async () => {
+test('Sales screen imports a workbook and PDF, then opens the claim page for matching', async () => {
   const { args, folder, remove } = testUserData()
   const exportPath = join(folder, 'sales.xlsx')
   const pdfPath = join(folder, 'invoice.pdf')
   const workbook = new ExcelJS.Workbook()
   const sheet = workbook.addWorksheet('Report')
   sheet.addRow(['Invoiced', 'Invoice #', 'Description', 'Quantity'])
-  sheet.addRow([new Date(2026, 8, 3), 900701, '235/50R18 GEN RT45', 2])
+  sheet.addRow([new Date(2026, 9, 3), 900701, '235/50R18 GEN RT45', 2])
   sheet.addRow([
-    new Date(2026, 8, 3),
+    new Date(2026, 9, 3),
     900702,
     '18X8.50/9.50-8 FST TR13 TUBE',
     1
@@ -25,7 +25,13 @@ test('Sales screen imports a workbook and PDF, then asks for the claim page', as
   document.addPage().drawText('Invoice # 900701', { x: 60, y: 700, font })
   writeFileSync(pdfPath, await document.save())
 
-  const app = await electron.launch({ args })
+  const app = await electron.launch({
+    args,
+    env: {
+      ...process.env,
+      AUTO_SPIFFER_TEST_SITE_FILE: resolve('tests/fixtures/claim-page.html')
+    }
+  })
   try {
     const page = await app.firstWindow()
     await expect(page.getByText('No sales loaded yet.')).toBeVisible()
@@ -35,9 +41,7 @@ test('Sales screen imports a workbook and PDF, then asks for the claim page', as
     await page
       .getByLabel('Choose Material Sales export')
       .setInputFiles(exportPath)
-    await expect(
-      page.getByText('September 2026', { exact: true })
-    ).toBeVisible()
+    await expect(page.getByText('October 2026', { exact: true })).toBeVisible()
     await expect(page.getByText('2 rows')).toBeVisible()
     await expect(
       page.getByRole('main').getByText('1 tire line', { exact: true })
@@ -52,10 +56,16 @@ test('Sales screen imports a workbook and PDF, then asks for the claim page', as
     await page.getByRole('button', { name: 'Remove invoice.pdf' }).click()
     await expect(page.getByText('0 PDFs loaded')).toBeVisible()
     await page.getByRole('button', { name: 'Match tires' }).click()
-    await expect(page.getByRole('alert')).toContainText(
-      'Open the claim page for September 2026'
-    )
-    await expect(page.getByRole('button', { name: 'Review' })).toBeDisabled()
+    await expect
+      .poll(() => page.evaluate(() => window.api.getSiteStatus()))
+      .toMatchObject({ state: 'ready' })
+    await expect
+      .poll(() => page.evaluate(() => window.api.getSiteLocation()))
+      .toBe('claim')
+    await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Review', exact: true })
+    ).toBeEnabled()
   } finally {
     await app.close()
     remove()

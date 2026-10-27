@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import type { Theme } from '../../shared/ipc'
+import { useEffect, useLayoutEffect, useState } from 'react'
+import type { CredentialsState, SiteLocation, Theme } from '../../shared/ipc'
+import type { SitePage } from '../../shared/ipc'
 import { Sidebar, type Screen } from './components/Sidebar'
 import { Sales } from './screens/Sales'
 import { Review } from './screens/Review'
@@ -8,6 +9,8 @@ import { ProRewards } from './screens/ProRewards'
 import { Settings } from './screens/Settings'
 import type { SalesSnapshot } from '../../shared/sales'
 import type { ReviewSnapshot, SavedMatchList } from '../../shared/review'
+import type { RunState } from '../../shared/run'
+import type { UpdateState } from '../../shared/updates'
 
 const titles: Record<Screen, string> = {
   sales: 'Sales',
@@ -37,11 +40,61 @@ export default function App(): React.JSX.Element {
     null
   )
   const [savedMatches, setSavedMatches] = useState<SavedMatchList>([])
+  const [runState, setRunState] = useState<RunState | null>(null)
+  const [updateState, setUpdateState] = useState<UpdateState | null>(null)
+  const [credentials, setCredentials] = useState<CredentialsState | null>(null)
+  const [siteLocation, setSiteLocation] = useState<SiteLocation | null>(null)
+  const [sitePage, setSitePage] = useState<SitePage | null>(null)
 
   useEffect(() => window.api.on('appError', setError), [])
   useEffect(() => window.api.on('themeChanged', setSystemDark), [])
+  useEffect(() => window.api.on('updateStateChanged', setUpdateState), [])
+  useEffect(
+    () =>
+      window.api.on('signInAttention', (message) => {
+        setError(message)
+        setCurrent('website')
+      }),
+    []
+  )
+  useEffect(
+    () =>
+      window.api.on('siteNeedsAttention', (message) => {
+        setError(message)
+        setCurrent('website')
+      }),
+    []
+  )
+  useEffect(
+    () =>
+      window.api.on('siteStatusChanged', (status) => {
+        if (status.state !== 'ready') return
+        void window.api
+          .getSiteLocation()
+          .then((location) => {
+            setSiteLocation(location)
+            if (location === 'claim')
+              void window.api
+                .readSitePage()
+                .then(setSitePage)
+                .catch(() => setSitePage(null))
+            else setSitePage(null)
+          })
+          .catch(() => setSiteLocation(null))
+      }),
+    []
+  )
+  useEffect(
+    () =>
+      window.api.on('runStateChanged', (state) => {
+        setRunState(state)
+        if (state.phase === 'finished') setCurrent('enter')
+      }),
+    []
+  )
   useEffect(() => {
     void window.api.getAppVersion().then(setVersion)
+    void window.api.getUpdateState().then(setUpdateState)
     void window.api.getSettings().then((settings) => {
       setTheme(settings.theme)
       setSettingsReady(true)
@@ -53,6 +106,12 @@ export default function App(): React.JSX.Element {
       setReviewReady(Boolean(next))
     })
     void window.api.listSavedMatches().then(setSavedMatches)
+    void window.api.getRunState().then(setRunState)
+    void window.api.getCredentials().then(setCredentials)
+    void window.api.getSiteStatus().then((status) => {
+      if (status.state === 'ready')
+        void window.api.getSiteLocation().then(setSiteLocation)
+    })
   }, [])
   useEffect(() => {
     void window.api.listSavedMatches().then(setSavedMatches)
@@ -63,6 +122,9 @@ export default function App(): React.JSX.Element {
       theme === 'dark' || (theme === 'system' && systemDark)
     )
   }, [theme, systemDark])
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [current])
 
   const changeTheme = (choice: Theme): void => {
     const previous = theme
@@ -71,6 +133,14 @@ export default function App(): React.JSX.Element {
       setTheme(previous)
       setError('Could not save your appearance choice. Try again.')
     })
+  }
+  const restartToUpdate = (): void => {
+    void window.api
+      .restartToUpdate()
+      .then(setUpdateState)
+      .catch(() => {
+        setError('Could not start the update. Try again from Settings.')
+      })
   }
 
   const content =
@@ -85,28 +155,60 @@ export default function App(): React.JSX.Element {
           }
         }}
         onMatch={async () => {
-          const next = await window.api.matchTires()
-          setReviewSnapshot(next)
-          setReviewReady(true)
-          setCurrent('review')
+          setCurrent('website')
+          try {
+            let ready = false
+            for (let attempt = 0; attempt < 80; attempt++) {
+              const status = await window.api.getSiteStatus()
+              if (status.state === 'ready') {
+                ready = true
+                break
+              }
+              if (status.state === 'error') break
+              await new Promise((resolve) => setTimeout(resolve, 250))
+            }
+            if (!ready)
+              throw new Error(
+                'Could not open ProRewards. Check the website tab and try again.'
+              )
+            const next = await window.api.matchTires()
+            setReviewSnapshot(next)
+            setReviewReady(true)
+            setCurrent('review')
+            setError(null)
+          } catch (problem) {
+            setError(
+              problem instanceof Error
+                ? problem.message
+                : 'Could not read the claim page. Check ProRewards and try again.'
+            )
+            throw problem
+          }
         }}
         onShowWebsite={() => setCurrent('website')}
+        siteLocation={siteLocation}
+        sitePage={sitePage}
       />
     ) : current === 'review' ? (
       <Review
         snapshot={reviewSnapshot}
+        run={runState}
         onSnapshot={setReviewSnapshot}
         onEnter={() => setCurrent('enter')}
       />
     ) : current === 'enter' ? (
-      <EnterClaims />
+      <EnterClaims review={reviewSnapshot} run={runState} />
     ) : current === 'website' ? (
-      <ProRewards />
+      <ProRewards siteLocation={siteLocation} />
     ) : (
       <Settings
         theme={theme}
         onThemeChange={changeTheme}
         ready={settingsReady}
+        credentials={credentials}
+        onCredentials={setCredentials}
+        update={updateState}
+        onUpdate={setUpdateState}
         savedMatchesOnly={current === 'savedMatches'}
         savedMatches={savedMatches}
         onRemoveSaved={(signature) => {
@@ -143,6 +245,9 @@ export default function App(): React.JSX.Element {
           )
         }
         savedMatchCount={savedMatches.length}
+        siteLocation={siteLocation}
+        update={updateState}
+        onRestartToUpdate={restartToUpdate}
       />
       <main className="min-w-0 flex-1">
         <header className="flex h-[60px] items-center border-b border-border px-8">

@@ -1,11 +1,20 @@
 import { z } from 'zod'
 import { salesSnapshotSchema } from './sales'
 import { reviewSnapshotSchema, savedMatchListSchema } from './review'
+import { runStateSchema } from './run'
+import { updateStateSchema } from './updates'
 
 export const themeSchema = z.enum(['light', 'dark', 'system'])
 
+export const credentialsStateSchema = z.object({
+  email: z.string(),
+  hasPassword: z.boolean(),
+  staySignedIn: z.boolean()
+})
+
 export const settingsSchema = z.object({
   theme: themeSchema,
+  automaticUpdates: z.boolean().default(true),
   windowBounds: z.object({
     width: z.number().int().min(1100),
     height: z.number().int().min(700)
@@ -25,6 +34,12 @@ export const siteStatusSchema = z.object({
   address: z.string(),
   state: z.enum(['notOpened', 'loading', 'ready', 'error'])
 })
+export const siteLocationSchema = z.enum([
+  'login',
+  'claim',
+  'program-choice',
+  'other'
+])
 
 export const siteLineSchema = z.object({
   saleDate: z.date(),
@@ -60,6 +75,26 @@ const addOutcomeSchema = z.object({
 })
 
 export const calls = {
+  getCredentials: {
+    name: 'getCredentials',
+    input: z.undefined(),
+    output: credentialsStateSchema
+  },
+  saveCredentials: {
+    name: 'saveCredentials',
+    input: z.object({ email: z.email(), password: z.string().min(1) }).strict(),
+    output: credentialsStateSchema
+  },
+  setStaySignedIn: {
+    name: 'setStaySignedIn',
+    input: z.boolean(),
+    output: credentialsStateSchema
+  },
+  forgetCredentials: {
+    name: 'forgetCredentials',
+    input: z.undefined(),
+    output: credentialsStateSchema
+  },
   getSettings: {
     name: 'getSettings',
     input: z.undefined(),
@@ -76,6 +111,31 @@ export const calls = {
     input: z.undefined(),
     output: z.string()
   },
+  getUpdateState: {
+    name: 'getUpdateState',
+    input: z.undefined(),
+    output: updateStateSchema
+  },
+  checkForUpdates: {
+    name: 'checkForUpdates',
+    input: z.undefined(),
+    output: updateStateSchema
+  },
+  setAutomaticUpdates: {
+    name: 'setAutomaticUpdates',
+    input: z.boolean(),
+    output: updateStateSchema
+  },
+  restartToUpdate: {
+    name: 'restartToUpdate',
+    input: z.undefined(),
+    output: updateStateSchema
+  },
+  openLogsFolder: {
+    name: 'openLogsFolder',
+    input: z.undefined(),
+    output: z.undefined()
+  },
   setSiteBounds: {
     name: 'setSiteBounds',
     input: siteBoundsSchema.nullable(),
@@ -85,6 +145,16 @@ export const calls = {
     name: 'getSiteStatus',
     input: z.undefined(),
     output: siteStatusSchema
+  },
+  getSiteLocation: {
+    name: 'getSiteLocation',
+    input: z.undefined(),
+    output: siteLocationSchema
+  },
+  retrySignIn: {
+    name: 'retrySignIn',
+    input: z.undefined(),
+    output: z.undefined()
   },
   reloadSite: {
     name: 'reloadSite',
@@ -186,6 +256,34 @@ export const calls = {
     name: 'removeSavedMatch',
     input: z.string().min(1),
     output: z.undefined()
+  },
+  getRunState: {
+    name: 'getRunState',
+    input: z.undefined(),
+    output: runStateSchema
+  },
+  getRunLimit: {
+    name: 'getRunLimit',
+    input: z.undefined(),
+    output: z.number().int().positive().nullable()
+  },
+  checkRunPage: {
+    name: 'checkRunPage',
+    input: z.undefined(),
+    output: runStateSchema
+  },
+  startRun: { name: 'startRun', input: z.undefined(), output: runStateSchema },
+  pauseRun: { name: 'pauseRun', input: z.undefined(), output: runStateSchema },
+  resumeRun: {
+    name: 'resumeRun',
+    input: z.undefined(),
+    output: runStateSchema
+  },
+  stopRun: { name: 'stopRun', input: z.undefined(), output: runStateSchema },
+  openRunScreenshot: {
+    name: 'openRunScreenshot',
+    input: z.string().min(1).max(4096),
+    output: z.undefined()
   }
 } as const
 
@@ -194,14 +292,21 @@ export const events = {
   appError: z.string(),
   progress: z.object({ current: z.number().int(), total: z.number().int() }),
   logLine: z.string(),
-  siteStatusChanged: siteStatusSchema
+  siteStatusChanged: siteStatusSchema,
+  signInAttention: z.string(),
+  siteNeedsAttention: z.string(),
+  runStateChanged: runStateSchema,
+  updateStateChanged: updateStateSchema
 } as const
 
 export type CallName = keyof typeof calls
 export type EventName = keyof typeof events
 export type Settings = z.output<typeof settingsSchema>
 export type Theme = z.output<typeof themeSchema>
+export type CredentialsState = z.output<typeof credentialsStateSchema>
 export type SiteStatus = z.output<typeof siteStatusSchema>
+export type SiteLocation = z.output<typeof siteLocationSchema>
+export type SitePage = z.output<typeof sitePageSchema>
 
 export type CallHandlers = {
   [Name in CallName]: (

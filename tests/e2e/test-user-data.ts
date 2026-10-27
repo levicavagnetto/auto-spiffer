@@ -15,7 +15,12 @@ export function testUserData(): {
       const resolved = realpathSync(folder)
       if (!resolved.startsWith(realpathSync(tmpdir()) + sep))
         throw new Error('Unsafe test cleanup path')
-      rmSync(resolved, { recursive: true, force: true })
+      rmSync(resolved, {
+        recursive: true,
+        force: true,
+        maxRetries: 10,
+        retryDelay: 100
+      })
     }
   }
 }

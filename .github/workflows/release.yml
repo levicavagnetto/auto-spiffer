@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Check tag against package version
+        run: node scripts/check-release-tag.mjs
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run checks
+        run: npm run check
+
+      - name: Create draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          gh release view $tag --json isDraft *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --draft --title "Auto Spiffer $tag" --generate-notes
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Build and upload installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $arguments = @('--publish', 'always')
+          if ($env:GITHUB_REF_NAME.Contains('-')) {
+            $arguments += '--config.publish.channel=prerelease'
+          }
+          npx electron-builder @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $arguments = @($tag, '--draft=false')
+          if ($tag.Contains('-')) { $arguments += '--prerelease' }
+          gh release edit @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

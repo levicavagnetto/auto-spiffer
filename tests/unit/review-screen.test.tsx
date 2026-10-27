@@ -60,7 +60,14 @@ const snapshot = {
 afterEach(cleanup)
 
 it('filters by status, searches invoices, and blocks entry until decisions are settled', () => {
-  render(<Review snapshot={snapshot} onSnapshot={vi.fn()} onEnter={vi.fn()} />)
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
   expect(screen.getByText('Decide 1 tire to continue')).toBeTruthy()
   expect(
     screen
@@ -79,7 +86,14 @@ it('filters by status, searches invoices, and blocks entry until decisions are s
 })
 
 it('opens a tire decision sheet with suggestions and a search', () => {
-  render(<Review snapshot={snapshot} onSnapshot={vi.fn()} onEnter={vi.fn()} />)
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
   fireEvent.click(screen.getByRole('button', { name: /Review 900001/ }))
   expect(
     screen.getByRole('dialog', { name: 'Which tire is this?' })

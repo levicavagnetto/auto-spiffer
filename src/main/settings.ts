@@ -5,11 +5,13 @@ import type { Settings, Theme } from '../shared/ipc'
 export interface SettingsAccess {
   read(): Settings
   setTheme(theme: Theme): Settings
+  setAutomaticUpdates(value: boolean): Settings
   setWindowBounds(bounds: Settings['windowBounds']): Settings
 }
 
 const defaults: Settings = {
   theme: 'system',
+  automaticUpdates: true,
   windowBounds: { width: 1280, height: 800 }
 }
 
@@ -38,6 +40,10 @@ export function openSettings(
     read,
     setTheme(theme) {
       store.set('theme', themeSchema.parse(theme))
+      return read()
+    },
+    setAutomaticUpdates(value) {
+      store.set('automaticUpdates', value)
       return read()
     },
     setWindowBounds(bounds) {

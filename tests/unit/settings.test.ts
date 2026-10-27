@@ -32,6 +32,7 @@ describe('settings store', () => {
     const store = openSettings(tempFolder(), vi.fn())
     expect(store.read()).toEqual({
       theme: 'system',
+      automaticUpdates: true,
       windowBounds: { width: 1280, height: 800 }
     })
   })
@@ -43,6 +44,7 @@ describe('settings store', () => {
     store.setWindowBounds({ width: 1360, height: 900 })
     expect(openSettings(folder, vi.fn()).read()).toEqual({
       theme: 'dark',
+      automaticUpdates: true,
       windowBounds: { width: 1360, height: 900 }
     })
   })
@@ -55,11 +57,18 @@ describe('settings store', () => {
     const log = vi.fn()
     expect(openSettings(folder, log).read()).toEqual({
       theme: 'system',
+      automaticUpdates: true,
       windowBounds: { width: 1280, height: 800 }
     })
     expect(log).toHaveBeenCalledOnce()
     expect(readFileSync(join(folder, 'settings.json'), 'utf8')).not.toContain(
       'broken json'
     )
+  })
+
+  it('keeps the automatic update preference after restart', () => {
+    const folder = tempFolder()
+    openSettings(folder, vi.fn()).setAutomaticUpdates(false)
+    expect(openSettings(folder, vi.fn()).read().automaticUpdates).toBe(false)
   })
 })

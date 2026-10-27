@@ -36,7 +36,7 @@ describe('readSalesExport', () => {
       'Supplier',
       '4',
       '  235/50R18   GEN  RT45  ',
-      214248,
+      900248,
       new Date(2026, 8, 3, 15),
       'ignored'
     ])
@@ -45,14 +45,14 @@ describe('readSalesExport', () => {
       'Supplier',
       'not a number',
       '205/60R16 FAL AKLIMATE',
-      214249,
+      900249,
       new Date(2026, 8, 4)
     ])
     sheet.addRow([
       'Supplier',
       2,
       '225/65R17 CON SECURECONTACT AW',
-      214250,
+      900250,
       null
     ])
     const path = fixturePath('sales.xlsx')
@@ -63,7 +63,7 @@ describe('readSalesExport', () => {
       {
         row: 4,
         saleDate: '2026-09-03',
-        invoice: '214248',
+        invoice: '900248',
         description: '235/50R18 GEN RT45',
         qty: 4
       }

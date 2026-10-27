@@ -7,6 +7,8 @@ import {
   Settings2
 } from 'lucide-react'
 import logo from '../assets/logo.svg'
+import type { SiteLocation } from '../../../shared/ipc'
+import type { UpdateState } from '../../../shared/updates'
 
 export type Screen =
   'sales' | 'review' | 'enter' | 'website' | 'savedMatches' | 'settings'
@@ -48,7 +50,10 @@ export function Sidebar({
   tireLines,
   reviewEnabled = false,
   enterEnabled = false,
-  savedMatchCount
+  savedMatchCount,
+  siteLocation,
+  update,
+  onRestartToUpdate
 }: {
   current: Screen
   onNavigate: (screen: Screen) => void
@@ -58,6 +63,9 @@ export function Sidebar({
   reviewEnabled?: boolean
   enterEnabled?: boolean
   savedMatchCount?: number
+  siteLocation?: SiteLocation | null
+  update?: UpdateState | null
+  onRestartToUpdate?: () => void
 }): React.JSX.Element {
   const monthName = month
     ? new Intl.DateTimeFormat('en-US', {
@@ -67,7 +75,7 @@ export function Sidebar({
       }).format(new Date(`${month}-01T00:00:00Z`))
     : null
   return (
-    <aside className="flex h-screen w-[248px] shrink-0 flex-col border-r border-border bg-sidebar px-3 py-4">
+    <aside className="sticky top-0 flex h-screen w-[248px] shrink-0 flex-col self-start overflow-y-auto border-r border-border bg-sidebar px-3 py-4">
       <div className="flex items-center gap-2 px-2 pb-6">
         <img src={logo} alt="" className="size-7" />
         <strong className="text-[15px] font-semibold">Auto Spiffer</strong>
@@ -122,12 +130,37 @@ export function Sidebar({
                     )}
                 </button>
               </span>
+              {item.screen === 'website' && (
+                <div className="px-3 text-xs text-muted-foreground">
+                  {siteLocation === 'claim' ||
+                  siteLocation === 'program-choice' ||
+                  siteLocation === 'other'
+                    ? 'Signed in'
+                    : 'Signed out'}
+                </div>
+              )}
             </div>
           )
         })}
       </nav>
       <div className="mt-auto px-3 pt-4 text-xs text-muted-foreground">
-        Version {version}
+        {update?.phase === 'ready' && update.readyVersion ? (
+          <>
+            <p>Version {update.readyVersion} is ready</p>
+            <button
+              type="button"
+              onClick={onRestartToUpdate}
+              className="mt-1 text-accent hover:underline"
+            >
+              Restart to update
+            </button>
+          </>
+        ) : (
+          <p>
+            Version {version}
+            {update?.phase === 'up-to-date' ? ' · up to date' : ''}
+          </p>
+        )}
       </div>
     </aside>
   )

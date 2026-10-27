@@ -13,6 +13,8 @@ export function createSiteView(
   setBounds: (bounds: Electron.Rectangle | null) => void
   getStatus: () => SiteStatus
   reload: () => void
+  signOut: () => Promise<void>
+  openSubmitSale: () => Promise<void>
 } {
   const view = new WebContentsView({
     webPreferences: {
@@ -62,6 +64,20 @@ export function createSiteView(
     view,
     getStatus: () => status,
     reload: () => view.webContents.reload(),
+    async openSubmitSale() {
+      loaded = true
+      const address = testFile
+        ? pathToFileURL(testFile).href
+        : new URL('authorized/claims/submitsale.aspx', siteUrl).href
+      await view.webContents.loadURL(address)
+    },
+    async signOut() {
+      await view.webContents.session.clearStorageData()
+      if (loaded)
+        await view.webContents.loadURL(
+          testFile ? pathToFileURL(testFile).href : `${siteUrl}Login.aspx`
+        )
+    },
     setBounds(bounds) {
       if (!bounds) {
         view.setVisible(false)

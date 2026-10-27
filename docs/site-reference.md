@@ -30,13 +30,18 @@ login **once**. A wrong password, a code, or a CAPTCHA leaves the person to fini
 
 ## Program choice (Submit Sale, before the claim page)
 
-**Not saved yet.** The person will save this page into `private-data/site-pages/`. The old app's guesses, which
-worked on the live site, were:
+Saved as `private-data/site-pages/ATD ProRewards - Submit Sales.htm`. The October copy confirms:
 
-- the choice is a Chosen dropdown showing `Select One` (`.chosen-container .chosen-single`), with entries
-  `.chosen-container .chosen-results li`, backed by a hidden `<select>` (`select option`);
-- the month's entry contains the month name and year, for example `September 2026 Pro Rewards`;
-- after choosing, a button or link whose text is `Next` opens the claim page.
+| Item | Selector |
+|---|---|
+| Program choice step | `#DefaultContent_StepOneUpdatePanel` |
+| Program `<select>` | `#DefaultContent_PromotionDropDownList` (hidden behind Chosen) |
+| Chosen widget | `#DefaultContent_PromotionDropDownList_chosen` |
+| Chosen choices | `#DefaultContent_PromotionDropDownList_chosen .chosen-results li` |
+| Next on program choice | `#DefaultContent_PromotionCodeNextLinkButton` (`NEXT`) |
+
+The saved list contains `Select One` and `October 2026 Pro Rewards`. The month's entry contains the month name
+and year, for example `September 2026 Pro Rewards`. The Next link posts back from step one.
 
 The app picks the entry only when exactly one matches the month, clicks that page's Next only on this step
 (never on the claim page), and otherwise leaves the person to choose.

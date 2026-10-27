@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCw } from 'lucide-react'
-import type { SiteStatus } from '../../../shared/ipc'
+import type { SiteLocation, SiteStatus } from '../../../shared/ipc'
 import { LiveCheck } from './LiveCheck'
 
-export function ProRewards(): React.JSX.Element {
+export function ProRewards({
+  siteLocation
+}: {
+  siteLocation?: SiteLocation | null
+}): React.JSX.Element {
   const slot = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<SiteStatus>({
     address: 'https://prorewards.acbrewards.com/',
     state: 'notOpened'
   })
+  const [retrying, setRetrying] = useState(false)
   const [liveCheckAvailable, setLiveCheckAvailable] = useState(false)
 
   useEffect(() => {
@@ -68,6 +73,19 @@ export function ProRewards(): React.JSX.Element {
                 ? 'Page ready'
                 : 'Opening'}
         </span>
+        {siteLocation === 'login' && (
+          <button
+            type="button"
+            disabled={retrying}
+            onClick={() => {
+              setRetrying(true)
+              void window.api.retrySignIn().finally(() => setRetrying(false))
+            }}
+            className="rounded-md border border-border px-2 py-1 text-xs disabled:opacity-50"
+          >
+            Try saved sign-in
+          </button>
+        )}
       </div>
       {liveCheckAvailable && <LiveCheck />}
       <div

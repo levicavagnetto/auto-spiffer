@@ -34,6 +34,61 @@ export type SitePage = {
   lines: SiteLine[]
 }
 
+export type SiteLocation = 'login' | 'claim' | 'program-choice' | 'other'
+export type ProgramChoice = 'selected' | 'missing' | 'ambiguous' | 'failed'
+
+function chooseProgramInDocument(
+  s: typeof selectors,
+  month: string
+): ProgramChoice {
+  const select = document.querySelector<HTMLSelectElement>(s.programSelect)
+  const widget = document.querySelector<HTMLElement>(s.programWidget)
+  if (!select || !widget) return 'failed'
+  const monthName = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC'
+  }).format(new Date(`${month}-01T00:00:00Z`))
+  const options = Array.from(select.options).filter((option) =>
+    option.text.toLowerCase().includes(monthName.toLowerCase())
+  )
+  if (!options.length) return 'missing'
+  if (options.length > 1) return 'ambiguous'
+  const option = options[0]!
+  widget.querySelector<HTMLElement>('.chosen-single')?.click()
+  widget
+    .querySelector<HTMLElement>(
+      `.chosen-results li[data-option-array-index="${option.index}"]`
+    )
+    ?.click()
+  if (select.value !== option.value) {
+    select.value = option.value
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+    const jquery = (
+      window as typeof window & {
+        jQuery?: (element: Element) => { trigger: (event: string) => void }
+      }
+    ).jQuery
+    jquery?.(select).trigger('chosen:updated')
+  }
+  return select.value === option.value ? 'selected' : 'failed'
+}
+
+function identifyDocument(required: readonly string[]): SiteLocation {
+  if (document.querySelector('#UserLogin_Password')) return 'login'
+  if (required.every((selector) => document.querySelector(selector)))
+    return 'claim'
+  if (
+    document.querySelector('#DefaultContent_StepOneUpdatePanel') &&
+    document.querySelector('#DefaultContent_PromotionDropDownList') &&
+    document.querySelector('#DefaultContent_PromotionCodeNextLinkButton')
+  )
+    return 'program-choice'
+  if (/\/authorized\/claims\/submitsale\.aspx$/i.test(location.pathname))
+    return 'program-choice'
+  return 'other'
+}
+
 function readDocument(s: typeof selectors): RawPage {
   const squeeze = (text: string): string => text.replace(/\s+/g, ' ').trim()
   const heading = squeeze(document.body.innerText).match(
@@ -103,11 +158,16 @@ export function createSiteDriver(
   logsFolder: string
 ): {
   isClaimPage: () => Promise<boolean>
+  whereAmI: () => Promise<SiteLocation>
+  fillLogin: (email: string, password: string) => Promise<void>
+  chooseProgram: (month: string) => Promise<ProgramChoice>
+  clickProgramNext: () => Promise<void>
   readPage: () => Promise<SitePage | null>
   guardedClick: (selector: string) => Promise<void>
   addLine: (line: AddLineInput) => Promise<AddOutcome>
   upload: (pdfPath: string) => Promise<void>
   screenshot: (name: string) => Promise<string>
+  scrollTop: () => Promise<void>
 } {
   const isClaimPage = (): Promise<boolean> =>
     webContents.executeJavaScript(
@@ -142,19 +202,69 @@ export function createSiteDriver(
       const raw = (await webContents.executeJavaScript(
         `(${readDocument.toString()})(${JSON.stringify(selectors)})`
       )) as RawPage
+      const lines = raw.lines.map((line) => ({
+        ...line,
+        saleDate: parseDate(line.saleDate)
+      }))
+      if (
+        lines.some(
+          (line) =>
+            !line.saleDate ||
+            Number.isNaN(line.saleDate.getTime()) ||
+            !Number.isFinite(line.qty)
+        )
+      )
+        throw new Error(
+          'The claim page sale list could not be read. Check the page before entering sales.'
+        )
       return {
         promotion: raw.promotion,
         window: [parseDate(raw.window[0]), parseDate(raw.window[1])],
         tires: raw.tires,
-        lines: raw.lines.map((line) => ({
-          ...line,
-          saleDate: parseDate(line.saleDate)!
-        }))
+        lines: lines as SiteLine[]
       }
     }
   }
   return {
     ...driver,
+    async fillLogin(email, password) {
+      if ((await this.whereAmI()) !== 'login')
+        throw new Error('The website is not on its sign-in page.')
+      await webContents.executeJavaScript(`(() => {
+        const email = document.querySelector(${JSON.stringify(selectors.loginEmail)});
+        const password = document.querySelector(${JSON.stringify(selectors.loginPassword)});
+        if (!(email instanceof HTMLInputElement) || !(password instanceof HTMLInputElement))
+          throw new Error('Sign-in fields are missing.');
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+        if (!setter) throw new Error('Sign-in fields cannot be filled.');
+        setter.call(email, ${JSON.stringify(email)});
+        email.dispatchEvent(new Event('input', { bubbles: true }));
+        setter.call(password, ${JSON.stringify(password)});
+        password.dispatchEvent(new Event('input', { bubbles: true }));
+      })()`)
+      await driver.guardedClick(selectors.loginButton)
+    },
+    async chooseProgram(month) {
+      if ((await this.whereAmI()) !== 'program-choice') return 'failed'
+      return webContents.executeJavaScript(
+        `(${chooseProgramInDocument.toString()})(${JSON.stringify(selectors)}, ${JSON.stringify(month)})`
+      )
+    },
+    async clickProgramNext() {
+      if ((await this.whereAmI()) !== 'program-choice')
+        throw new Error('The website is not choosing a program.')
+      const visible = await webContents.executeJavaScript(`(() => {
+        const element = document.querySelector(${JSON.stringify(selectors.programNext)});
+        return Boolean(element && getComputedStyle(element).display !== 'none' &&
+          getComputedStyle(element).visibility !== 'hidden' && element.getClientRects().length);
+      })()`)
+      if (!visible) throw new Error('The program Next button is not visible.')
+      await driver.guardedClick(selectors.programNext)
+    },
+    whereAmI: () =>
+      webContents.executeJavaScript(
+        `(${identifyDocument.toString()})(${JSON.stringify(requiredClaimSelectors)})`
+      ),
     async addLine(line: AddLineInput) {
       const result = await addLine(webContents, driver, line)
       log(
@@ -186,6 +296,9 @@ export function createSiteDriver(
       const image = await webContents.capturePage()
       await writeFile(file, image.toPNG())
       return file
+    },
+    async scrollTop() {
+      await webContents.executeJavaScript('window.scrollTo(0, 0)')
     }
   }
 }

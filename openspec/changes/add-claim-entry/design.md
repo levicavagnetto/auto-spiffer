@@ -40,6 +40,12 @@ the run to end, then close. The updater (change 07) asks the runner whether a ru
 
 ### D4. Screen
 Left pane 380 px (plan / progress / summary states), right pane the tab placeholder that change 02's view follows.
+The finished state keeps its heading and result counts at the top, and the rerun button and submission reminder at
+the bottom. Its failure, upload and missing-PDF details share one bounded scroll area. Missing PDFs appear as one
+counted group with compact invoice rows, so a month with many missing PDFs does not push controls beyond the pane.
+The app shell keeps the sidebar sticky within the viewport while long screens use the existing page scroll. This
+preserves the ProRewards view's viewport-based bounds. The sidebar scrolls internally if its navigation exceeds
+the window height, and a screen change resets the page scroll to the top.
 
 ## Risks / Trade-offs
 

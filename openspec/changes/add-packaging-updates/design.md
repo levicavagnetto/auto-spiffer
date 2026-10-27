@@ -32,10 +32,14 @@ are committed so the build needs no extra tools.
 `quitAndInstall` is only called when the runner reports no run going; otherwise it is queued for the run's end.
 Before quitting for an update, close the ProRewards view. Events go to the sidebar and Settings over IPC.
 `AUTO_SPIFFER_UPDATE_CHANNEL=prerelease` (environment variable) lets a developer test a prerelease.
+For RC tags, the release workflow sets the GitHub publish channel to `prerelease`; the environment variable sets
+the installed test app's update channel to the same value and permits prerelease versions. Stable builds use
+`latest` and do not permit prereleases.
 
 ### D4. Release workflow
 `windows-latest`, Node 24: check the tag against `package.json`, `npm ci`, `npm run check` (private tests skip
 themselves), `electron-builder --publish always` with `GH_TOKEN`. Prerelease when the tag has a suffix.
+Create the GitHub Release as a draft before publishing assets, then make it public after the upload succeeds.
 
 ## Risks / Trade-offs
 

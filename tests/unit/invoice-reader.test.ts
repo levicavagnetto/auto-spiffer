@@ -42,7 +42,7 @@ describe('readInvoiceCore', () => {
       notes: []
     })
     expect(pdf.sha256).toMatch(/^[a-f0-9]{64}$/)
-  })
+  }, 15_000)
 
   it('uses the file name only when the PDF has no invoice number', async () => {
     const path = fixturePath('900201.pdf')

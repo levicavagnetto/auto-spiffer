@@ -18,7 +18,9 @@ test('Settings saves an encrypted password and can forget it', async () => {
     expect(
       readFileSync(join(folder, 'credentials.json'), 'utf8')
     ).not.toContain('test-only-secret')
-    await page.getByRole('checkbox', { name: 'Stay signed in' }).uncheck()
+    const staySignedIn = page.getByRole('checkbox', { name: 'Stay signed in' })
+    await expect(staySignedIn).toBeChecked()
+    await staySignedIn.click()
     await expect
       .poll(() => page.evaluate(() => window.api.getCredentials()))
       .toMatchObject({
@@ -26,6 +28,7 @@ test('Settings saves an encrypted password and can forget it', async () => {
         hasPassword: true,
         staySignedIn: false
       })
+    await expect(staySignedIn).not.toBeChecked()
     await page
       .getByRole('button', { name: 'Sign out and forget password' })
       .click()

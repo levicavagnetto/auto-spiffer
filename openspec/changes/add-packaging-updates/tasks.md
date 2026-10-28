@@ -3,7 +3,7 @@
 ## 1. Installer
 
 - [x] 1.1 Icons from the logo (design D2); verify `build/icon.ico` contains 16, 32, 48 and 256 px images
-- [ ] 1.2 electron-builder config (design D1) with the separate install folder and the artifact name; verify a local build installs without admin, starts, shows the icon, and leaves `%LOCALAPPDATA%\Programs\Auto Spiffer` untouched; uninstall keeps the app data folder
+- [x] 1.2 electron-builder config (design D1) with the separate install folder and the artifact name; verify a local build installs without admin, starts, shows the icon, and leaves `%LOCALAPPDATA%\Programs\Auto Spiffer` untouched; uninstall keeps the app data folder
 
 ## 2. Updates
 

@@ -126,22 +126,18 @@ describe('update controller', () => {
   })
 })
 
-it('uses the matching rc feed for RC builds and keeps stable builds on latest', () => {
+it('uses the stable feed for installed builds', () => {
   const client = {
     autoDownload: false,
     autoInstallOnAppQuit: false,
     allowPrerelease: true,
     channel: 'other'
   }
-  configureUpdateClient(client, '1.0.0')
+  configureUpdateClient(client)
   expect(client).toMatchObject({
     autoDownload: true,
     autoInstallOnAppQuit: true,
     allowPrerelease: false,
     channel: 'latest'
   })
-  configureUpdateClient(client, '1.0.0-rc.4')
-  expect(client).toMatchObject({ allowPrerelease: true, channel: 'rc' })
-  configureUpdateClient(client, '1.0.0', 'rc')
-  expect(client).toMatchObject({ allowPrerelease: true, channel: 'rc' })
 })

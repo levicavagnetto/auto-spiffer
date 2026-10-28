@@ -20,22 +20,16 @@ type Dependencies = {
   schedule: (callback: () => void, delay: number) => () => void
 }
 
-export function configureUpdateClient(
-  client: {
-    autoDownload: boolean
-    autoInstallOnAppQuit: boolean
-    allowPrerelease: boolean
-    channel: string | null
-  },
-  version: string,
-  channelOverride?: string
-): void {
-  const prerelease =
-    /^\d+\.\d+\.\d+-rc\.\d+$/.test(version) || channelOverride === 'rc'
+export function configureUpdateClient(client: {
+  autoDownload: boolean
+  autoInstallOnAppQuit: boolean
+  allowPrerelease: boolean
+  channel: string | null
+}): void {
   client.autoDownload = true
   client.autoInstallOnAppQuit = true
-  client.allowPrerelease = prerelease
-  client.channel = prerelease ? 'rc' : 'latest'
+  client.allowPrerelease = false
+  client.channel = 'latest'
 }
 
 export function createUpdateController(deps: Dependencies) {

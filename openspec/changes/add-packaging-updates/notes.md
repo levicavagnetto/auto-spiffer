@@ -29,3 +29,9 @@ The packaged app could not be attached through Playwright's Electron launcher; i
 - The updater unit test was first run against the old behavior and failed, then passed after the channel change (8 tests).
 - With version `1.0.0-rc.4`, `npm run check` passed: lint, formatting, typecheck, 156 unit tests, production build, and 50 Electron tests. Strict OpenSpec validation and the RC.4 tag-version check passed.
 - A local build produced `release/Auto-Spiffer-Setup-1.0.0-rc.4.exe`, its blockmap, and `release/rc.yml`. The feed names version `1.0.0-rc.4` and that installer. The packaged `app-update.yml` selects the GitHub `rc` channel. The hosted release and installed-app update test are still pending.
+
+## RC4 naming correction
+
+- The user confirmed that release candidates must keep the established `rc4` naming. The pushed `v1.0.0-rc4` tag failed its version gate because the commit contained `1.0.0-rc.4`. No RC4 release was published.
+- The dotted RC.4 local build above is superseded. The package version is restored to `1.0.0-rc4`; installed builds use the stable `latest` update channel. The live update check will use RC4 to stable 1.0.0, which exercises the production update path. The corrected RC4 build and checks are pending.
+- Corrected RC4 verification passed: strict OpenSpec validation, tag-version check, lint, formatting, typecheck, 156 unit tests, production build, and 50 Electron tests. A local build produced `Auto-Spiffer-Setup-1.0.0-rc4.exe`, its blockmap, and `prerelease.yml`; the packaged app selects `latest` for the stable update check. The hosted workflow and installed RC4-to-1.0.0 update check remain pending.

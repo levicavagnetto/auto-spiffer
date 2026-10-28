@@ -190,9 +190,11 @@ if (!app.requestSingleInstanceLock()) {
     activeRun = run
     configureUpdateClient(
       autoUpdater,
-      process.env.AUTO_SPIFFER_UPDATE_CHANNEL === 'prerelease'
+      app.getVersion(),
+      process.env.AUTO_SPIFFER_UPDATE_CHANNEL
     )
     autoUpdater.logger = logger
+    logger.info(`Update channel: ${autoUpdater.channel}`)
     const updates: UpdateController = createUpdateController({
       version: app.getVersion(),
       automatic: () => settings.read().automaticUpdates,

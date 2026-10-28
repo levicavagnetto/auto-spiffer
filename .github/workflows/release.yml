@@ -45,7 +45,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $arguments = @('--publish', 'always')
-          if ($env:GITHUB_REF_NAME.Contains('-')) {
+          if ($env:GITHUB_REF_NAME -match '-rc\.\d+$') {
+            $arguments += '--config.publish.channel=rc'
+          } elseif ($env:GITHUB_REF_NAME.Contains('-')) {
             $arguments += '--config.publish.channel=prerelease'
           }
           npx electron-builder @arguments

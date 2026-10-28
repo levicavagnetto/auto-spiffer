@@ -27,12 +27,15 @@ export function configureUpdateClient(
     allowPrerelease: boolean
     channel: string | null
   },
-  prerelease: boolean
+  version: string,
+  channelOverride?: string
 ): void {
+  const prerelease =
+    /^\d+\.\d+\.\d+-rc\.\d+$/.test(version) || channelOverride === 'rc'
   client.autoDownload = true
   client.autoInstallOnAppQuit = true
   client.allowPrerelease = prerelease
-  client.channel = prerelease ? 'prerelease' : 'latest'
+  client.channel = prerelease ? 'rc' : 'latest'
 }
 
 export function createUpdateController(deps: Dependencies) {

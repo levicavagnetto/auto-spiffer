@@ -23,8 +23,9 @@ The packaged app could not be attached through Playwright's Electron launcher; i
 - With version `1.0.0-rc3`, `npm run check` passed locally: lint, formatting, typecheck, 156 unit tests, production build, and 50 Electron tests. Strict OpenSpec validation and the RC3 tag-version check passed. The hosted RC3 workflow and installed-app update check remain pending.
 - The hosted RC3 workflow passed and published the installer, blockmap, and `prerelease.yml`. On October 27, the installed RC1 app showed "not checked yet" after Check now; its log showed a 404 requesting `latest.yml` from the older stable v0.4.0 release. Inspecting electron-updater 6.8.11 showed that its GitHub provider matches the first prerelease version identifier to the selected channel. Tags `rc1` and `rc3` cannot match the configured `prerelease` channel, even when the environment override reaches the process. The RC1-to-RC3 automatic update check is therefore abandoned; RC.4 will be installed once, then RC.4-to-RC.5 will test updates using matching `rc` identifiers and `rc.yml`.
 
-## Pause checkpoint
+## RC.4 verification
 
 - The working tree was changed to `1.0.0-rc.4`. The app now selects channel `rc` automatically for `-rc.N` versions, and the release workflow publishes `rc.yml` for those tags. Stable versions continue to use `latest`.
-- The updater unit test was first run against the old behavior and failed, then passed after the channel change (8 tests). Typecheck passed. Formatting was applied to `src/main/updates.ts` after the formatting check flagged it.
-- Before tagging RC.4: run formatting and full `npm run check`, validate this OpenSpec change, build the installer locally with the `rc` channel and inspect `rc.yml` and packaged `app-update.yml`. Then make any final fixes and tag RC.4. No RC.4 tag, push, or release exists yet.
+- The updater unit test was first run against the old behavior and failed, then passed after the channel change (8 tests).
+- With version `1.0.0-rc.4`, `npm run check` passed: lint, formatting, typecheck, 156 unit tests, production build, and 50 Electron tests. Strict OpenSpec validation and the RC.4 tag-version check passed.
+- A local build produced `release/Auto-Spiffer-Setup-1.0.0-rc.4.exe`, its blockmap, and `release/rc.yml`. The feed names version `1.0.0-rc.4` and that installer. The packaged `app-update.yml` selects the GitHub `rc` channel. The hosted release and installed-app update test are still pending.

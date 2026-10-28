@@ -18,8 +18,8 @@ export function testUserData(): {
       rmSync(resolved, {
         recursive: true,
         force: true,
-        maxRetries: 10,
-        retryDelay: 100
+        maxRetries: 30,
+        retryDelay: 200
       })
     }
   }

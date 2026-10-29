@@ -26,6 +26,16 @@ After the sidebar fix, the person reported that the live-run check passed, all t
 and the sidebar worked during their manual test. The two-line checkpoint, any available PDF uploads, final manual
 submission, and run timings are awaiting confirmation before task 3.1 is marked complete.
 
+The person later confirmed that the planned two-line checkpoint and PDF uploads worked. The earlier report that all
+tire data was entered covers running the remaining lines. Final manual submission and Add/upload timings have not
+been reported, so task 3.1 remains open.
+
+The app log contains timing records, but it mixes live activity with development checks. On October 26 it recorded
+80 Add operations (200–2264 ms, 1170 ms average) and 34 uploads (104–1657 ms, 590 ms average). On October 27 it
+recorded 30 Adds (245–400 ms, 281 ms average), and on October 28 it recorded 16 Adds (180–502 ms, 242 ms average).
+These are log aggregates, not isolated timings for the two-line live checkpoint. The user confirmed both the
+checkpoint and PDF uploads worked. Final manual submission has not been reported.
+
 ## Demo invoice test
 
 The old project's PDF writer generated 30 clearly marked demo invoices for 33 importable October sales rows in

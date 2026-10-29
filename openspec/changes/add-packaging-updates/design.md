@@ -22,6 +22,10 @@ named `AutoSpiffer-Setup-<tag>.exe` with an https URL, size and SHA-256 digest, 
 macro in `build/installer.nsh` to `%LOCALAPPDATA%\Programs\AutoSpiffer`. Artifact name
 `Auto-Spiffer-Setup-${version}.exe` (does not match the 0.x updater's `AutoSpiffer-Setup-<tag>.exe`). `publish:
 github` (owner `levicavagnetto`, repo `auto-spiffer`).
+Use a distinct shortcut named for the major and minor version, such as `Auto Spiffer 1.0` or
+`Auto Spiffer 1.1`, computed from `package.json` by the builder config. The installer launches its
+executable directly and repairs the new shortcut target; when 0.4.0 is installed, retain its
+`Auto Spiffer` shortcut.
 
 ### D2. Icons
 `scripts/make-icons.mjs` renders `docs/brand/logo.svg` to PNGs (16 to 256 px) and `build/icon.ico`; the outputs

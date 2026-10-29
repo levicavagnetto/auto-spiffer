@@ -44,7 +44,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $arguments = @('--publish', 'always')
+          $arguments = @('--config', 'electron-builder.config.cjs', '--publish', 'always')
           if ($env:GITHUB_REF_NAME.Contains('-')) {
             $arguments += '--config.publish.channel=prerelease'
           }

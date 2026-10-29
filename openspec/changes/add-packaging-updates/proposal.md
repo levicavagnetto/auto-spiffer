@@ -26,6 +26,6 @@ across.
 
 ## Impact
 
-- `electron-builder.yml`, `build/` (icons), `.github/workflows/release.yml`, `src/main/updates.ts`, Settings
+- `electron-builder.config.cjs`, `build/` (icons), `.github/workflows/release.yml`, `src/main/updates.ts`, Settings
   cards, `README.md`.
 - Depends on `add-app-shell` and `add-claim-entry` (the "no run going" check).

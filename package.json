@@ -1,12 +1,12 @@
 {
   "name": "auto-spiffer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Enter monthly ProRewards sales claims for a tire shop",
   "main": "./out/main/index.js",
   "scripts": {
     "make:icons": "node scripts/make-icons.mjs",
-    "dist:win": "npm run build && electron-builder --win --x64 --publish never",
+    "dist:win": "npm run build && electron-builder --config electron-builder.config.cjs --win --x64 --publish never",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",

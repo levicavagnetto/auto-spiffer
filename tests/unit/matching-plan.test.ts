@@ -105,3 +105,28 @@ it('shows non-tire rows and applies session-only choices by wording', () => {
     'ready'
   ])
 })
+
+it('keeps a possible wheel separate from a ready tire and a tube', () => {
+  const lines = planLines(
+    [
+      sale(2, '900010', 'FAL AKLIMATE 205/60R16', 1),
+      {
+        ...sale(3, '900011', 'STYLE A 20X10 -12 5X5.00 BLACK', 2),
+        notATire: 'wheel'
+      },
+      { ...sale(4, '900012', 'TR13 TUBE', 1), notATire: 'tube' }
+    ],
+    tires,
+    {},
+    { '900011': 'wheel.pdf' },
+    {},
+    new Set(),
+    [null, null]
+  )
+  expect(lines.map((line) => line.status)).toEqual([
+    'ready',
+    'possible-wheel',
+    'not-a-tire'
+  ])
+  expect(lines[1]).toMatchObject({ pdf: 'wheel.pdf', tire: undefined })
+})

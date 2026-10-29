@@ -22,7 +22,15 @@ then asks "which tire on the list is best explained by these words, for this bra
 ## 1. Which rows are tires
 
 A sales row is **not a tire** (shown as "Not a tire", never matched) when its description contains
-`shipping` or `handling`, or the word `tube`, or no tire size. Matching is case-insensitive.
+`shipping` or `handling`, or the word `tube`. These checks take priority over wheel detection.
+A row with no tire size is also Not a tire unless it looks like a wheel. Matching is case-insensitive.
+
+A row is a **possible wheel** when it clearly names a custom or steel wheel product, or has a wheel
+diameter-by-width together with either wheel/rim wording or a bolt pattern. For example,
+`XW OFFROAD XW-123 20X9 8X165.1 +12 BLACK` and `STYLE A 20X10 -12 5X5.00 BLACK` are possible wheels;
+`20X9 BLACK` alone is not enough. A tire-size row with incidental wheel wording stays a tire unless it
+clearly names a wheel product. Possible wheels are shown for manual review and are never matched to a tire
+or entered automatically.
 
 ## 2. Taking a description apart (order does not matter)
 

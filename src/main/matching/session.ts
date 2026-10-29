@@ -83,7 +83,7 @@ export class ReviewSession {
       (item) => item.signature === input.signature
     )
     if (!line) throw new Error('That sale is no longer in the review.')
-    if (line.status === 'not-a-tire')
+    if (line.status === 'not-a-tire' || line.status === 'possible-wheel')
       throw new Error('This line is not a tire.')
     if (
       input.label !== null &&

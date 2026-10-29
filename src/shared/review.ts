@@ -17,6 +17,7 @@ export const reviewLineSchema = z.object({
     'needs-decision',
     'not-eligible',
     'not-a-tire',
+    'possible-wheel',
     'outside-dates'
   ]),
   tire: z.string().optional(),

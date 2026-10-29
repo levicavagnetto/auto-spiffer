@@ -163,3 +163,63 @@ it('keeps Enter in the header as ready lines change', () => {
       .hasAttribute('disabled')
   ).toBe(true)
 })
+
+it('shows possible wheels in their own filter with manual guidance and no tire picker', () => {
+  const header = headerTarget()
+  const withWheels: ReviewSnapshot = {
+    ...snapshot,
+    lines: [
+      snapshot.lines[1]!,
+      {
+        ...snapshot.lines[1]!,
+        id: 'wheel',
+        invoice: '900003',
+        description: 'STYLE A 20X10 -12 5X5.00 BLACK',
+        status: 'possible-wheel',
+        tire: undefined,
+        pdf: 'wheel.pdf'
+      },
+      {
+        ...snapshot.lines[1]!,
+        id: 'tube',
+        invoice: '900004',
+        description: 'TR13 TUBE',
+        status: 'not-a-tire',
+        tire: undefined
+      }
+    ]
+  }
+  render(
+    <Review
+      headerActions={header}
+      snapshot={withWheels}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  expect(
+    within(header).getByRole('button', { name: 'Enter 1 sale' })
+  ).toBeTruthy()
+  expect(screen.getByRole('tab', { name: 'All 3' })).toBeTruthy()
+  fireEvent.click(screen.getByRole('tab', { name: 'Wheels 1' }))
+  expect(screen.getByText('900003')).toBeTruthy()
+  expect(screen.queryByText('900002')).toBeNull()
+  expect(screen.queryByText('900004')).toBeNull()
+  expect(
+    screen.getByText(/Check whether they qualify for ATD Custom Wheels/)
+  ).toBeTruthy()
+  expect(screen.queryByRole('button', { name: /Review 900003/ })).toBeNull()
+  expect(screen.getByText('Enter by hand')).toBeTruthy()
+  expect(screen.getByText('✓')).toBeTruthy()
+  fireEvent.click(screen.getByRole('tab', { name: 'Not a tire 1' }))
+  expect(screen.getByText('900004')).toBeTruthy()
+  expect(screen.queryByText('900003')).toBeNull()
+  fireEvent.click(screen.getByRole('tab', { name: 'All 3' }))
+  expect(screen.getByText('900003')).toBeTruthy()
+  fireEvent.change(screen.getByPlaceholderText('Search invoice or tire'), {
+    target: { value: '900003' }
+  })
+  expect(screen.getByText('900003')).toBeTruthy()
+  expect(screen.queryByText('900002')).toBeNull()
+})

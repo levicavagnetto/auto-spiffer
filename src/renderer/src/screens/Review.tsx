@@ -10,6 +10,7 @@ const filters: { key: Filter; label: string }[] = [
   { key: 'ready', label: 'Ready' },
   { key: 'needs-decision', label: 'Needs a decision' },
   { key: 'not-eligible', label: 'Not eligible' },
+  { key: 'possible-wheel', label: 'Wheels' },
   { key: 'not-a-tire', label: 'Not a tire' },
   { key: 'outside-dates', label: 'Outside program dates' }
 ]
@@ -17,6 +18,7 @@ const statusLabels: Record<ReviewLine['status'], string> = {
   ready: 'Ready',
   'needs-decision': 'Needs a decision',
   'not-eligible': 'Not eligible',
+  'possible-wheel': 'Possible wheel',
   'not-a-tire': 'Not a tire',
   'outside-dates': 'Outside program dates'
 }
@@ -177,6 +179,12 @@ export function Review({
           className="min-w-52 flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
       </div>
+      {filter === 'possible-wheel' && (
+        <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+          These rows look like wheels. Check whether they qualify for ATD Custom
+          Wheels or ATD Steel Wheels, then enter them on ProRewards yourself.
+        </p>
+      )}
       <div className="overflow-auto rounded-xl border border-border bg-card">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-muted text-xs text-muted-foreground">
@@ -223,24 +231,30 @@ export function Review({
                   {line.description}
                 </td>
                 <td className="p-3">
-                  <button
-                    type="button"
-                    aria-label={`Review ${line.invoice} ${line.description}`}
-                    className="max-w-64 text-left font-medium text-primary hover:underline"
-                    onClick={() => {
-                      setSelectedId(line.id)
-                      setSelectedTire(line.tire ?? line.guess ?? '')
-                      setTireSearch('')
-                      setRemember(true)
-                    }}
-                  >
-                    {line.tire ??
-                      line.guess ??
-                      (line.status === 'not-a-tire'
-                        ? 'Not a tire'
-                        : line.reason)}
-                    {line.guess && !line.tire ? ' ?' : ''}
-                  </button>
+                  {line.status === 'possible-wheel' ? (
+                    <span className="text-muted-foreground">
+                      Possible wheel
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={`Review ${line.invoice} ${line.description}`}
+                      className="max-w-64 text-left font-medium text-primary hover:underline"
+                      onClick={() => {
+                        setSelectedId(line.id)
+                        setSelectedTire(line.tire ?? line.guess ?? '')
+                        setTireSearch('')
+                        setRemember(true)
+                      }}
+                    >
+                      {line.tire ??
+                        line.guess ??
+                        (line.status === 'not-a-tire'
+                          ? 'Not a tire'
+                          : line.reason)}
+                      {line.guess && !line.tire ? ' ?' : ''}
+                    </button>
+                  )}
                 </td>
                 <td className="p-3 text-right">
                   {line.qty}
@@ -250,14 +264,22 @@ export function Review({
                   {line.pdf ? '✓' : '—'}
                 </td>
                 <td className="p-3">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    className="whitespace-nowrap text-xs text-primary hover:underline"
-                    onClick={() => void toggleLeftOut(line)}
-                  >
-                    {line.leftOut ? 'Include this line' : 'Leave this line out'}
-                  </button>
+                  {line.status === 'possible-wheel' ? (
+                    <span className="text-xs text-muted-foreground">
+                      Enter by hand
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={busy}
+                      className="whitespace-nowrap text-xs text-primary hover:underline"
+                      onClick={() => void toggleLeftOut(line)}
+                    >
+                      {line.leftOut
+                        ? 'Include this line'
+                        : 'Leave this line out'}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -278,6 +300,8 @@ export function Review({
           ).length
         }{' '}
         not eligible ·{' '}
+        {lines.filter((line) => line.status === 'possible-wheel').length}{' '}
+        possible wheel ·{' '}
         {lines.filter((line) => line.status === 'not-a-tire').length} not a tire
         {lines.some((line) => line.rows.length > 1)
           ? ' · * Added up from more than one row'

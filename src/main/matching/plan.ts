@@ -25,7 +25,9 @@ export function planLines(
       ? decisions[signature]
       : undefined
     const status = sale.notATire
-      ? 'not-a-tire'
+      ? sale.notATire === 'wheel'
+        ? 'possible-wheel'
+        : 'not-a-tire'
       : decision === null
         ? 'not-eligible'
         : decision
@@ -53,11 +55,13 @@ export function planLines(
       reason: outside
         ? `Sale date ${sale.saleDate} is outside program dates ${dates[0]} to ${dates[1]}.`
         : sale.notATire
-          ? sale.notATire === 'tube'
-            ? 'Tube, not a tire.'
-            : sale.notATire === 'shipping'
-              ? 'Shipping or handling, not a tire.'
-              : 'No tire size found.'
+          ? sale.notATire === 'wheel'
+            ? 'Possible wheel. Check it on ProRewards yourself.'
+            : sale.notATire === 'tube'
+              ? 'Tube, not a tire.'
+              : sale.notATire === 'shipping'
+                ? 'Shipping or handling, not a tire.'
+                : 'No tire size found.'
           : decision === null
             ? 'You marked this as not eligible.'
             : decision

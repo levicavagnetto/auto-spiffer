@@ -56,3 +56,58 @@ test('a decision updates matching lines and saved match can be removed', async (
     remove()
   }
 })
+
+test('Review separates possible wheels from tires and tubes', async () => {
+  const { args, folder, remove } = testUserData()
+  const workbook = new ExcelJS.Workbook()
+  const sheet = workbook.addWorksheet('Report')
+  sheet.addRow(['Invoiced', 'Invoice #', 'Description', 'Quantity'])
+  sheet.addRow([
+    new Date(2026, 9, 3),
+    900811,
+    'CON SECURECONTACT AW 225/65R17',
+    2
+  ])
+  sheet.addRow([
+    new Date(2026, 9, 3),
+    900812,
+    'STYLE A 20X10 -12 5X5.00 BLACK',
+    1
+  ])
+  sheet.addRow([new Date(2026, 9, 3), 900813, 'TR13 TUBE', 1])
+  const exportPath = join(folder, 'wheel-sales.xlsx')
+  await workbook.xlsx.writeFile(exportPath)
+  const app = await electron.launch({
+    args,
+    env: {
+      ...process.env,
+      AUTO_SPIFFER_TEST_SITE_FILE: resolve('tests/fixtures/claim-page.html')
+    }
+  })
+  try {
+    const page = await app.firstWindow()
+    await page
+      .getByLabel('Choose Material Sales export')
+      .setInputFiles(exportPath)
+    await page.getByRole('button', { name: 'Match tires' }).click()
+    await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Enter 1 sale' })
+    ).toBeEnabled()
+    await page.getByRole('tab', { name: 'Wheels 1' }).click()
+    await expect(page.getByText('900812')).toBeVisible()
+    await expect(page.getByText('900811')).toHaveCount(0)
+    await expect(page.getByText('900813')).toHaveCount(0)
+    await expect(
+      page.getByText(/Check whether they qualify for ATD Custom Wheels/)
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: /Review 900812/ })
+    ).toHaveCount(0)
+    await page.getByRole('tab', { name: 'Not a tire 1' }).click()
+    await expect(page.getByText('900813')).toBeVisible()
+  } finally {
+    await app.close()
+    remove()
+  }
+})

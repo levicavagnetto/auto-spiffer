@@ -122,3 +122,37 @@ it('does not save a tire choice for a non-tire row', async () => {
   ).toThrow('not a tire')
   expect(set).not.toHaveBeenCalled()
 })
+
+it('does not allow a possible wheel to become a saved tire match', async () => {
+  const set = vi.fn()
+  const wheel = {
+    ...snapshot,
+    state: {
+      ...snapshot.state,
+      sales: [
+        {
+          row: 2,
+          saleDate: '2026-09-03',
+          invoice: '900020',
+          description: 'STYLE A 20X10 -12 5X5.00 BLACK',
+          qty: 1,
+          notATire: 'wheel' as const
+        }
+      ]
+    }
+  } as SalesSnapshot
+  const session = new ReviewSession(
+    () => wheel,
+    async () => page,
+    { read: () => ({}), set, remove: vi.fn(), list: () => [] }
+  )
+  await session.match()
+  expect(() =>
+    session.decide({
+      signature: 'row|2',
+      label: page.tires[0]!,
+      remember: true
+    })
+  ).toThrow('not a tire')
+  expect(set).not.toHaveBeenCalled()
+})

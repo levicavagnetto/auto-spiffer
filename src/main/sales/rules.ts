@@ -4,7 +4,22 @@ import type { NotATireReason, Sale } from '../../shared/sales'
 export function classifySale(description: string): NotATireReason | null {
   if (/shipping|handling/i.test(description)) return 'shipping'
   if (/\btube\b/i.test(description)) return 'tube'
-  if (!hasTireSize(description)) return 'no-size'
+  const tireSize = hasTireSize(description)
+  const namedWheel = /\b(?:wheels?|rims?)\b/i.test(description)
+  const clearWheelProduct =
+    /\b(?:ATD\s+(?:custom|steel)|custom|steel)\s+wheels?\b/i.test(description)
+  const wheelSize = /\b(?:1[2-9]|2[0-6])\s?x\s?\d{1,2}(?:\.\d{1,2})?\b/i.test(
+    description
+  )
+  const boltPattern = /\b[4568]\s?x\s?\d{1,3}(?:\.\d{1,2})?\b/i.test(
+    description
+  )
+  if (
+    clearWheelProduct ||
+    (!tireSize && wheelSize && (namedWheel || boltPattern))
+  )
+    return 'wheel'
+  if (!tireSize) return 'no-size'
   return null
 }
 

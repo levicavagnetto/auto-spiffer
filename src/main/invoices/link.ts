@@ -17,6 +17,11 @@ export function linkSales(sales: Sale[], pdfs: InvoicePdf[]): InvoiceLinks {
   const tireInvoices = new Set(
     sales.filter((sale) => sale.notATire === null).map((sale) => sale.invoice)
   )
+  const wheelInvoices = new Set(
+    sales
+      .filter((sale) => sale.notATire === 'wheel')
+      .map((sale) => sale.invoice)
+  )
   const firstByInvoice = new Map<string, InvoicePdf>()
   const groups = new Map<string, InvoicePdf[]>()
   const identicalCopies: InvoicePdf[] = []
@@ -48,11 +53,12 @@ export function linkSales(sales: Sale[], pdfs: InvoicePdf[]): InvoiceLinks {
 
   const usedByInvoice: Record<string, string> = {}
   const missingInvoices: string[] = []
-  for (const invoice of [...tireInvoices].sort()) {
+  for (const invoice of new Set([...tireInvoices, ...wheelInvoices])) {
     const pdf = firstByInvoice.get(invoice)
     if (pdf) usedByInvoice[invoice] = pdf.path
-    else missingInvoices.push(invoice)
+    else if (tireInvoices.has(invoice)) missingInvoices.push(invoice)
   }
+  missingInvoices.sort()
   const duplicateInvoices = [...groups]
     .filter(([, group]) => group.length > 1)
     .map(([invoice, group]) => ({

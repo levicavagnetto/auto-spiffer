@@ -128,11 +128,15 @@ export function Sales({
     (sale) => sale.notATire === 'shipping'
   ).length
   const noSizeCount = sales.filter((sale) => sale.notATire === 'no-size').length
-  const excluded = tubeCount + shippingCount + noSizeCount
+  const wheelCount = sales.filter((sale) => sale.notATire === 'wheel').length
+  const excluded = tubeCount + shippingCount + noSizeCount + wheelCount
   const reasons = [
     tubeCount ? `${tubeCount} tube${tubeCount === 1 ? '' : 's'}` : '',
     shippingCount ? `${shippingCount} shipping or handling` : '',
-    noSizeCount ? `${noSizeCount} with no tire size` : ''
+    noSizeCount ? `${noSizeCount} with no tire size` : '',
+    wheelCount
+      ? `${wheelCount} possible wheel${wheelCount === 1 ? '' : 's'}`
+      : ''
   ]
     .filter(Boolean)
     .join(', ')

@@ -9,7 +9,7 @@ export const invoicePdfSchema = z.object({
   sha256: z.string()
 })
 
-export type NotATireReason = 'shipping' | 'tube' | 'no-size'
+export type NotATireReason = 'shipping' | 'tube' | 'no-size' | 'wheel'
 
 export const saleSchema = z.object({
   row: z.number().int().positive(),
@@ -17,7 +17,7 @@ export const saleSchema = z.object({
   invoice: z.string().min(1),
   description: z.string().min(1),
   qty: z.number().int().positive(),
-  notATire: z.enum(['shipping', 'tube', 'no-size']).nullable()
+  notATire: z.enum(['shipping', 'tube', 'no-size', 'wheel']).nullable()
 })
 
 export type Sale = {

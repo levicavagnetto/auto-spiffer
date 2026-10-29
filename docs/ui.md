@@ -82,8 +82,10 @@ One content column; the cards use the available page width.
 ### 2. Review (step 2)
 - Header action: primary **Enter N sales** at the far right, disabled with "Decide 2 tires to continue" beside it
   while any line needs a decision. It stays reachable while the Review list scrolls.
-- A segmented filter: All, Ready, Needs a decision (warning color), Not eligible, Not a tire, each with its
+- A segmented filter: All, Ready, Needs a decision (warning color), Not eligible, Wheels, Not a tire, each with its
   count; a search box (invoice or tire).
+- Wheels shows likely wheel rows as "Possible wheel" in the same table, without a tire choice. Its note says:
+  "These rows look like wheels. Check whether they qualify for ATD Custom Wheels or ATD Steel Wheels, then enter them on ProRewards yourself."
 - A table: Status (a pill with a dot), Date, Invoice (mono), On the report (muted, ellipsis), Claim page tire
   (bold when Ready, warning color with `?` for a guess, muted "Not on the claim page" or "Not a tire"),
   Qty (right-aligned, `*` when merged), PDF (check or dash). The selected row has the warning tint.

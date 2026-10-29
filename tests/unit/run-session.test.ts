@@ -22,6 +22,21 @@ it('rejects a second run while one line is still being entered', async () => {
         savedMatch: false,
         leftOut: false,
         readAs: { brand: 'Nokian', sizes: [], words: [] }
+      },
+      {
+        id: 'wheel',
+        saleDate: '2026-10-18',
+        invoice: '900002',
+        description: 'STYLE A 20X10 -12 5X5.00 BLACK',
+        qty: 1,
+        rows: [3],
+        status: 'possible-wheel',
+        suggestions: [],
+        reason: 'Possible wheel.',
+        signature: 'row|3',
+        savedMatch: false,
+        leftOut: false,
+        readAs: { brand: null, sizes: [], words: [] }
       }
     ],
     tires: [],
@@ -73,6 +88,7 @@ it('rejects a second run while one line is still being entered', async () => {
   release()
   await vi.waitFor(() => expect(session.snapshot().phase).toBe('finished'))
   expect(session.snapshot().summary?.added).toEqual(['one'])
+  expect(driver.addLine).toHaveBeenCalledOnce()
 })
 
 it('returns to the intended claim page before checking and before starting', async () => {

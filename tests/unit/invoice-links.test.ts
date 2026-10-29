@@ -28,6 +28,16 @@ const pdf = (
 })
 
 describe('linkSales', () => {
+  it('links a wheel PDF for Review without warning about missing wheel PDFs', () => {
+    const result = linkSales(
+      [sale('900440', 2, 'wheel'), sale('900441', 3, 'wheel')],
+      [pdf('900440', 'wheel.pdf')]
+    )
+    expect(result.usedByInvoice).toEqual({ '900440': 'C:\\PDFs\\wheel.pdf' })
+    expect(result.missingInvoices).toEqual([])
+    expect(result.linkedCount).toBe(1)
+  })
+
   it('links each tire sale and lists missing PDFs by invoice', () => {
     const result = linkSales(
       [

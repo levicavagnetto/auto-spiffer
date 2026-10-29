@@ -8,6 +8,7 @@ import { runLines, type RunDriver, type RunEvent } from './runner'
 type Dependencies = {
   review: () => ReviewSnapshot | null
   month: () => string | null
+  ensurePage: (month: string, cancelled?: () => boolean) => Promise<void>
   readPage: () => Promise<SitePage | null>
   driver: RunDriver
   publish: (state: RunState) => void
@@ -27,6 +28,8 @@ export class RunSession {
   }
   private control: RunControl | null = null
   private task: Promise<void> | null = null
+  private checkingDone: Promise<void> | null = null
+  private finishChecking: (() => void) | null = null
   constructor(private readonly deps: Dependencies) {}
   snapshot(): RunState {
     return structuredClone(this.state)
@@ -98,18 +101,27 @@ export class RunSession {
       activity: []
     }
     this.publish()
+    this.control = new RunControl()
+    this.checkingDone = new Promise((resolve) => {
+      this.finishChecking = resolve
+    })
     try {
+      await this.deps.ensurePage(month, () => this.control?.isStopped ?? true)
+      if (this.control?.isStopped) throw new Error('Claim entry was stopped.')
       this.state.check = checkPage(await this.deps.readPage(), month, lines)
       this.state.phase = 'idle'
+      this.control = null
+      this.finishChecking?.()
+      this.finishChecking = null
       return this.publish()
     } catch (error) {
       this.deps.log?.(error)
       this.state.phase = 'idle'
+      this.control = null
+      this.finishChecking?.()
+      this.finishChecking = null
       this.publish()
-      throw new Error(
-        'Could not read the claim page. Reload it and try again.',
-        { cause: error }
-      )
+      throw error
     }
   }
   async start(): Promise<RunState> {
@@ -117,22 +129,30 @@ export class RunSession {
     const { month, lines } = this.candidates()
     this.state.phase = 'checking'
     this.publish()
+    this.control = new RunControl()
+    this.checkingDone = new Promise((resolve) => {
+      this.finishChecking = resolve
+    })
     try {
+      await this.deps.ensurePage(month, () => this.control?.isStopped ?? true)
+      if (this.control?.isStopped) throw new Error('Claim entry was stopped.')
       this.state.check = checkPage(await this.deps.readPage(), month, lines)
     } catch (error) {
       this.deps.log?.(error)
       this.state.phase = 'idle'
+      this.control = null
+      this.finishChecking?.()
+      this.finishChecking = null
       this.publish()
-      throw new Error(
-        'Could not read the claim page. Reload it and try again.',
-        { cause: error }
-      )
+      throw error
     }
     if (!this.state.check.ok) {
       this.state.phase = 'idle'
+      this.control = null
+      this.finishChecking?.()
+      this.finishChecking = null
       return this.publish()
     }
-    this.control = new RunControl()
     this.state = {
       phase: 'running',
       check: this.state.check,
@@ -142,8 +162,21 @@ export class RunSession {
       now: null,
       activity: []
     }
-    this.task = runLines(lines, this.deps.driver, this.control, (event) =>
-      this.onEvent(event)
+    this.task = runLines(
+      lines,
+      this.deps.driver,
+      this.control,
+      (event) => this.onEvent(event),
+      async () => {
+        await this.deps.ensurePage(month, () => this.control?.isStopped ?? true)
+        const page = await this.deps.readPage()
+        const check = checkPage(page, month, lines)
+        if (!check.ok || !page)
+          throw new Error(
+            check.problems.join(' ') || 'Open the claim page and try again.'
+          )
+        return page
+      }
     )
       .then(() => undefined)
       .catch((error: unknown) => {
@@ -155,6 +188,8 @@ export class RunSession {
         this.state.phase = 'finished'
         this.publish()
       })
+    this.finishChecking?.()
+    this.finishChecking = null
     return this.publish()
   }
   private onEvent(event: RunEvent): void {
@@ -199,6 +234,7 @@ export class RunSession {
   }
   async stopAndWait(): Promise<void> {
     if (this.control) this.control.stop()
+    await this.checkingDone
     await this.task
   }
 }

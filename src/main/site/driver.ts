@@ -159,6 +159,7 @@ export function createSiteDriver(
 ): {
   isClaimPage: () => Promise<boolean>
   whereAmI: () => Promise<SiteLocation>
+  loginError: () => Promise<boolean>
   fillLogin: (email: string, password: string) => Promise<void>
   chooseProgram: (month: string) => Promise<ProgramChoice>
   clickProgramNext: () => Promise<void>
@@ -233,6 +234,8 @@ export function createSiteDriver(
       await webContents.executeJavaScript(`(() => {
         const email = document.querySelector(${JSON.stringify(selectors.loginEmail)});
         const password = document.querySelector(${JSON.stringify(selectors.loginPassword)});
+        const oldError = document.querySelector('.errorLiteral');
+        if (oldError) oldError.textContent = '';
         if (!(email instanceof HTMLInputElement) || !(password instanceof HTMLInputElement))
           throw new Error('Sign-in fields are missing.');
         const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
@@ -244,6 +247,10 @@ export function createSiteDriver(
       })()`)
       await driver.guardedClick(selectors.loginButton)
     },
+    loginError: () =>
+      webContents.executeJavaScript(
+        "Boolean(document.querySelector('.errorLiteral')?.textContent?.trim())"
+      ),
     async chooseProgram(month) {
       if ((await this.whereAmI()) !== 'program-choice') return 'failed'
       return webContents.executeJavaScript(

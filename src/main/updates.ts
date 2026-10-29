@@ -9,6 +9,7 @@ type UpdateSignal =
 
 type Dependencies = {
   version: string
+  canCheck: () => boolean
   automatic: () => boolean
   saveAutomatic: (value: boolean) => void
   runActive: () => boolean
@@ -55,6 +56,7 @@ export function createUpdateController(deps: Dependencies) {
   return {
     snapshot: (): UpdateState => ({ ...state }),
     start(): void {
+      if (!deps.canCheck()) return
       if (cancelSchedule) return
       cancelSchedule = deps.schedule(
         () => {
@@ -69,6 +71,7 @@ export function createUpdateController(deps: Dependencies) {
       cancelSchedule = null
     },
     async checkNow(): Promise<void> {
+      if (!deps.canCheck()) return
       if (checking || state.phase === 'ready') return
       checking = true
       state = { ...state, phase: 'checking' }

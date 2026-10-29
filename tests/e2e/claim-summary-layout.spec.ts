@@ -61,9 +61,11 @@ test('a long completed summary stays inside the Enter pane at the minimum window
         ),
       state
     )
-    await expect(page.getByText('PDFs to upload yourself (20)')).toBeVisible()
-    const panel = page.getByText('Finished entering').locator('..')
-    const details = page.getByRole('region', { name: 'Run details' })
+    await expect(
+      page.getByRole('button', { name: /PDFs needing upload.*20 invoices/ })
+    ).toBeVisible()
+    const panel = page.getByRole('region', { name: 'Enter claims panel' })
+    const details = page.getByRole('region', { name: 'PDF invoice list' })
     const button = page.getByRole('button', {
       name: 'Check page and run again'
     })
@@ -96,10 +98,13 @@ test('a long completed summary stays inside the Enter pane at the minimum window
         (element) => element.scrollHeight > element.clientHeight
       )
     ).toBe(true)
+    await details.scrollIntoViewIfNeeded()
     await details.evaluate((element) => {
       element.scrollTop = element.scrollHeight
     })
-    await expect(page.getByText('Invoice 900719')).toBeInViewport()
+    await expect(
+      page.getByRole('button', { name: 'Copy invoice 900719' })
+    ).toBeInViewport()
     await expect(button).toBeInViewport()
   } finally {
     await app.close()

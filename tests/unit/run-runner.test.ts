@@ -211,3 +211,74 @@ it('reports a failed upload and sales without PDFs while continuing', async () =
   ])
   expect(summary.missingPdfs).toEqual(['900002'])
 })
+
+it('recovers before the next sale and stops if a sale added in this run disappeared', async () => {
+  const driver = fakeDriver()
+  let checks = 0
+  const preparePage = vi.fn(async () => {
+    checks++
+    if (checks === 2) driver.page.lines = []
+    return driver.page
+  })
+  await expect(
+    runLines(
+      [line('first', '900001'), line('second', '900002')],
+      driver,
+      new RunControl(),
+      vi.fn(),
+      preparePage
+    )
+  ).rejects.toThrow(/claim page needs review/i)
+  expect(driver.addLine).toHaveBeenCalledOnce()
+})
+
+it('recovers and confirms the added sale before uploading its PDF', async () => {
+  const driver = fakeDriver()
+  const preparePage = vi.fn(async () => driver.page)
+  const summary = await runLines(
+    [line('first', '900001', 1, 'one.pdf')],
+    driver,
+    new RunControl(),
+    vi.fn(),
+    preparePage
+  )
+  expect(preparePage).toHaveBeenCalledTimes(2)
+  expect(summary.uploaded).toEqual(['900001'])
+  expect(driver.upload).toHaveBeenCalledOnce()
+})
+
+it('does not continue to the second sale after claim-page recovery fails', async () => {
+  const driver = fakeDriver()
+  let checks = 0
+  await expect(
+    runLines(
+      [line('first', '900001'), line('second', '900002')],
+      driver,
+      new RunControl(),
+      vi.fn(),
+      async () => {
+        if (++checks === 2) throw new Error('Open the claim page again.')
+        return driver.page
+      }
+    )
+  ).rejects.toThrow('Open the claim page again.')
+  expect(driver.addLine).toHaveBeenCalledOnce()
+})
+
+it('does not upload a PDF when the added sale disappears during recovery', async () => {
+  const driver = fakeDriver()
+  let checks = 0
+  await expect(
+    runLines(
+      [line('first', '900001', 1, 'one.pdf')],
+      driver,
+      new RunControl(),
+      vi.fn(),
+      async () => {
+        if (++checks === 2) driver.page.lines = []
+        return driver.page
+      }
+    )
+  ).rejects.toThrow(/claim page needs review/i)
+  expect(driver.upload).not.toHaveBeenCalled()
+})

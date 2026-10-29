@@ -93,6 +93,10 @@ export function ProRewards({
         aria-label="ProRewards website"
         className="min-h-0 flex-1"
       />
+      <div
+        aria-label="Website bottom bar"
+        className="h-4 shrink-0 border-t border-border bg-card"
+      />
     </section>
   )
 }

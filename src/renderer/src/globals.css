@@ -86,3 +86,14 @@ body {
   color: var(--foreground);
   font-family: 'Geist Sans', Arial, sans-serif;
 }
+
+/* Keep long Review and Enter Claims areas scrollable without shifting content. */
+html.hide-app-scrollbars,
+html.hide-app-scrollbars * {
+  scrollbar-width: none;
+}
+
+html.hide-app-scrollbars::-webkit-scrollbar,
+html.hide-app-scrollbars *::-webkit-scrollbar {
+  display: none;
+}

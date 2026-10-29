@@ -10,8 +10,10 @@ summary to build from.
   **Geist Mono** fonts (bundled with the app, not loaded from the web).
 - A fixed left **sidebar** (248 px) and one screen at a time on the right, each with a 60 px header
   (step label and title on the left, the main action or a status chip on the right).
+- The native window title bar and controls remain, without Electron's File/Edit/View/Window menu bar.
 - Minimum window 1100 × 700; default 1280 × 800. Layouts reflow down to the minimum; tables scroll inside
   their own box.
+- Review and Enter claims hide app scrollbar tracks while keeping page, table, panel and detail areas scrollable.
 - Light and dark themes, following Windows by default, switchable in Settings (Light, Dark, Same as Windows).
 - Radius 8 px for controls, 10 to 12 px for cards. Hairline borders, not shadows, except the side sheet.
 
@@ -66,15 +68,15 @@ the top.
 ## Screens
 
 ### 1. Sales (step 1)
-Two columns.
+One content column; the cards use the available page width.
 - **Material Sales export** card: the chosen file (name, "Sales from Sep 1 to Sep 30, 2026", Replace), and three
   figures: rows in the file, tire lines, rows left out ("1 tube, 2 shipping").
 - **Invoice PDFs** card: Add PDFs button and a drop zone ("Drop more PDFs or a whole folder here"); a summary
   ("41 PDFs loaded, 40 linked to a sale"); a warning box listing sales with no PDF ("They are still entered.
   Upload those PDFs on the website yourself."); a quiet note for PDFs whose invoice is not in the month's sales.
-- Right column: **ProRewards** card (Signed in badge, program, dates, "77 tires, read from the claim page",
-  Show website) and **Ready to match** card (one sentence).
 - Header action: primary **Match tires** at the far right, disabled before an export is loaded.
+- Match tires loads and signs in to ProRewards in the background while Sales remains visible. On success it opens Review. If sign-in or matching cannot finish, a temporary error toast appears on Sales with the next step; sign-in failure begins "Could not log in".
+- The ProRewards sidebar item remains the way to open the website and see sign-in state.
 - Empty state: one large drop zone for the Excel file, with a Choose file button.
 
 ### 2. Review (step 2)
@@ -95,32 +97,28 @@ Two columns.
 
 ### 3. Enter claims (step 3)
 Two panes.
-- Left (380 px): "11 of 21 sales" large, a progress bar, "Now: 200118 · Nokian Remedy WRG5 · qty 4", **Pause**
-  (becomes Resume) and **Stop** (destructive text); the page check result ("Page check passed: right program,
-  every date inside 9/1 to 9/30, all 21 tires in the list"); an activity list, newest first, each with a round
-  status icon (added and checked, already on the page, retried, failed, PDF uploaded); and a fixed note: "Auto
-  Spiffer never clicks Next or Submit. When it finishes, check the page and submit the claim yourself."
+- Left (380 px): one panel structure in every phase. The top shows "11 of 21 sales", a shadcn Base UI progress bar using the theme's primary fill and muted track, and Ready to enter, Entering sales, Paused, Finished entering, or Run stopped. A compact card shows the plan, current invoice and tire, or run results, plus the page-check result. The controls below it are Start entering, Pause/Resume and Stop, or Check page and run again. Two expandable sections show Activity and PDFs needing upload; routine missing-PDF notices are grouped in the latter, with clickable invoice numbers that copy individually. Activity retains sale results and failures, including page pictures. The detail area scrolls while controls and the submission reminder remain visible.
 - Right: the **ProRewards tab** itself (the real `WebContentsView`, laid out in this area), under a slim bar
   with Reload, the address, and a chip "Auto Spiffer is typing" while a run is going.
-- Before a run: the left pane shows the plan (N lines, N PDFs) and a primary **Start entering** button.
-- After a run: a summary (entered, already on the page, failed with reasons, PDFs uploaded, uploads failed,
-  sales without a PDF), and "Check the page, then click Next and Submit on the website." Keep the result counts,
-  **Check page and run again** button, and submission reminder visible within the left pane. Group missing PDFs
-  under a count and show invoice numbers in a compact list; the details scroll inside the pane when they do not
-  fit, including at the minimum window size. The ProRewards tab remains usable beside it.
+- The webpage itself has square corners. A slim bottom bar sits below it on this screen and the ProRewards sidebar
+  screen; the containing card rounds the bottom bar's lower corners.
+- Before a run, the PDF section counts all ready invoices without a linked PDF. During entry it counts processed invoices needing manual upload. After a run, it expands by default and includes missing and failed uploads without duplicates. The ProRewards tab remains usable beside the panel.
+- After Check page and run again, invoices without linked PDFs remain in PDFs needing upload even when their sales were already on the claim page.
 
 ### ProRewards (sidebar item)
 The same tab, full width, for signing in by hand or looking at the site.
 
 ### Settings
-Two columns of cards.
+Two independent columns of cards. ProRewards sign-in and Updates stack on the left; Appearance and Logs stack on the right. Each card fits its contents, with no row-sized gap between Appearance and Logs.
 - **ProRewards sign-in**: Email, Password ("Saved, encrypted with your Windows account", Change), **Stay signed
   in** switch, **Sign out and forget password** (destructive text).
-- **Saved matches** (also reached from the sidebar): count, search, a list of `report wording → tire` (or "Not
-  an eligible tire"), each removable, "Show all".
 - **Appearance**: Light, Dark, Same as Windows.
-- **Updates**: version and status, Check now, "Install updates automatically when no claim is being entered".
+- **Updates**: version and status, Check now, "Install updates automatically".
 - **Logs**: Open folder.
+
+### Saved matches (sidebar)
+
+- Count, search, and a list of `report wording → tire` (or "Not an eligible tire"), each removable, "Show all".
 
 ## Copy
 

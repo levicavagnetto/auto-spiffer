@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCw } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Progress } from '../components/ui/progress'
 import type { ReviewSnapshot } from '../../../shared/review'
 import type { RunState } from '../../../shared/run'
 import type { SiteStatus } from '../../../shared/ipc'
@@ -29,6 +30,10 @@ export function EnterClaims({
   })
   const [error, setError] = useState('')
   const [runLimit, setRunLimit] = useState<number | null>(null)
+  const [activityExpanded, setActivityExpanded] = useState(false)
+  const [pdfExpanded, setPdfExpanded] = useState(Boolean(run?.summary))
+  const [copyFeedback, setCopyFeedback] = useState('')
+  const wasFinished = useRef(Boolean(run?.summary))
   const state = run ?? local
   const ready =
     review?.lines.filter((line) => line.status === 'ready' && !line.leftOut) ??
@@ -38,6 +43,72 @@ export function EnterClaims({
     state.phase === 'running' ||
     state.phase === 'paused' ||
     state.phase === 'checking'
+  const summary = state.summary
+
+  useEffect(() => {
+    const finished = Boolean(summary)
+    if (finished && !wasFinished.current) {
+      setPdfExpanded(true)
+      setActivityExpanded(false)
+    } else if (!finished && wasFinished.current) {
+      setPdfExpanded(false)
+      setActivityExpanded(false)
+      setCopyFeedback('')
+    }
+    wasFinished.current = finished
+  }, [summary])
+
+  const total = state.total || ready.length
+  const position = summary
+    ? state.done
+    : busy && state.now
+      ? Math.min(state.done + 1, total)
+      : state.done
+  const phaseLabel = summary
+    ? summary.stopped
+      ? 'Run stopped'
+      : 'Finished entering'
+    : state.phase === 'checking'
+      ? 'Checking claim page'
+      : state.phase === 'paused'
+        ? 'Paused'
+        : busy
+          ? 'Entering sales'
+          : 'Ready to enter'
+  const missingInvoices = Array.from(
+    new Set(
+      summary
+        ? [
+            ...ready.filter((line) => !line.pdf).map((line) => line.invoice),
+            ...summary.missingPdfs,
+            ...summary.uploadFailed.map((item) => item.invoice)
+          ]
+        : busy
+          ? state.activity
+              .filter(
+                (item) =>
+                  item.kind === 'missingPdf' || item.kind === 'uploadFailed'
+              )
+              .map(
+                (item) => ready.find((line) => line.id === item.lineId)?.invoice
+              )
+              .filter((invoice): invoice is string => Boolean(invoice))
+          : ready.filter((line) => !line.pdf).map((line) => line.invoice)
+    )
+  ).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+  const activity = state.activity.filter(
+    (item) =>
+      item.kind !== 'missingPdf' &&
+      (!summary || (item.kind !== 'failed' && item.kind !== 'uploadFailed'))
+  )
+  const copyInvoice = async (invoice: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(invoice)
+      setCopyFeedback(`Copied invoice ${invoice}.`)
+    } catch {
+      setCopyFeedback(`Could not copy invoice ${invoice}.`)
+    }
+  }
 
   useEffect(() => {
     void window.api.getRunState().then(setLocal)
@@ -91,101 +162,114 @@ export function EnterClaims({
       )
     }
   }
-  const summary = state.summary
   return (
     <div className="grid h-[calc(100vh-124px)] min-h-[500px] gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
-      <section className="flex min-h-0 flex-col rounded-xl border border-border bg-card p-5">
-        {summary ? (
-          <>
-            <h2 className="text-lg font-semibold">
-              {summary.stopped ? 'Run stopped' : 'Finished entering'}
-            </h2>
-            <div className="mt-4 shrink-0 space-y-1 text-sm">
-              <p>
-                {summary.added.length} entered · {summary.alreadyThere.length}{' '}
-                already on the page
+      <section
+        aria-label="Enter claims panel"
+        className="flex min-h-0 flex-col rounded-xl border border-border bg-card p-5"
+      >
+        <h2 className="shrink-0 text-2xl font-semibold">
+          {position} of {total} sales
+        </h2>
+        <Progress
+          className="mt-4 w-full shrink-0"
+          value={state.done}
+          max={total || 1}
+          aria-label="Sales entered"
+        />
+        <p className="mt-2 shrink-0 text-xs text-muted-foreground">
+          {phaseLabel}
+        </p>
+        <div className="mt-4 shrink-0 rounded-lg bg-muted p-3 text-sm">
+          {summary ? (
+            <>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">
+                Run results
               </p>
-              <p>{summary.uploaded.length} PDFs uploaded</p>
-            </div>
-            <div
-              role="region"
-              aria-label="Run details"
-              tabIndex={0}
-              className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 text-sm"
-            >
-              {summary.failed.map((item) => (
-                <div
-                  key={item.lineId}
-                  className="rounded-md bg-destructive/10 p-2"
-                >
-                  Invoice {item.invoice}: {item.reason}
-                  {item.screenshot && (
-                    <button
-                      type="button"
-                      className="mt-1 block text-primary underline"
-                      onClick={() =>
-                        void window.api.openRunScreenshot(item.screenshot!)
-                      }
-                    >
-                      Open page picture
-                    </button>
-                  )}
-                </div>
-              ))}
-              {summary.uploadFailed.map((item) => (
-                <p key={item.invoice} className="rounded-md bg-warning/30 p-2">
-                  Invoice {item.invoice}: PDF upload failed. Upload it by hand.
+              <p className="mt-1 font-semibold">
+                {summary.added.length} entered · {summary.alreadyThere.length}{' '}
+                already on page
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {summary.uploaded.length} PDFs uploaded
+              </p>
+            </>
+          ) : busy ? (
+            <>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">
+                Now entering
+              </p>
+              {now ? (
+                <>
+                  <p className="mt-1 font-semibold">Invoice {now.invoice}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {now.tire} · qty {now.qty}
+                  </p>
+                </>
+              ) : (
+                <p className="mt-1">
+                  {state.phase === 'checking'
+                    ? 'Checking the claim page…'
+                    : 'Finishing this invoice…'}
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">
+                Plan
+              </p>
+              <p className="mt-1">
+                {ready.length} sale{ready.length === 1 ? '' : 's'} ·{' '}
+                {
+                  new Set(
+                    ready.filter((line) => line.pdf).map((line) => line.invoice)
+                  ).size
+                }{' '}
+                invoice PDFs
+              </p>
+              {runLimit && (
+                <p className="mt-2 rounded-md bg-warning/30 p-2">
+                  Developer trial: this run is limited to the first {runLimit}{' '}
+                  sales. Relaunch without the limit before entering the rest.
+                </p>
+              )}
+              {!ready.length && (
+                <p className="mt-2 text-muted-foreground">
+                  No sales are ready to enter.
+                </p>
+              )}
+            </>
+          )}
+          {state.check && (
+            <div className="mt-3 border-t border-border pt-2 text-xs">
+              <p className="font-semibold">
+                {state.check.ok
+                  ? 'Page check passed'
+                  : 'Page check needs attention'}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {state.check.program ?? 'Program unknown'} ·{' '}
+                {state.check.dates[0] ?? '?'} to {state.check.dates[1] ?? '?'}
+              </p>
+              {state.check.problems.map((problem) => (
+                <p key={problem} className="mt-1">
+                  {problem}
                 </p>
               ))}
-              {summary.missingPdfs.length > 0 && (
-                <div className="rounded-md bg-warning/30 p-3">
-                  <h3 className="font-semibold">
-                    PDFs to upload yourself ({summary.missingPdfs.length})
-                  </h3>
-                  <p className="mt-1 text-muted-foreground">
-                    No PDF was selected for these invoices. Upload them on the
-                    website.
-                  </p>
-                  <ul className="mt-2 divide-y divide-border">
-                    {summary.missingPdfs.map((invoice) => (
-                      <li key={invoice} className="py-1.5 font-mono">
-                        Invoice {invoice}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
+          )}
+        </div>
+        <div className="mt-4 flex shrink-0 gap-2">
+          {summary ? (
             <Button
-              className="mt-4 shrink-0"
+              className="w-full"
               onClick={() => void call(() => window.api.startRun())}
             >
               Check page and run again
             </Button>
-            <p className="mt-4 shrink-0 text-sm">
-              Check the page, then click Next and Submit on the website
-              yourself.
-            </p>
-          </>
-        ) : busy ? (
-          <>
-            <h2 className="text-2xl font-semibold">
-              {state.now ? Math.min(state.done + 1, state.total) : state.done}{' '}
-              of {state.total} sales
-            </h2>
-            <progress
-              className="mt-4 w-full"
-              value={state.done}
-              max={state.total || 1}
-            />
-            <p className="mt-4 text-sm">
-              {now
-                ? `Now: ${now.invoice} · ${now.tire} · qty ${now.qty}`
-                : state.phase === 'checking'
-                  ? 'Checking the claim page…'
-                  : 'Finishing this invoice…'}
-            </p>
-            <div className="mt-5 flex gap-2">
+          ) : busy ? (
+            <>
               <Button
                 variant="outline"
                 disabled={state.phase === 'checking'}
@@ -206,89 +290,144 @@ export function EnterClaims({
               >
                 Stop
               </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="text-lg font-semibold">Ready to enter</h2>
-            <p className="mt-3 text-sm">
-              {ready.length} sale{ready.length === 1 ? '' : 's'} ·{' '}
-              {
-                new Set(
-                  ready.filter((line) => line.pdf).map((line) => line.invoice)
-                ).size
-              }{' '}
-              invoice PDFs
-            </p>
-            {runLimit && (
-              <p className="mt-2 rounded-md bg-warning/30 p-2 text-sm">
-                Developer trial: this run is limited to the first {runLimit}{' '}
-                sales. Relaunch without the limit before entering the rest.
-              </p>
-            )}
+            </>
+          ) : (
             <Button
-              className="mt-5"
               disabled={!ready.length}
               onClick={() => void call(() => window.api.startRun())}
             >
               Start entering
             </Button>
-            {!ready.length && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                No sales are ready to enter.
-              </p>
-            )}
-          </>
-        )}
-        {!summary && state.check && (
-          <div
-            className={`mt-5 rounded-lg p-3 text-sm ${state.check.ok ? 'bg-muted' : 'bg-warning/30'}`}
-          >
-            <strong>
-              {state.check.ok
-                ? 'Page check passed'
-                : 'Page check needs attention'}
-            </strong>
-            <p>
-              {state.check.program ?? 'Program unknown'} ·{' '}
-              {state.check.dates[0] ?? '?'} to {state.check.dates[1] ?? '?'}
-            </p>
-            {state.check.problems.map((problem) => (
-              <p key={problem} className="mt-2">
-                {problem}
-              </p>
-            ))}
-          </div>
-        )}
+          )}
+        </div>
         {error && (
           <p
             role="alert"
-            className="mt-4 rounded-md bg-destructive/10 p-3 text-sm"
+            className="mt-3 shrink-0 rounded-md bg-destructive/10 p-3 text-sm"
           >
             {error}
           </p>
         )}
-        {!summary && (
-          <>
-            <ol
-              aria-label="Claim activity"
-              className="mt-5 min-h-0 flex-1 space-y-2 overflow-auto text-sm"
+        <div className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 text-sm">
+          <div className="overflow-hidden rounded-lg border border-border">
+            <button
+              type="button"
+              aria-expanded={activityExpanded}
+              aria-controls="claim-activity"
+              onClick={() => setActivityExpanded((open) => !open)}
+              className="flex w-full items-center justify-between gap-2 p-3 text-left font-semibold hover:bg-muted"
             >
-              {state.activity.map((item, index) => (
-                <li
-                  key={`${item.lineId}-${index}`}
-                  className="rounded-md bg-muted p-2"
-                >
-                  {item.text}
-                </li>
-              ))}
-            </ol>
-            <p className="mt-4 border-t border-border pt-4 text-xs text-muted-foreground">
-              Auto Spiffer never clicks Next or Submit. When it finishes, check
-              the page and submit the claim yourself.
-            </p>
-          </>
-        )}
+              <span>Activity</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {state.done} sales checked {activityExpanded ? '▴' : '▾'}
+              </span>
+            </button>
+            {activityExpanded && (
+              <div
+                id="claim-activity"
+                className="max-h-40 overflow-y-auto border-t border-border p-3"
+              >
+                {summary?.failed.map((item) => (
+                  <div
+                    key={item.lineId}
+                    className="mb-2 rounded-md bg-destructive/10 p-2"
+                  >
+                    Invoice {item.invoice}: {item.reason}
+                    {item.screenshot && (
+                      <button
+                        type="button"
+                        className="mt-1 block text-primary underline"
+                        onClick={() =>
+                          void window.api.openRunScreenshot(item.screenshot!)
+                        }
+                      >
+                        Open page picture
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {summary?.uploadFailed.map((item) => (
+                  <p
+                    key={item.invoice}
+                    className="mb-2 rounded-md bg-warning/30 p-2"
+                  >
+                    Invoice {item.invoice}: PDF upload failed. Upload it by
+                    hand.
+                  </p>
+                ))}
+                {activity.length > 0 ? (
+                  <ol className="space-y-2">
+                    {activity.map((item, index) => (
+                      <li
+                        key={`${item.lineId}-${index}`}
+                        className="rounded-md bg-muted p-2"
+                      >
+                        {item.text}
+                      </li>
+                    ))}
+                  </ol>
+                ) : !summary?.failed.length && !summary?.uploadFailed.length ? (
+                  <p className="text-muted-foreground">No activity yet.</p>
+                ) : null}
+              </div>
+            )}
+          </div>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <button
+              type="button"
+              aria-expanded={pdfExpanded}
+              aria-controls="pdf-invoice-list"
+              onClick={() => setPdfExpanded((open) => !open)}
+              className="flex w-full items-center justify-between gap-2 p-3 text-left font-semibold hover:bg-muted"
+            >
+              <span>PDFs needing upload</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {missingInvoices.length} invoice
+                {missingInvoices.length === 1 ? '' : 's'}{' '}
+                {pdfExpanded ? '▴' : '▾'}
+              </span>
+            </button>
+            {pdfExpanded && (
+              <div className="border-t border-border p-3">
+                <p className="mb-3 text-xs text-muted-foreground">
+                  {missingInvoices.length
+                    ? 'Upload these PDFs on ProRewards. Click an invoice number to copy it.'
+                    : 'No PDFs need uploading.'}
+                </p>
+                {missingInvoices.length > 0 && (
+                  <div
+                    id="pdf-invoice-list"
+                    role="region"
+                    aria-label="PDF invoice list"
+                    tabIndex={0}
+                    className="flex max-h-40 flex-wrap gap-2 overflow-y-auto"
+                  >
+                    {missingInvoices.map((invoice) => (
+                      <Button
+                        key={invoice}
+                        variant="outline"
+                        size="sm"
+                        className="font-mono"
+                        aria-label={`Copy invoice ${invoice}`}
+                        onClick={() => void copyInvoice(invoice)}
+                      >
+                        {invoice}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+                <p role="status" className="mt-2 min-h-4 text-xs">
+                  {copyFeedback}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+        <p className="mt-4 shrink-0 border-t border-border pt-4 text-xs text-muted-foreground">
+          {summary
+            ? 'Check the page, then click Next and Submit on the website yourself.'
+            : 'Auto Spiffer never clicks Next or Submit. When it finishes, check the page and submit the claim yourself.'}
+        </p>
       </section>
       <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card">
         <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-4 text-sm">
@@ -316,6 +455,10 @@ export function EnterClaims({
           ref={slot}
           aria-label="ProRewards website"
           className="min-h-0 flex-1"
+        />
+        <div
+          aria-label="Website bottom bar"
+          className="h-4 shrink-0 border-t border-border bg-card"
         />
       </section>
     </div>

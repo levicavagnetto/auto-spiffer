@@ -2,6 +2,7 @@ import {
   app,
   BrowserWindow,
   dialog,
+  Menu,
   nativeTheme,
   safeStorage,
   session,
@@ -88,6 +89,7 @@ if (!app.requestSingleInstanceLock()) {
   })
 
   void app.whenReady().then(() => {
+    Menu.setApplicationMenu(null)
     const logger = configureLog(app.getPath('userData'))
     if (!app.isPackaged && process.env.AUTO_SPIFFER_TEST_DIAGNOSTIC_FILE) {
       writeFileSync(
@@ -133,6 +135,7 @@ if (!app.requestSingleInstanceLock()) {
     )
     const signIn = createSignInController({
       whereAmI: () => siteDriver.whereAmI(),
+      loginError: () => siteDriver.loginError(),
       saved: () => {
         const password = credentials.password()
         return password ? { email: credentials.read().email, password } : null
@@ -145,6 +148,8 @@ if (!app.requestSingleInstanceLock()) {
     })
     const claimNavigator = createClaimNavigator({
       whereAmI: () => siteDriver.whereAmI(),
+      claimPromotion: async () =>
+        (await siteDriver.readPage())?.promotion ?? null,
       openSubmitSale: () => site.openSubmitSale(),
       chooseProgram: (month) => siteDriver.chooseProgram(month),
       clickProgramNext: () => siteDriver.clickProgramNext(),
@@ -172,6 +177,7 @@ if (!app.requestSingleInstanceLock()) {
     const run = new RunSession({
       review: () => review.snapshot(),
       month: () => sales.snapshot()?.state.month ?? null,
+      ensurePage: (month, cancelled) => claimNavigator.open(month, cancelled),
       readPage: () =>
         site.getStatus().state === 'notOpened'
           ? Promise.resolve(null)
@@ -193,6 +199,7 @@ if (!app.requestSingleInstanceLock()) {
     logger.info(`Update channel: ${autoUpdater.channel}`)
     const updates: UpdateController = createUpdateController({
       version: app.getVersion(),
+      canCheck: () => app.isPackaged,
       automatic: () => settings.read().automaticUpdates,
       saveAutomatic: (value) => {
         settings.setAutomaticUpdates(value)
@@ -276,8 +283,11 @@ if (!app.requestSingleInstanceLock()) {
     registerIpc(
       {
         getCredentials: () => credentials.read(),
-        saveCredentials: ({ email, password }) =>
-          credentials.save(email, password),
+        saveCredentials: ({ email, password }) => {
+          const state = credentials.save(email, password)
+          void signIn.credentialsChanged()
+          return state
+        },
         setStaySignedIn: (value) => credentials.setStaySignedIn(value),
         forgetCredentials: async () => {
           ensureNoRun()
@@ -395,7 +405,21 @@ if (!app.requestSingleInstanceLock()) {
           ensureNoRun()
           const month = sales.snapshot()?.state.month
           if (!month) throw new Error('Choose a month of sales first.')
-          await claimNavigator.open(month)
+          try {
+            await site.ensureLoaded()
+          } catch {
+            throw new Error(
+              'Could not open ProRewards. Check your connection and try Match tires again.'
+            )
+          }
+          if (
+            (await siteDriver.whereAmI()) === 'login' &&
+            !credentials.password()
+          )
+            throw new Error(
+              'Could not log in. Open ProRewards and sign in, then try Match tires again.'
+            )
+          await claimNavigator.open(month, undefined, true)
           return review.match()
         },
         decideTire: (input) => {

@@ -25,6 +25,33 @@ afterEach(() => {
 })
 
 describe('Settings updates and logs', () => {
+  it('shows a plain toast when Check now is used in a development build', async () => {
+    vi.stubGlobal('api', {
+      checkForUpdates: vi.fn(async () => {
+        throw new Error(
+          "Error invoking remote method 'app:invoke': Error: Install Auto Spiffer to check for updates."
+        )
+      })
+    })
+    render(
+      <Settings
+        theme="system"
+        onThemeChange={vi.fn()}
+        ready
+        credentials={null}
+        onCredentials={vi.fn()}
+        update={base}
+        onUpdate={vi.fn()}
+      />
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Check now' }))
+    const alert = await screen.findByRole('alert')
+    expect(alert.className).toContain('fixed')
+    expect(alert.querySelector('span')?.textContent).toBe(
+      'Install Auto Spiffer to check for updates'
+    )
+  })
+
   it('shows status and lets the person check and change the automatic setting', async () => {
     const onUpdate = vi.fn()
     const checkForUpdates = vi.fn(async () => base)
@@ -53,7 +80,7 @@ describe('Settings updates and logs', () => {
     await waitFor(() => expect(checkForUpdates).toHaveBeenCalledOnce())
     fireEvent.click(
       screen.getByRole('checkbox', {
-        name: 'Install updates automatically when no claim is being entered'
+        name: 'Install updates automatically'
       })
     )
     await waitFor(() => expect(setAutomaticUpdates).toHaveBeenCalledWith(false))

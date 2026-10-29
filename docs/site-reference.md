@@ -26,7 +26,9 @@ Keep every selector in one module (`src/main/site/selectors.ts`) so a site chang
 | Log in | `#UserLogin_Login`, a link that runs `__doPostBack('UserLogin$Login','')` |
 
 Signed in is detected by the password box disappearing and the page leaving `/Login.aspx`. The app tries a
-login **once**. A wrong password, a code, or a CAPTCHA leaves the person to finish by hand in the tab.
+login **once** per saved password. The login page's `.errorLiteral` reports a rejected password; the app stops
+when it appears. If no error appears, the app waits up to 10 seconds. Saving a replacement password permits
+another attempt in the open app. A code or CAPTCHA leaves the person to finish by hand in the tab.
 
 ## Program choice (Submit Sale, before the claim page)
 

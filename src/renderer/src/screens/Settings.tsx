@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { CredentialsState, Theme } from '../../../shared/ipc'
 import type { SavedMatchList } from '../../../shared/review'
 import type { UpdateState } from '../../../shared/updates'
+import { ErrorToast } from '../components/ErrorToast'
 
 const choices: { value: Theme; label: string }[] = [
   { value: 'light', label: 'Light' },
@@ -38,18 +39,21 @@ export function Settings({
   const [credentialBusy, setCredentialBusy] = useState(false)
   const [credentialMessage, setCredentialMessage] = useState('')
   const [updateMessage, setUpdateMessage] = useState('')
+  const [updateToast, setUpdateToast] = useState('')
   const [updateBusy, setUpdateBusy] = useState(false)
 
   const checkForUpdates = async (): Promise<void> => {
     setUpdateBusy(true)
+    setUpdateToast('')
     setUpdateMessage('')
     try {
       onUpdate(await window.api.checkForUpdates())
     } catch (problem) {
-      setUpdateMessage(
-        problem instanceof Error
-          ? problem.message
-          : 'Could not check for updates.'
+      const detail = problem instanceof Error ? problem.message : ''
+      setUpdateToast(
+        detail.includes('Install Auto Spiffer to check for updates')
+          ? 'Install Auto Spiffer to check for updates'
+          : 'Could not check for updates. Try again.'
       )
     } finally {
       setUpdateBusy(false)
@@ -151,140 +155,152 @@ export function Settings({
   }
 
   return (
-    <div className="grid max-w-4xl grid-cols-2 gap-5">
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-base font-semibold">ProRewards sign-in</h2>
-        <div className="mt-4 space-y-3 text-sm">
-          <label className="block">
-            Email
-            <input
-              type="email"
-              value={email}
-              disabled={!ready || credentialBusy}
-              onChange={(event) => setEmailDraft(event.target.value)}
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
-            />
-          </label>
-          <label className="block">
-            Password
-            <input
-              type="password"
-              value={password}
-              disabled={!ready || credentialBusy}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder={credentials?.hasPassword ? 'Saved password' : ''}
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
-            />
-          </label>
-          {credentials?.hasPassword && (
-            <p className="text-success-foreground">
-              Saved, encrypted with your Windows account
+    <>
+      {updateToast && (
+        <ErrorToast
+          message={updateToast}
+          onDismiss={() => setUpdateToast('')}
+        />
+      )}
+
+      <div className="grid max-w-4xl grid-cols-2 items-start gap-5">
+        <div className="flex flex-col gap-5">
+          <section className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-base font-semibold">ProRewards sign-in</h2>
+            <div className="mt-4 space-y-3 text-sm">
+              <label className="block">
+                Email
+                <input
+                  type="email"
+                  value={email}
+                  disabled={!ready || credentialBusy}
+                  onChange={(event) => setEmailDraft(event.target.value)}
+                  className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+              <label className="block">
+                Password
+                <input
+                  type="password"
+                  value={password}
+                  disabled={!ready || credentialBusy}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder={credentials?.hasPassword ? 'Saved password' : ''}
+                  className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+              {credentials?.hasPassword && (
+                <p className="text-success-foreground">
+                  Saved, encrypted with your Windows account
+                </p>
+              )}
+              <button
+                type="button"
+                disabled={!ready || credentialBusy}
+                onClick={() => void savePassword()}
+                className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
+              >
+                {credentials?.hasPassword ? 'Change password' : 'Save password'}
+              </button>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={credentials?.staySignedIn ?? true}
+                  disabled={!ready || credentialBusy}
+                  onChange={(event) => void setStay(event.target.checked)}
+                />
+                Stay signed in
+              </label>
+              <button
+                type="button"
+                disabled={!ready || credentialBusy}
+                onClick={() => void forget()}
+                className="text-destructive-foreground hover:underline disabled:opacity-50"
+              >
+                Sign out and forget password
+              </button>
+              {credentialMessage && <p role="status">{credentialMessage}</p>}
+            </div>
+          </section>
+          <section className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-base font-semibold">Updates</h2>
+            <p className="mt-3 text-sm" role="status">
+              {updateStatus}
             </p>
-          )}
-          <button
-            type="button"
-            disabled={!ready || credentialBusy}
-            onClick={() => void savePassword()}
-            className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
-          >
-            {credentials?.hasPassword ? 'Change password' : 'Save password'}
-          </button>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={credentials?.staySignedIn ?? true}
-              disabled={!ready || credentialBusy}
-              onChange={(event) => void setStay(event.target.checked)}
-            />
-            Stay signed in
-          </label>
-          <button
-            type="button"
-            disabled={!ready || credentialBusy}
-            onClick={() => void forget()}
-            className="text-destructive-foreground hover:underline disabled:opacity-50"
-          >
-            Sign out and forget password
-          </button>
-          {credentialMessage && <p role="status">{credentialMessage}</p>}
+            {update?.restartQueued && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                It will update when this claim run ends.
+              </p>
+            )}
+            <div className="mt-4 flex flex-col items-start gap-3 text-sm">
+              <button
+                type="button"
+                disabled={!ready || updateBusy}
+                onClick={() => void checkForUpdates()}
+                className="rounded-md border border-border px-4 py-2 hover:bg-muted disabled:opacity-50"
+              >
+                Check now
+              </button>
+              {update?.phase === 'ready' && !update.restartQueued && (
+                <button
+                  type="button"
+                  onClick={() => void restartToUpdate()}
+                  className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground"
+                >
+                  Restart to update
+                </button>
+              )}
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={update?.automatic ?? true}
+                  disabled={!ready}
+                  onChange={(event) =>
+                    void setAutomaticUpdates(event.target.checked)
+                  }
+                />
+                Install updates automatically
+              </label>
+              {updateMessage && <p role="alert">{updateMessage}</p>}
+            </div>
+          </section>
         </div>
-      </section>
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-base font-semibold">Appearance</h2>
-        <div className="mt-4 flex flex-col gap-3">
-          {choices.map((choice) => (
-            <label
-              key={choice.value}
-              className="flex cursor-pointer items-center gap-3 text-sm"
-            >
-              <input
-                type="radio"
-                name="appearance"
-                value={choice.value}
-                checked={theme === choice.value}
-                disabled={!ready}
-                onChange={() => onThemeChange(choice.value)}
-                className="accent-primary"
-              />
-              {choice.label}
-            </label>
-          ))}
-        </div>
-      </section>
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-base font-semibold">Updates</h2>
-        <p className="mt-3 text-sm" role="status">
-          {updateStatus}
-        </p>
-        {update?.restartQueued && (
-          <p className="mt-2 text-sm text-muted-foreground">
-            It will update when this claim run ends.
-          </p>
-        )}
-        <div className="mt-4 flex flex-col items-start gap-3 text-sm">
-          <button
-            type="button"
-            disabled={!ready || updateBusy}
-            onClick={() => void checkForUpdates()}
-            className="rounded-md border border-border px-4 py-2 hover:bg-muted disabled:opacity-50"
-          >
-            Check now
-          </button>
-          {update?.phase === 'ready' && !update.restartQueued && (
+        <div className="flex flex-col gap-5">
+          <section className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-base font-semibold">Appearance</h2>
+            <div className="mt-4 flex flex-col gap-3">
+              {choices.map((choice) => (
+                <label
+                  key={choice.value}
+                  className="flex cursor-pointer items-center gap-3 text-sm"
+                >
+                  <input
+                    type="radio"
+                    name="appearance"
+                    value={choice.value}
+                    checked={theme === choice.value}
+                    disabled={!ready}
+                    onChange={() => onThemeChange(choice.value)}
+                    className="accent-primary"
+                  />
+                  {choice.label}
+                </label>
+              ))}
+            </div>
+          </section>
+          <section className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-base font-semibold">Logs</h2>
             <button
               type="button"
-              onClick={() => void restartToUpdate()}
-              className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground"
+              onClick={() => void openLogsFolder()}
+              className="mt-4 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
             >
-              Restart to update
+              Open folder
             </button>
-          )}
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={update?.automatic ?? true}
-              disabled={!ready}
-              onChange={(event) =>
-                void setAutomaticUpdates(event.target.checked)
-              }
-            />
-            Install updates automatically when no claim is being entered
-          </label>
-          {updateMessage && <p role="alert">{updateMessage}</p>}
+          </section>
         </div>
-      </section>
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-base font-semibold">Logs</h2>
-        <button
-          type="button"
-          onClick={() => void openLogsFolder()}
-          className="mt-4 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
-        >
-          Open folder
-        </button>
-      </section>
-      {savedCard}
-    </div>
+      </div>
+    </>
   )
 }
 

@@ -11,6 +11,9 @@ test('opens the Auto Spiffer window', async () => {
     const page = await app.firstWindow()
     await expect(page).toHaveTitle('Auto Spiffer')
     await expect(page.getByText('Auto Spiffer')).toBeVisible()
+    expect(
+      await app.evaluate(({ Menu }) => Menu.getApplicationMenu())
+    ).toBeNull()
     const version = JSON.parse(readFileSync('package.json', 'utf8'))
       .version as string
     await expect(page.evaluate(() => window.api.getAppVersion())).resolves.toBe(

@@ -40,6 +40,42 @@ test('ProRewards view follows its screen and hides on Sales', async () => {
   }
 })
 
+test('embedded website stays square between rounded top and bottom bars', async () => {
+  const { args, remove } = testUserData()
+  const app = await electron.launch({ args })
+  try {
+    const page = await app.firstWindow()
+    await app.evaluate(({ BrowserWindow }) => {
+      const view = BrowserWindow.getAllWindows()[0]!.contentView
+        .children[0] as Electron.WebContentsView
+      const original = view.setBorderRadius.bind(view)
+      view.setBorderRadius = (radius: number) => {
+        ;(globalThis as { __siteRadius?: number }).__siteRadius = radius
+        original(radius)
+      }
+    })
+    await page.getByRole('button', { name: 'ProRewards' }).click()
+    await expect
+      .poll(() =>
+        app.evaluate(
+          () => (globalThis as { __siteRadius?: number }).__siteRadius
+        )
+      )
+      .toBe(0)
+    const website = await page.getByLabel('ProRewards website').boundingBox()
+    const bottomBar = await page.getByLabel('Website bottom bar').boundingBox()
+    expect(website).not.toBeNull()
+    expect(bottomBar).not.toBeNull()
+    expect(
+      Math.abs(bottomBar!.y - (website!.y + website!.height))
+    ).toBeLessThan(2)
+    expect(bottomBar!.height).toBeGreaterThan(0)
+  } finally {
+    await app.close()
+    remove()
+  }
+})
+
 test('an external link does not replace the in-app site tab', async () => {
   const { args, folder, remove } = testUserData()
   const fixture = join(folder, 'links.html')

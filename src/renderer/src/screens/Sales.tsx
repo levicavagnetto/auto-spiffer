@@ -2,17 +2,8 @@ import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FileSpreadsheet, FolderOpen, UploadCloud } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { MissingInvoicePdfs } from './MissingInvoicePdfs'
 import type { SalesSnapshot } from '../../../shared/sales'
-import type { SiteLocation, SitePage } from '../../../shared/ipc'
-
-function monthLabel(month: string): string {
-  if (!month) return 'No month found'
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC'
-  }).format(new Date(`${month}-01T00:00:00Z`))
-}
 
 function dateLabel(day: string): string {
   return new Intl.DateTimeFormat('en-US', {
@@ -38,18 +29,12 @@ export function Sales({
   snapshot,
   headerActions,
   onSnapshot,
-  onMatch,
-  onShowWebsite,
-  siteLocation,
-  sitePage
+  onMatch
 }: {
   snapshot: SalesSnapshot | null
   headerActions?: HTMLElement | null
   onSnapshot: (next: SalesSnapshot, newExport: boolean) => void
   onMatch: () => Promise<void>
-  onShowWebsite: () => void
-  siteLocation?: SiteLocation | null
-  sitePage?: SitePage | null
 }): React.JSX.Element {
   const exportInput = useRef<HTMLInputElement>(null)
   const pdfInput = useRef<HTMLInputElement>(null)
@@ -224,239 +209,187 @@ export function Sales({
           </section>
         </>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,1fr)]">
-          <div className="space-y-5">
-            <section className="rounded-xl border border-border bg-card p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold">Material Sales export</h2>
-                  <p className="mt-1 break-all text-sm text-muted-foreground">
-                    {snapshot.state.file.split(/[\\/]/).at(-1)}
+        <div className="space-y-5">
+          <section className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-semibold">Material Sales export</h2>
+                <p className="mt-1 break-all text-sm text-muted-foreground">
+                  {snapshot.state.file.split(/[\\/]/).at(-1)}
+                </p>
+                {dates.length > 0 && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Sales from {dateLabel(dates[0]!)} to{' '}
+                    {dateLabel(dates.at(-1)!)}
                   </p>
-                  {dates.length > 0 && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Sales from {dateLabel(dates[0]!)} to{' '}
-                      {dateLabel(dates.at(-1)!)}
-                    </p>
-                  )}
-                </div>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                onClick={() => exportInput.current?.click()}
+              >
+                Replace
+              </Button>
+            </div>
+            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <span>{sales.length} rows</span>
+              <span>
+                {tireCount} tire line{tireCount === 1 ? '' : 's'}
+              </span>
+              <span>
+                {excluded} left out{reasons ? `: ${reasons}` : ''}
+              </span>
+            </div>
+            {snapshot.state.monthWarning && (
+              <p className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
+                {snapshot.state.monthWarning}
+              </p>
+            )}
+            {snapshot.state.unreadable.length > 0 && (
+              <div className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
+                <p className="font-medium">Rows that could not be read</p>
+                <ul className="mt-1 list-inside list-disc">
+                  {snapshot.state.unreadable.map((item) => (
+                    <li key={item.row}>
+                      Row {item.row}: {item.why}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+          <section className="rounded-xl border border-border bg-card p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-semibold">Invoice PDFs</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {snapshot.links.loadedCount} PDF
+                  {snapshot.links.loadedCount === 1 ? '' : 's'} loaded ·{' '}
+                  {snapshot.links.linkedCount} linked to a sale
+                </p>
+              </div>
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   disabled={busy}
-                  onClick={() => exportInput.current?.click()}
+                  onClick={() => pdfInput.current?.click()}
                 >
-                  Replace
+                  Add PDFs
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={busy}
+                  onClick={() => void addFolder()}
+                >
+                  <FolderOpen className="size-4" /> Add folder
                 </Button>
               </div>
-              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                <span>{sales.length} rows</span>
-                <span>
-                  {tireCount} tire line{tireCount === 1 ? '' : 's'}
-                </span>
-                <span>
-                  {excluded} left out{reasons ? `: ${reasons}` : ''}
-                </span>
-              </div>
-              {snapshot.state.monthWarning && (
-                <p className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
-                  {snapshot.state.monthWarning}
-                </p>
-              )}
-              {snapshot.state.unreadable.length > 0 && (
-                <div className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
-                  <p className="font-medium">Rows that could not be read</p>
-                  <ul className="mt-1 list-inside list-disc">
-                    {snapshot.state.unreadable.map((item) => (
-                      <li key={item.row}>
-                        Row {item.row}: {item.why}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </section>
-            <section className="rounded-xl border border-border bg-card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold">Invoice PDFs</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {snapshot.links.loadedCount} PDF
-                    {snapshot.links.loadedCount === 1 ? '' : 's'} loaded ·{' '}
-                    {snapshot.links.linkedCount} linked to a sale
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={busy}
-                    onClick={() => pdfInput.current?.click()}
+            </div>
+            <div
+              aria-label="Invoice PDF drop zone"
+              className="mt-4 rounded-lg border-2 border-dashed border-border p-5 text-center text-sm text-muted-foreground"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault()
+                pdfFiles(event.dataTransfer.files)
+              }}
+            >
+              <UploadCloud className="mx-auto mb-2 size-5" aria-hidden="true" />
+              Drop more PDFs or a folder here
+            </div>
+            {snapshot.state.pdfs.length > 0 && (
+              <ul className="mt-4 max-h-32 overflow-auto text-sm">
+                {snapshot.state.pdfs.map((pdf) => (
+                  <li
+                    key={pdf.path}
+                    className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-0"
                   >
-                    Add PDFs
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={busy}
-                    onClick={() => void addFolder()}
-                  >
-                    <FolderOpen className="size-4" /> Add folder
-                  </Button>
-                </div>
-              </div>
-              <div
-                aria-label="Invoice PDF drop zone"
-                className="mt-4 rounded-lg border-2 border-dashed border-border p-5 text-center text-sm text-muted-foreground"
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={(event) => {
-                  event.preventDefault()
-                  pdfFiles(event.dataTransfer.files)
-                }}
-              >
-                <UploadCloud
-                  className="mx-auto mb-2 size-5"
-                  aria-hidden="true"
-                />
-                Drop more PDFs or a folder here
-              </div>
-              {snapshot.state.pdfs.length > 0 && (
-                <ul className="mt-4 max-h-32 overflow-auto text-sm">
-                  {snapshot.state.pdfs.map((pdf) => (
-                    <li
-                      key={pdf.path}
-                      className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-0"
+                    <span className="min-w-0 truncate" title={pdf.path}>
+                      {pdf.name}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={busy}
+                      aria-label={`Remove ${pdf.name}`}
+                      onClick={() => void removePdf(pdf.path)}
                     >
-                      <span className="min-w-0 truncate" title={pdf.path}>
-                        {pdf.name}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={busy}
-                        aria-label={`Remove ${pdf.name}`}
-                        onClick={() => void removePdf(pdf.path)}
-                      >
-                        Remove
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {snapshot.state.pdfs.some((pdf) =>
-                pdf.notes.some((note) => note.startsWith('The file name says'))
-              ) && (
-                <ul className="mt-3 list-inside list-disc text-sm text-warning-foreground">
-                  {snapshot.state.pdfs.flatMap((pdf) =>
-                    pdf.notes
-                      .filter((note) => note.startsWith('The file name says'))
-                      .map((note) => (
-                        <li key={`${pdf.path}-${note}`}>
-                          {pdf.name}: {note}
-                        </li>
-                      ))
-                  )}
-                </ul>
-              )}
-              {snapshot.links.missingInvoices.length > 0 && (
-                <p className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
-                  No PDF for invoice {snapshot.links.missingInvoices.join(', ')}
-                  . These sales will still be entered. Upload their PDFs on the
-                  website yourself.
-                </p>
-              )}
-              {snapshot.links.extraPdfs.length > 0 && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Not in this month&apos;s sales:{' '}
-                  {snapshot.links.extraPdfs.map((pdf) => pdf.name).join(', ')}.
-                  These PDFs will be ignored.
-                </p>
-              )}
-              {snapshot.links.unlinkedPdfs.length > 0 && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No invoice number found in:{' '}
-                  {snapshot.links.unlinkedPdfs
-                    .map((pdf) => pdf.name)
-                    .join(', ')}
-                  .
-                </p>
-              )}
-              {snapshot.links.unreadablePdfs.length > 0 && (
-                <p className="mt-3 text-sm text-warning-foreground">
-                  Could not read these PDFs:{' '}
-                  {snapshot.links.unreadablePdfs
-                    .map((pdf) => pdf.name)
-                    .join(', ')}
-                  .
-                </p>
-              )}
-              {snapshot.links.duplicateInvoices.length > 0 && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  More than one PDF for invoice{' '}
-                  {snapshot.links.duplicateInvoices
-                    .map((item) => item.invoice)
-                    .join(', ')}
-                  . The first is used.
-                </p>
-              )}
-              {snapshot.links.identicalCopies.length > 0 && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Identical copies ignored:{' '}
-                  {snapshot.links.identicalCopies
-                    .map((pdf) => pdf.name)
-                    .join(', ')}
-                  .
-                </p>
-              )}
-              {snapshot.warnings.length > 0 && (
-                <ul className="mt-3 list-inside list-disc text-sm text-warning-foreground">
-                  {snapshot.warnings.map((warning) => (
-                    <li key={warning}>{warning}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </div>
-          <div className="space-y-5">
-            <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="font-semibold">ProRewards</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {siteLocation === 'claim' ||
-                siteLocation === 'program-choice' ||
-                siteLocation === 'other'
-                  ? 'Signed in'
-                  : 'Not signed in'}
+                      Remove
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {snapshot.state.pdfs.some((pdf) =>
+              pdf.notes.some((note) => note.startsWith('The file name says'))
+            ) && (
+              <ul className="mt-3 list-inside list-disc text-sm text-warning-foreground">
+                {snapshot.state.pdfs.flatMap((pdf) =>
+                  pdf.notes
+                    .filter((note) => note.startsWith('The file name says'))
+                    .map((note) => (
+                      <li key={`${pdf.path}-${note}`}>
+                        {pdf.name}: {note}
+                      </li>
+                    ))
+                )}
+              </ul>
+            )}
+            {snapshot.links.missingInvoices.length > 0 && (
+              <MissingInvoicePdfs invoices={snapshot.links.missingInvoices} />
+            )}
+            {snapshot.links.extraPdfs.length > 0 && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Not in this month&apos;s sales:{' '}
+                {snapshot.links.extraPdfs.map((pdf) => pdf.name).join(', ')}.
+                These PDFs will be ignored.
               </p>
-              {sitePage && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <p>{sitePage.promotion}</p>
-                  {sitePage.window[0] && sitePage.window[1] && (
-                    <p>
-                      {dateLabel(sitePage.window[0].toISOString().slice(0, 10))}{' '}
-                      to{' '}
-                      {dateLabel(sitePage.window[1].toISOString().slice(0, 10))}
-                    </p>
-                  )}
-                  <p>{sitePage.tires.length} tires, read from the claim page</p>
-                </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={onShowWebsite}
-              >
-                {siteLocation === 'login' ? 'Sign in' : 'Show website'}
-              </Button>
-            </section>
-            <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="font-semibold">Ready to match</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {monthLabel(snapshot.state.month)} · {tireCount} tire line
-                {tireCount === 1 ? '' : 's'} ready for review.
+            )}
+            {snapshot.links.unlinkedPdfs.length > 0 && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                No invoice number found in:{' '}
+                {snapshot.links.unlinkedPdfs.map((pdf) => pdf.name).join(', ')}.
               </p>
-            </section>
-          </div>
+            )}
+            {snapshot.links.unreadablePdfs.length > 0 && (
+              <p className="mt-3 text-sm text-warning-foreground">
+                Could not read these PDFs:{' '}
+                {snapshot.links.unreadablePdfs
+                  .map((pdf) => pdf.name)
+                  .join(', ')}
+                .
+              </p>
+            )}
+            {snapshot.links.duplicateInvoices.length > 0 && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                More than one PDF for invoice{' '}
+                {snapshot.links.duplicateInvoices
+                  .map((item) => item.invoice)
+                  .join(', ')}
+                . The first is used.
+              </p>
+            )}
+            {snapshot.links.identicalCopies.length > 0 && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Identical copies ignored:{' '}
+                {snapshot.links.identicalCopies
+                  .map((pdf) => pdf.name)
+                  .join(', ')}
+                .
+              </p>
+            )}
+            {snapshot.warnings.length > 0 && (
+              <ul className="mt-3 list-inside list-disc text-sm text-warning-foreground">
+                {snapshot.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
       )}
     </div>

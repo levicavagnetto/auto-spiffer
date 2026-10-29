@@ -3,7 +3,7 @@ import ExcelJS from 'exceljs'
 import { join, resolve } from 'node:path'
 import { testUserData } from './test-user-data'
 
-test('sidebar and Sales card show the claim page state and program', async () => {
+test('sidebar shows sign-in state and opens ProRewards from Sales', async () => {
   const { args, folder, remove } = testUserData()
   const workbook = new ExcelJS.Workbook()
   const sheet = workbook.addWorksheet('Report')
@@ -31,10 +31,16 @@ test('sidebar and Sales card show the claim page state and program', async () =>
     await page
       .getByLabel('Choose Material Sales export')
       .setInputFiles(exportPath)
-    const card = page.getByRole('heading', { name: 'ProRewards' }).locator('..')
-    await expect(card).toContainText('Signed in')
-    await expect(card).toContainText('October 2026 Pro Rewards')
-    await expect(card).toContainText('6 tires')
+    await expect(page.getByRole('heading', { name: 'ProRewards' })).toHaveCount(
+      0
+    )
+    await expect(
+      page.getByRole('navigation', { name: 'Main navigation' })
+    ).toContainText('Signed in')
+    await page.getByRole('button', { name: 'ProRewards' }).click()
+    await expect(
+      page.getByRole('heading', { name: 'ProRewards' })
+    ).toBeVisible()
   } finally {
     await app.close()
     remove()

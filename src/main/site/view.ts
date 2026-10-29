@@ -12,6 +12,7 @@ export function createSiteView(
   view: WebContentsView
   setBounds: (bounds: Electron.Rectangle | null) => void
   getStatus: () => SiteStatus
+  ensureLoaded: () => Promise<void>
   reload: () => void
   signOut: () => Promise<void>
   openSubmitSale: () => Promise<void>
@@ -60,9 +61,23 @@ export function createSiteView(
     if (shouldOpenExternalWindow(url)) void shell.openExternal(url)
     return { action: 'deny' }
   })
+  const ensureLoaded = async (): Promise<void> => {
+    if (loaded) return
+    loaded = true
+    try {
+      await view.webContents.loadURL(
+        testFile ? pathToFileURL(testFile).href : siteUrl
+      )
+    } catch (error) {
+      loaded = false
+      publish('error')
+      throw error
+    }
+  }
   return {
     view,
     getStatus: () => status,
+    ensureLoaded,
     reload: () => view.webContents.reload(),
     async openSubmitSale() {
       loaded = true
@@ -84,11 +99,10 @@ export function createSiteView(
         return
       }
       view.setBounds(bounds)
+      view.setBorderRadius(0)
       view.setVisible(true)
       if (!loaded) {
-        loaded = true
-        const address = testFile ? pathToFileURL(testFile).href : siteUrl
-        void view.webContents.loadURL(address).catch(() => publish('error'))
+        void ensureLoaded().catch(() => undefined)
       }
     }
   }

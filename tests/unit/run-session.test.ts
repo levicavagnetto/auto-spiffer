@@ -63,6 +63,7 @@ it('rejects a second run while one line is still being entered', async () => {
     review: () => review,
     month: () => '2026-10',
     readPage: () => driver.readPage(),
+    ensurePage: vi.fn(async () => undefined),
     driver,
     publish: vi.fn()
   })
@@ -72,4 +73,105 @@ it('rejects a second run while one line is still being entered', async () => {
   release()
   await vi.waitFor(() => expect(session.snapshot().phase).toBe('finished'))
   expect(session.snapshot().summary?.added).toEqual(['one'])
+})
+
+it('returns to the intended claim page before checking and before starting', async () => {
+  const ensurePage = vi.fn(async () => undefined)
+  const driver = {
+    readPage: vi.fn(async () => null),
+    addLine: vi.fn(),
+    upload: vi.fn(),
+    screenshot: vi.fn(),
+    scrollTop: vi.fn()
+  }
+  const session = new RunSession({
+    review: () =>
+      ({
+        lines: [],
+        tires: [],
+        promotion: null,
+        dates: null
+      }) as unknown as ReviewSnapshot,
+    month: () => '2026-10',
+    ensurePage,
+    readPage: driver.readPage,
+    driver,
+    publish: vi.fn()
+  })
+  await session.check()
+  await session.start()
+  expect(ensurePage).toHaveBeenCalledTimes(2)
+  expect(driver.addLine).not.toHaveBeenCalled()
+})
+
+it('does not enter sales when claim-page recovery fails before Start', async () => {
+  const driver = {
+    readPage: vi.fn(async () => null),
+    addLine: vi.fn(),
+    upload: vi.fn(),
+    screenshot: vi.fn(),
+    scrollTop: vi.fn()
+  }
+  const session = new RunSession({
+    review: () =>
+      ({
+        lines: [],
+        tires: [],
+        promotion: null,
+        dates: null
+      }) as unknown as ReviewSnapshot,
+    month: () => '2026-10',
+    ensurePage: async () => {
+      throw new Error('Open the October claim page in ProRewards.')
+    },
+    readPage: driver.readPage,
+    driver,
+    publish: vi.fn()
+  })
+  await expect(session.start()).rejects.toThrow('Open the October claim page')
+  expect(session.snapshot().phase).toBe('idle')
+  expect(driver.readPage).not.toHaveBeenCalled()
+  expect(driver.addLine).not.toHaveBeenCalled()
+})
+
+it('waits for claim-page navigation to stop before closing during checking', async () => {
+  let release: () => void = () => undefined
+  const pending = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  const driver = {
+    readPage: vi.fn(async () => null),
+    addLine: vi.fn(),
+    upload: vi.fn(),
+    screenshot: vi.fn(),
+    scrollTop: vi.fn()
+  }
+  const session = new RunSession({
+    review: () =>
+      ({
+        lines: [],
+        tires: [],
+        promotion: null,
+        dates: null
+      }) as unknown as ReviewSnapshot,
+    month: () => '2026-10',
+    ensurePage: async (_month, cancelled) => {
+      await pending
+      if (cancelled?.()) throw new Error('Claim entry was stopped.')
+    },
+    readPage: driver.readPage,
+    driver,
+    publish: vi.fn()
+  })
+  const starting = session.start().catch(() => undefined)
+  let closed = false
+  const closing = session.stopAndWait().then(() => {
+    closed = true
+  })
+  await new Promise((resolve) => setTimeout(resolve, 20))
+  expect(closed).toBe(false)
+  release()
+  await Promise.all([starting, closing])
+  expect(driver.readPage).not.toHaveBeenCalled()
+  expect(driver.addLine).not.toHaveBeenCalled()
 })

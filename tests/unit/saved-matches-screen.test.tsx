@@ -42,3 +42,26 @@ it('lists saved choices, searches, and removes one', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Remove nokian|one' }))
   expect(remove).toHaveBeenCalledWith('nokian|one')
 })
+
+it('keeps saved choices on their own page instead of repeating them in Settings', () => {
+  render(
+    <Settings
+      theme="system"
+      onThemeChange={vi.fn()}
+      ready
+      credentials={null}
+      onCredentials={vi.fn()}
+      update={null}
+      onUpdate={vi.fn()}
+      savedMatches={matches}
+      onRemoveSaved={vi.fn()}
+    />
+  )
+  expect(screen.queryByRole('heading', { name: 'Saved matches' })).toBeNull()
+  expect(
+    screen.getByRole('heading', { name: 'ProRewards sign-in' })
+  ).toBeTruthy()
+  expect(screen.getByRole('heading', { name: 'Appearance' })).toBeTruthy()
+  expect(screen.getByRole('heading', { name: 'Updates' })).toBeTruthy()
+  expect(screen.getByRole('heading', { name: 'Logs' })).toBeTruthy()
+})

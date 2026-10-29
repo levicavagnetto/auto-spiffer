@@ -4,7 +4,7 @@ import {
   createUpdateController
 } from '../../src/main/updates'
 
-function harness() {
+function harness(canCheck = true) {
   let automatic = true
   let runActive = false
   let tick: () => void = () => undefined
@@ -15,6 +15,7 @@ function harness() {
   const publish = vi.fn()
   const controller = createUpdateController({
     version: '1.0.0',
+    canCheck: () => canCheck,
     automatic: () => automatic,
     saveAutomatic: (value) => {
       automatic = value
@@ -46,6 +47,18 @@ function harness() {
 }
 
 describe('update controller', () => {
+  it('saves the automatic preference without checking in a development build', async () => {
+    const h = harness(false)
+    h.controller.start()
+    h.tick()
+    h.controller.setAutomatic(false)
+    h.controller.setAutomatic(true)
+    await h.controller.checkNow()
+    expect(h.controller.snapshot().automatic).toBe(true)
+    expect(h.controller.snapshot().phase).toBe('idle')
+    expect(h.check).not.toHaveBeenCalled()
+  })
+
   it('checks at startup and every six hours while automatic updates are on', async () => {
     const h = harness()
     h.controller.start()

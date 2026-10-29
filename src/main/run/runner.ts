@@ -61,7 +61,8 @@ export async function runLines(
   lines: ReviewLine[],
   driver: RunDriver,
   control: RunControl,
-  emit: (event: RunEvent) => void
+  emit: (event: RunEvent) => void,
+  preparePage?: () => Promise<SitePage>
 ): Promise<RunSummary> {
   const summary: RunSummary = {
     added: [],
@@ -82,6 +83,20 @@ export async function runLines(
       a.localeCompare(b)
   )
   let done = 0
+  const addedThisRun: ReviewLine[] = []
+  const currentPage = async (): Promise<SitePage | null> => {
+    const page = preparePage ? await preparePage() : await driver.readPage()
+    if (
+      page &&
+      addedThisRun.some(
+        (item) => !matching(page, item).some((row) => row.qty === item.qty)
+      )
+    )
+      throw new Error(
+        'The claim page needs review. A sale entered in this run is missing; check the website before continuing.'
+      )
+    return page
+  }
   emit({ type: 'progress', done, total: lines.length })
   try {
     for (const [invoice, batch] of ordered) {
@@ -98,10 +113,10 @@ export async function runLines(
           text: string
         ): void => emit({ type: 'activity', lineId: line.id, kind, text })
         let failure: string | null = null
+        const page = await currentPage()
         try {
           if (!line.tire)
             throw new Error('Choose a tire for this sale before entering it.')
-          const page = await driver.readPage()
           if (!page)
             throw new Error('Open the claim page in the ProRewards tab.')
           const rows = matching(page, line)
@@ -130,6 +145,7 @@ export async function runLines(
               }
               if (afterRows.some((row) => row.qty === line.qty)) {
                 summary.added.push(line.id)
+                addedThisRun.push(line)
                 addedInGroup = true
                 activity('added', `Invoice ${invoice}: sale added.`)
                 failure = null
@@ -172,6 +188,18 @@ export async function runLines(
       if (addedInGroup) {
         const pdf = batch.find((line) => line.pdf)?.pdf
         if (pdf) {
+          const page = await currentPage()
+          if (
+            !page ||
+            !batch.some(
+              (item) =>
+                addedThisRun.includes(item) &&
+                matching(page, item).some((row) => row.qty === item.qty)
+            )
+          )
+            throw new Error(
+              'The claim page needs review. The sale is not visible before its PDF upload.'
+            )
           try {
             await driver.upload(pdf)
             summary.uploaded.push(invoice)

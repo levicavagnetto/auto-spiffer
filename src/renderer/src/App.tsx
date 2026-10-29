@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CredentialsState, SiteLocation, Theme } from '../../shared/ipc'
-import type { SitePage } from '../../shared/ipc'
 import { Sidebar, type Screen } from './components/Sidebar'
+import { ErrorToast } from './components/ErrorToast'
 import { Sales } from './screens/Sales'
 import { Review } from './screens/Review'
 import { EnterClaims } from './screens/EnterClaims'
@@ -29,6 +29,8 @@ const steps: Partial<Record<Screen, string>> = {
 
 export default function App(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
+  const [matchError, setMatchError] = useState<string | null>(null)
+  const matching = useRef(false)
   const [current, setCurrent] = useState<Screen>('sales')
   const [version, setVersion] = useState('1.0.0')
   const [theme, setTheme] = useState<Theme>('system')
@@ -47,7 +49,6 @@ export default function App(): React.JSX.Element {
   const [updateState, setUpdateState] = useState<UpdateState | null>(null)
   const [credentials, setCredentials] = useState<CredentialsState | null>(null)
   const [siteLocation, setSiteLocation] = useState<SiteLocation | null>(null)
-  const [sitePage, setSitePage] = useState<SitePage | null>(null)
 
   useEffect(() => window.api.on('appError', setError), [])
   useEffect(() => window.api.on('themeChanged', setSystemDark), [])
@@ -55,6 +56,7 @@ export default function App(): React.JSX.Element {
   useEffect(
     () =>
       window.api.on('signInAttention', (message) => {
+        if (matching.current) return
         setError(message)
         setCurrent('website')
       }),
@@ -63,6 +65,7 @@ export default function App(): React.JSX.Element {
   useEffect(
     () =>
       window.api.on('siteNeedsAttention', (message) => {
+        if (matching.current) return
         setError(message)
         setCurrent('website')
       }),
@@ -74,15 +77,7 @@ export default function App(): React.JSX.Element {
         if (status.state !== 'ready') return
         void window.api
           .getSiteLocation()
-          .then((location) => {
-            setSiteLocation(location)
-            if (location === 'claim')
-              void window.api
-                .readSitePage()
-                .then(setSitePage)
-                .catch(() => setSitePage(null))
-            else setSitePage(null)
-          })
+          .then(setSiteLocation)
           .catch(() => setSiteLocation(null))
       }),
     []
@@ -128,6 +123,14 @@ export default function App(): React.JSX.Element {
   useLayoutEffect(() => {
     window.scrollTo(0, 0)
   }, [current])
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      'hide-app-scrollbars',
+      current === 'review' || current === 'enter'
+    )
+    return () =>
+      document.documentElement.classList.remove('hide-app-scrollbars')
+  }, [current])
 
   const changeTheme = (choice: Theme): void => {
     const previous = theme
@@ -159,39 +162,28 @@ export default function App(): React.JSX.Element {
           }
         }}
         onMatch={async () => {
-          setCurrent('website')
+          matching.current = true
+          setMatchError(null)
           try {
-            let ready = false
-            for (let attempt = 0; attempt < 80; attempt++) {
-              const status = await window.api.getSiteStatus()
-              if (status.state === 'ready') {
-                ready = true
-                break
-              }
-              if (status.state === 'error') break
-              await new Promise((resolve) => setTimeout(resolve, 250))
-            }
-            if (!ready)
-              throw new Error(
-                'Could not open ProRewards. Check the website tab and try again.'
-              )
             const next = await window.api.matchTires()
             setReviewSnapshot(next)
             setReviewReady(true)
             setCurrent('review')
             setError(null)
           } catch (problem) {
-            setError(
-              problem instanceof Error
-                ? problem.message
-                : 'Could not read the claim page. Check ProRewards and try again.'
+            const detail = problem instanceof Error ? problem.message : ''
+            setMatchError(
+              detail.includes('Could not log in')
+                ? 'Could not log in'
+                : detail.replace(
+                    /^Error occurred in handler for 'app:invoke': Error: /,
+                    ''
+                  ) || 'Could not match tires. Check ProRewards and try again.'
             )
-            throw problem
+          } finally {
+            matching.current = false
           }
         }}
-        onShowWebsite={() => setCurrent('website')}
-        siteLocation={siteLocation}
-        sitePage={sitePage}
       />
     ) : current === 'review' ? (
       <Review
@@ -230,6 +222,12 @@ export default function App(): React.JSX.Element {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
+      {matchError && (
+        <ErrorToast
+          message={matchError}
+          onDismiss={() => setMatchError(null)}
+        />
+      )}
       <Sidebar
         current={current}
         onNavigate={setCurrent}

@@ -36,6 +36,10 @@ recorded 30 Adds (245–400 ms, 281 ms average), and on October 28 it recorded 1
 These are log aggregates, not isolated timings for the two-line live checkpoint. The user confirmed both the
 checkpoint and PDF uploads worked. Final manual submission has not been reported.
 
+The user confirmed that they manually submitted the claim after the remaining lines were entered. The live run
+included the two-line checkpoint and successful PDF uploads. Missing-PDF warnings initially overflowed the summary,
+and the Review sidebar initially scrolled out of view; both layout issues were fixed and retested during this change.
+
 ## Demo invoice test
 
 The old project's PDF writer generated 30 clearly marked demo invoices for 33 importable October sales rows in

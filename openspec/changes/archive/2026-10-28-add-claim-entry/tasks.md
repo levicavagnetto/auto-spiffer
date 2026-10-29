@@ -16,7 +16,7 @@
 
 ## 3. Live run (with the user)
 
-- [ ] 3.1 With the user, on a real month that has not been submitted: run with the first 2 lines only (a temporary developer setting, not in the shipped UI), check them on the site, then run the rest; the user submits. Record the timings and any surprises in `notes.md`
+- [x] 3.1 With the user, on a real month that has not been submitted: run with the first 2 lines only (a temporary developer setting, not in the shipped UI), check them on the site, then run the rest; the user submits. Record the timings and any surprises in `notes.md`
 
 ## Workflow follow-up
 

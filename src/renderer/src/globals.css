@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --font-sans: 'Geist Sans', Arial, sans-serif;
+  --font-mono: 'Geist Mono', Consolas, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar: var(--sidebar);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+}
+
+:root {
+  color-scheme: light;
+  --radius: 8px;
+  --background: #ffffff;
+  --sidebar: #f5f6f7;
+  --card: #ffffff;
+  --muted: #eceef0;
+  --border: #d9dde1;
+  --foreground: #10151c;
+  --muted-foreground: #5c6575;
+  --primary: #244a7c;
+  --primary-foreground: #ffffff;
+  --accent: #208be9;
+  --info: #e9f3fd;
+  --info-foreground: #1a62a8;
+  --success: #e6f4ea;
+  --success-foreground: #1d6b38;
+  --warning: #fdf3e1;
+  --warning-foreground: #8a4f00;
+  --destructive: #fcebea;
+  --destructive-foreground: #b3261e;
+  --scrim: rgba(1, 16, 46, 0.4);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #01102e;
+  --sidebar: #0a1938;
+  --card: #0d1e42;
+  --muted: #16294f;
+  --border: #243661;
+  --foreground: #f5f6f7;
+  --muted-foreground: #9fa9b3;
+  --primary: #4da2ed;
+  --primary-foreground: #01102e;
+  --accent: #4da2ed;
+  --info: #12305e;
+  --info-foreground: #a6d1f6;
+  --success: #0d3122;
+  --success-foreground: #7fd39f;
+  --warning: #382909;
+  --warning-foreground: #f3c46a;
+  --destructive: #3b1416;
+  --destructive-foreground: #f4a19a;
+  --scrim: rgba(0, 0, 0, 0.55);
+}
+
+html,
+body,
+#root {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Geist Sans', Arial, sans-serif;
+}
+
+/* Keep long Review and Enter Claims areas scrollable without shifting content. */
+html.hide-app-scrollbars,
+html.hide-app-scrollbars * {
+  scrollbar-width: none;
+}
+
+html.hide-app-scrollbars::-webkit-scrollbar,
+html.hide-app-scrollbars *::-webkit-scrollbar {
+  display: none;
+}

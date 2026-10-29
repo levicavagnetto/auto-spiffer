@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Made-up ProRewards claim page</title>
+  </head>
+  <body>
+    <h1>Submit a Sales Claim</h1>
+    <p>Promotion Name: October 2026 Pro Rewards (10/1/2026 - 10/31/2026)</p>
+    <label>Sale Date <input id="ctl00_DefaultContent_InvoiceDateRadDatePicker_dateInput" /></label>
+    <input id="ctl00_DefaultContent_InvoiceDateRadDatePicker_ClientState" type="hidden" value='{&quot;minDateStr&quot;:&quot;2026-10-01-00-00-00&quot;,&quot;maxDateStr&quot;:&quot;2026-10-31-00-00-00&quot;}' />
+    <label>Invoice # <input id="ctl00_DefaultContent_InvoiceNumberTextBox" /></label>
+    <label>Eligible Product
+      <select id="DefaultContent_ProductDropdownList">
+        <option value="0">Select One</option>
+        <option value="1">ATD Custom Wheels</option>
+        <option value="2">Continental SecureContact AW - Passenger Tires</option>
+        <option value="3">Continental Terrain Contact H/T - Light Truck Tires</option>
+        <option value="4">Continental TrueContact Tour 54 - Passenger Tires</option>
+        <option value="5">Nokian Remedy WRG5 - Passenger Tires</option>
+        <option value="6">Nokian One - Passenger Tires</option>
+      </select>
+    </label>
+    <div id="DefaultContent_ProductDropdownList_chosen"></div>
+    <label>Qty <input id="ctl00_DefaultContent_QtyClaimedRadNumericTextBox" /></label>
+    <button id="DefaultContent_AddProductLinkButton" type="button">Add</button>
+    <h2>Cumulative Sale(s) List</h2>
+    <table id="ctl00_DefaultContent_ProductRadGrid_ctl00">
+      <thead><tr><th>Action</th><th>Sale Date</th><th>Invoice Number</th><th>Product</th><th>Qty Claimed</th></tr></thead>
+      <tbody><tr class="rgNoRecords"><td colspan="5">No records</td></tr></tbody>
+    </table>
+    <div id="ctl00_DefaultContent_FileUploadRadAsyncUpload"><input id="upload0" type="file" accept=".pdf" /></div>
+    <div id="DefaultContent_UploadedFilesPanel"><table><tbody></tbody></table></div>
+    <div id="DefaultContent_DuplicateLineItemMessagePopupPanel" hidden>
+      Confirm - Duplicate Line Item Entered
+      <button type="button">No</button>
+      <button id="DefaultContent_YesLinkButton" type="button">Yes</button>
+    </div>
+    <div id="DefaultContent_ValidationPopupPanel" hidden>
+      <div class="modal-body"></div><button type="button">OK</button>
+    </div>
+    <button id="DefaultContent_GoToStepFourLinkButton" type="button">Next</button>
+    <button id="DefaultContent_BackToStepTwoLinkButton" type="button">Back</button>
+    <button id="DefaultContent_SubmitDuplicatesLinkButton" type="button">Submit</button>
+    <button id="DefaultContent_PostClaimDuplicatesLinkButton" type="button">Submit</button>
+  </body>
+</html>

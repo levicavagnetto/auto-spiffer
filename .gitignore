@@ -1,15 +1,15 @@
-# Python
-__pycache__/
-*.pyc
-.venv/
-.pytest_cache/
-
-# Build output
-build/
+node_modules/
+out/
 dist/
-installer/Output/
+release/
+coverage/
+test-results/
+playwright-report/
+*.log
+.env
+.env.*
+.DS_Store
+Thumbs.db
 
-# Local app data and run output (per-user, not source)
-data/
-output/
-scratch/
+# Real customer and dealer data: never commit (see AGENTS.md)
+private-data/

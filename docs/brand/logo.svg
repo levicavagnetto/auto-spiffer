@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Auto Spiffer">
+  <rect width="64" height="64" rx="15" fill="#244A7C"/>
+  <path d="M16 28 32 14 48 28" fill="none" stroke="#D2E8FB" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 39 32 25 48 39" fill="none" stroke="#79B9F2" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 50 32 36 48 50" fill="none" stroke="#208BE9" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

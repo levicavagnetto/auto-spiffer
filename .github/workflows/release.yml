@@ -1,11 +1,9 @@
 name: Release
 
-# Runs when you push a tag like v0.2.0:
-#   git tag v0.2.0 && git push origin v0.2.0
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
 
 permissions:
   contents: write
@@ -14,58 +12,52 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          python-version: "3.14"
-          cache: pip
+          node-version: '24'
+          cache: npm
+
+      - name: Check tag against package version
+        run: node scripts/check-release-tag.mjs
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: npm ci
 
-      - name: Check tag matches app version
-        run: |
-          $version = python -c "import auto_spiffer; print(auto_spiffer.__version__)"
-          if ("v$version" -ne "${{ github.ref_name }}") {
-            Write-Error "Tag ${{ github.ref_name }} does not match __version__ v$version in auto_spiffer/__init__.py"
-            exit 1
-          }
+      - name: Run checks
+        run: npm run check
 
-      - name: Run tests
-        run: python -m pytest -q
-
-      - name: Build AutoSpiffer.exe
-        run: |
-          # dist/ and build/ may be checked in; start from a clean slate
-          Remove-Item -Recurse -Force dist, build -ErrorAction SilentlyContinue
-          python build_exe.py
-
-      - name: Zip the app folder
-        run: Compress-Archive -Path dist/AutoSpiffer -DestinationPath "AutoSpiffer-${{ github.ref_name }}-windows.zip"
-
-      - name: Build the installer
-        run: |
-          # Inno Setup is not always on the runner; install it when it is missing.
-          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path $iscc)) {
-            choco install innosetup -y --no-progress
-          }
-          if (-not (Test-Path $iscc)) { Write-Error "Inno Setup is not installed"; exit 1 }
-          $version = python -c "import auto_spiffer; print(auto_spiffer.__version__)"
-          & $iscc "/DAppVersion=$version" installer\auto_spiffer.iss
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (-not (Test-Path "installer\Output\AutoSpiffer-Setup-v$version.exe")) {
-            Write-Error "The installer was not built"; exit 1
-          }
-
-      - name: Create GitHub Release
+      - name: Create draft release
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $flags = @()
-          if ("${{ github.ref_name }}" -like "*-*") { $flags += "--prerelease" }
-          gh release create "${{ github.ref_name }}" `
-            "AutoSpiffer-${{ github.ref_name }}-windows.zip" `
-            "installer\Output\AutoSpiffer-Setup-${{ github.ref_name }}.exe" `
-            --title "Auto Spiffer ${{ github.ref_name }}" --generate-notes @flags
+          $tag = $env:GITHUB_REF_NAME
+          gh release view $tag --json isDraft *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --draft --title "Auto Spiffer $tag" --generate-notes
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Build and upload installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $arguments = @('--config', 'electron-builder.config.cjs', '--publish', 'always')
+          if ($env:GITHUB_REF_NAME.Contains('-')) {
+            $arguments += '--config.publish.channel=prerelease'
+          }
+          npx electron-builder @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $arguments = @($tag, '--draft=false')
+          if ($tag.Contains('-')) { $arguments += '--prerelease' }
+          gh release edit @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

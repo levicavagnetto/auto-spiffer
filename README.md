@@ -1,150 +1,44 @@
 # Auto Spiffer
 
-Enters your monthly tire sales on the ATD ProRewards claim page and uploads the invoice PDFs, so you
-don't have to type them in one by one. **It never submits the claim.** When it is done, you look over
-the page and submit it yourself.
+Auto Spiffer helps a tire shop enter its monthly ATD ProRewards sales claim. It reads a Protractor Material Sales export and invoice PDFs, matches eligible tires to the claim page, enters the sales, and uploads the PDFs. **It never submits the claim.** A person checks the page and clicks Next and Submit on the website.
 
-## What you need each month
+## Install on Windows
 
-1. The **Material Sales report** from Protractor for the month (`Material-Sales.pdf`).
-2. *Optional:* the **invoice PDFs** for the month's sales, one per invoice. File names don't matter. The
-   app reads the invoice number from inside each PDF. If you leave them out, the app enters the sales only
-   and you upload the PDFs yourself on the ATD website.
-3. The month's **ClaimForm.pdf** (the tire list printed from the ATD ProRewards website). The tire list
-   changes, so load the new one each month.
-4. Google Chrome or Microsoft Edge installed on the computer.
+1. Open the [latest release](https://github.com/levicavagnetto/auto-spiffer/releases/latest) and download `Auto-Spiffer-Setup-<version>.exe`.
+2. Run the Setup file. It installs for your Windows account without administrator access, then opens Auto Spiffer. Start Menu and desktop shortcuts are added.
+3. This version is not code signed. If Windows SmartScreen says it protected your PC, check that the file came from this repository's release page, then choose **More info** and **Run anyway**.
 
-## Install
+The installed app checks for stable updates when it starts and every six hours. It downloads them in the background. When a version is ready, choose **Restart to update**, or close the app. An update waits until any claim entry in progress has finished. In Settings you can turn automatic updates off and use **Check now** instead.
 
-1. Download **AutoSpiffer-Setup-vX.Y.Z.exe** from the
-   [latest release](https://github.com/levicavagnetto/auto-spiffer/releases/latest) and run it.
-2. Follow the wizard. It installs for your user only (no administrator needed), adds **Auto Spiffer** to the
-   Start Menu, and can add a desktop shortcut.
-3. Windows may warn that the program is unknown (it is not code-signed). Click **More info**, then **Run anyway**.
+## Enter a month's claim
 
-**Updating.** When a newer version is out, the left menu shows *Version X is available* with an **Update**
-button. Click it and the app downloads the new version, closes, installs it and opens again by itself (about
-a minute). Your settings and months are kept. If that does not work it offers the download page instead: download
-the new Setup and run it over the old one. Turn the check off in **Settings > Updates**. **Uninstalling** (Windows Settings > Apps)
-removes the program but leaves your `data` and `output` folders.
+1. On **Sales**, choose that month's Protractor **Material Sales** `.xlsx` file. Add the invoice PDFs or the folder containing them. The app links a PDF to a sale by its invoice number. Sales without a PDF can still be entered; upload those invoices by hand on the website.
+2. Set your ProRewards email and password in **Settings** if you want the app to sign in. The password is encrypted with your Windows account. You can also sign in yourself in the **ProRewards** tab.
+3. Click **Match tires**. The app opens the month's program and reads the Eligible Product list. On **Review**, decide any tire it could not match confidently. Leave out lines that do not belong on the claim.
+4. Open **Enter claims**, check the plan, then click **Start entering**. The app checks the existing sale list before each line so it does not enter the same sale twice. You can pause or stop; it finishes the current line before stopping.
+5. Read the result summary and check every sale and PDF on the ProRewards claim page. Use **Check page and run again** if needed. **You click Next and Submit on the website yourself.**
 
-(A zip of the program folder is also on each release. Unzip it anywhere you can write to and run
-`AutoSpiffer.exe`.)
+The app remembers saved tire matches, settings, the encrypted password, and website cookies. It does not remember which month or invoice was entered. Keep the Material Sales file and PDFs until the claim is complete.
 
-## Every month, step by step
+## Moving from version 0.4.0
 
-Start **Auto Spiffer** from the Start Menu.
+Version 1.0 installs in `%LOCALAPPDATA%\Programs\AutoSpiffer`. The old 0.x app lives in `%LOCALAPPDATA%\Programs\Auto Spiffer`. Installing 1.0 does not remove the old program or its `data` folder. Its saved tire choices do not carry over, so review matches carefully the first month.
 
-### 1. Tire list (only when a new ClaimForm is out)
-- Open **Tire list** in the left menu and click **Update from ClaimForm.pdf...**.
-- Pick the new file. The window shows what was added, removed, or changed. Click **Use this tire list**.
-- The old list is kept in **History**.
+If the old app's **Update** button opens the 1.0 release page, download the new `Auto-Spiffer-Setup-<version>.exe` there and run it. After you have checked the new app, uninstall the old **Auto Spiffer** entry from Windows Settings. During the switch, the two installations may both appear as **Auto Spiffer**. Check the install path if you are unsure which entry is the old one.
 
-### 2. Load files
-- Click **Load files**.
-- **Browse...** and pick the Material Sales report.
-- *Optional:* **Add folder...** (or **Add files...**) and pick the invoice PDFs. Skip this if you upload
-  the PDFs yourself on the website.
-- Green checks mean the files were read. A yellow message tells you if something is wrong:
-  - *The tire list is for a different month than the report.* Load that month's ClaimForm first.
-  - *Report invoices have no PDF.* This only appears when you loaded some PDFs. Sales without one are
-    held back as a Problem, unless you tick the matching option in Settings.
-- Click **Read files and continue**. Copies of your files are kept in `data\months\<month>\`. Your
-  originals are never changed.
-
-### 3. Review
-- Every sale is listed with the ClaimForm tire it was matched to.
-  - **Green** (Ready): will be entered.
-  - **Amber** (Needs attention): the app is not sure which tire it is. Double-click the row, pick the
-    right tire, and click **Use selected tire**. Leave "Remember this choice" ticked and the app will
-    know next month.
-  - **Grey** (Not eligible): not on the ClaimForm, so no reward. Nothing is entered for it.
-  - **Red** (Problem): will not be entered. For example the sale date is outside the program's dates, a
-    PDF is missing (only when you loaded some), or the quantity differs from what was entered before.
-  - **Blue** (Already entered): recorded as entered earlier, so it is left out of the run.
-  - **Grey** also marks rows you excluded.
-- Quantities marked `*` were added up from several lines of the report.
-- **Exclude row** leaves a sale out. **Export CSV** saves the list for Excel.
-- When nothing is amber, **Continue to Run** turns on. (You can also tick *Skip rows I have not
-  resolved* to leave the amber ones out.)
-
-### 4. Run
-1. Click **Open claim site**. A browser opens.
-2. **Log in** to the ATD ProRewards website and go to **Claims > Submit a Sales Claim** for the
-   right month's program. *Or save your login once* in **Settings > Saved login**: then Open claim site logs in,
-   opens the claim page, picks the month's program, and presses NEXT for you. The password is kept in Windows
-   Credential Manager, not in a file. The app tries the login once. If it can't finish (wrong password, a
-   code, a CAPTCHA, no matching program), it stops and the log tells you what to do by hand.
-3. Click **Start autofill**. The app first checks that the page is for the right program and
-   that every tire is in the website's list. Then it types each sale, clicks Add, checks that the line
-   appeared, and (if you loaded PDFs) uploads that sale's invoice PDF. With no PDFs loaded it enters the
-   sales only, and you upload the PDFs on the website yourself.
-4. Watch the progress and log. **Pause** and **Stop** work after the line being entered.
-5. When it says **DONE**, look over the page in the browser, then click the website's own Next/Submit
-   buttons yourself.
-
-The app never clicks Next or Submit. If you run it again, it will not add anything twice. Lines already
-on the page are skipped, and lines recorded as entered are left out. A run can be stopped and started
-again to carry on.
-
-A CSV report of every run is saved in the `output` folder.
-
-## Trying it out safely
-
-Test mode is not in the window. It is for developers and runs from the command line
-(`python -m auto_spiffer fill-all`, which also has `--limit N` to enter only the first N lines). It uses a saved copy of the claim page, blocks all web access, and pretends
-to be the website for Add and uploads. Nothing real is entered, and test mode keeps its own record
-(`data\state_test.json`), so it never makes a real run think something was already entered.
-
-## Settings
-
-Click **Settings** in the left menu to change the website address, the browser (Automatic, Chrome or Edge),
-whether sales with no PDF are still entered when some PDFs are loaded, and whether to check for updates at startup. It also shows where the app keeps
-its files.
-
-## If something goes wrong
-
-- **A message appears.** Read it, it says what to do. The details are also in `output\auto_spiffer.log`.
-- **The Run page says a field is missing or the page is wrong.** Make sure the browser is on
-  *Submit a Sales Claim* for the right month. If ATD changed their page, send me `output\auto_spiffer.log`
-  and any `failure_*.png` pictures in the `output` folder.
-- **I entered the sales but did not submit, and now the app says "Already entered".** The app remembers
-  what it entered so a submitted claim is never entered twice. If you did NOT submit (or the lines are
-  gone from the website page), open **Run** and click **Re-enter this month...**. It asks first, then
-  forgets this month's records so the lines are Ready again. Never do this for a claim you already
-  submitted: duplicates can get a dealer removed from the program.
-- **A line failed.** It is shown in red on the Review page. Fix the cause and run again: only the lines
-  not yet entered are tried.
-- **Windows warns about the program.** The program is not code-signed, so Windows may ask you to confirm
-  the first time (More info, then Run anyway).
-- **Health check.** Run `AutoSpiffer.exe --selftest` (or `--selftest-browser` to also open the saved page in
-  a hidden browser) and open `output\selftest.txt`.
-
-## Where things are
-
-| Folder | What is in it |
-|---|---|
-| `data\months\2026-09\` | the copied report and invoices, your decisions for that month |
-| `data\catalog.json`, `data\history\` | the current tire list and the earlier ones |
-| `data\product_map.json` | tire choices you asked it to remember (you can edit it) |
-| `data\brands.toml`, `data\noise.toml` | brand codes and words to ignore on the report (you can edit them) |
-| `data\config.toml` | the website address and where things are on the page |
-| `data\state.json` | what has been entered and uploaded, so nothing is done twice (`state_test.json` is test mode's own) |
-| `data\settings.json` | window size, last month, and your Settings choices |
-| `test_page\` | the saved claim page used by test mode |
-| `output\` | run reports (CSV), the log, and pictures of failures |
+Uninstalling 1.0 leaves its app data in `%APPDATA%\Auto Spiffer`, including saved matches and settings. The **Logs** card in Settings opens `%APPDATA%\Auto Spiffer\logs`.
 
 ## For developers
 
-- `python -m pytest` runs the tests (about 360; the browser tests take around ten minutes).
-- `python -m auto_spiffer --help` lists the command line tools (`prepare`, `probe-page`, `fill-all`, ...).
-- `python build_exe.py` builds `dist\AutoSpiffer\AutoSpiffer.exe`. With [Inno Setup 6](https://jrsoftware.org/isinfo.php)
-  installed, `iscc /DAppVersion=X.Y.Z installer\auto_spiffer.iss` then builds `installer\Output\AutoSpiffer-Setup-vX.Y.Z.exe`.
-- **Release:** set `__version__` in `auto_spiffer\__init__.py`, commit and push `main`, then
-  `git tag vX.Y.Z` and `git push origin vX.Y.Z`. GitHub Actions checks the tag against the version, runs the
-  tests, builds the exe, zip and installer, and publishes the release. A tag with a suffix (`v0.3.0-rc1`,
-  with the same text in `__version__`) is published as a pre-release, which the in-app update check ignores. To try
-  the Update button on one before shipping, start the installed app with `AUTO_SPIFFER_UPDATE_URL` set to
-  `https://api.github.com/repos/levicavagnetto/auto-spiffer/releases/tags/v0.3.0-rc1`.
-- `docs\DESIGN.md` explains how it works. The plan and task list are in `docs\plans\`, and the original
-  window mockups are in `docs\mockups\` (`python docs\mockups\mockup_gui.py B`).
+Windows 11 and Node.js 24 are the supported development setup.
+
+```powershell
+npm.cmd ci
+npm.cmd run dev
+npm.cmd run check
+npm.cmd run dist:win
+```
+
+`npm.cmd run check` runs lint, formatting, typecheck, unit tests, a build, and Electron end-to-end tests. Tests that require the gitignored `private-data/` folder skip when it is absent. `npm.cmd run dist:win` builds the Windows installer in `release/` without publishing it. `npm.cmd run make:icons` regenerates the committed icons from `docs/brand/logo.svg`.
+
+Implementation decisions are in [docs/architecture.md](docs/architecture.md), screens and copy in [docs/ui.md](docs/ui.md), and the milestone plans in [openspec/changes](openspec/changes).

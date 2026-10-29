@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '../components/ui/button'
 import type { ReviewLine, ReviewSnapshot } from '../../../shared/review'
 import type { RunState } from '../../../shared/run'
@@ -30,11 +31,13 @@ function dateLabel(date: string): string {
 
 export function Review({
   snapshot,
+  headerActions,
   run,
   onSnapshot,
   onEnter
 }: {
   snapshot: ReviewSnapshot | null
+  headerActions?: HTMLElement | null
   run: RunState | null
   onSnapshot: (next: ReviewSnapshot) => void
   onEnter: () => void
@@ -109,25 +112,29 @@ export function Review({
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4">
+      {headerActions &&
+        createPortal(
+          <div className="flex items-center gap-3">
+            {undecided > 0 && (
+              <span className="text-sm text-warning-foreground">
+                Decide {undecided} tire{undecided === 1 ? '' : 's'} to continue
+              </span>
+            )}
+            <Button
+              disabled={undecided > 0 || ready.length === 0}
+              onClick={onEnter}
+            >
+              Enter {ready.length} sale{ready.length === 1 ? '' : 's'}
+            </Button>
+          </div>,
+          headerActions
+        )}
+      <div>
         <p className="text-sm text-muted-foreground">
           {snapshot.promotion ?? 'Claim page'} ·{' '}
           {snapshot.dates[0] ?? 'Dates unknown'} to{' '}
           {snapshot.dates[1] ?? 'Dates unknown'}
         </p>
-        <div className="flex items-center gap-3">
-          {undecided > 0 && (
-            <span className="text-sm text-warning-foreground">
-              Decide {undecided} tire{undecided === 1 ? '' : 's'} to continue
-            </span>
-          )}
-          <Button
-            disabled={undecided > 0 || ready.length === 0}
-            onClick={onEnter}
-          >
-            Enter {ready.length} sale{ready.length === 1 ? '' : 's'}
-          </Button>
-        </div>
       </div>
       {error && (
         <p

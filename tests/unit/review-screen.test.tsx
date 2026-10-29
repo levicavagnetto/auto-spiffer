@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within
+} from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { Review } from '../../src/renderer/src/screens/Review'
 import type { ReviewSnapshot } from '../../src/shared/review'
@@ -57,11 +63,22 @@ const snapshot = {
     }
   ]
 } as ReviewSnapshot
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  document.querySelector('header')?.remove()
+})
+
+function headerTarget(): HTMLElement {
+  const header = document.createElement('header')
+  document.body.append(header)
+  return header
+}
 
 it('filters by status, searches invoices, and blocks entry until decisions are settled', () => {
+  const header = headerTarget()
   render(
     <Review
+      headerActions={header}
       snapshot={snapshot}
       run={null}
       onSnapshot={vi.fn()}
@@ -69,6 +86,9 @@ it('filters by status, searches invoices, and blocks entry until decisions are s
     />
   )
   expect(screen.getByText('Decide 1 tire to continue')).toBeTruthy()
+  expect(
+    within(header).getByRole('button', { name: 'Enter 1 sale' })
+  ).toBeTruthy()
   expect(
     screen
       .getByRole('button', { name: 'Enter 1 sale' })
@@ -103,4 +123,43 @@ it('opens a tire decision sheet with suggestions and a search', () => {
   expect(
     screen.getByRole('checkbox', { name: 'Remember this choice' })
   ).toBeTruthy()
+})
+
+it('keeps Enter in the header as ready lines change', () => {
+  const header = headerTarget()
+  const onEnter = vi.fn()
+  const props = {
+    run: null,
+    onSnapshot: vi.fn(),
+    onEnter,
+    headerActions: header
+  }
+  const { rerender } = render(<Review {...props} snapshot={snapshot} />)
+  const decided = {
+    ...snapshot,
+    lines: snapshot.lines.map((line) =>
+      line.id === 'one' ? { ...line, status: 'not-eligible' as const } : line
+    )
+  }
+  rerender(<Review {...props} snapshot={decided} />)
+  const readyButton = within(header).getByRole('button', {
+    name: 'Enter 1 sale'
+  })
+  expect(readyButton.hasAttribute('disabled')).toBe(false)
+  fireEvent.click(readyButton)
+  expect(onEnter).toHaveBeenCalledOnce()
+  rerender(
+    <Review
+      {...props}
+      snapshot={{
+        ...decided,
+        lines: decided.lines.map((line) => ({ ...line, leftOut: true }))
+      }}
+    />
+  )
+  expect(
+    within(header)
+      .getByRole('button', { name: 'Enter 0 sales' })
+      .hasAttribute('disabled')
+  ).toBe(true)
 })

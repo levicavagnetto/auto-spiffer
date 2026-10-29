@@ -73,12 +73,13 @@ Two columns.
   ("41 PDFs loaded, 40 linked to a sale"); a warning box listing sales with no PDF ("They are still entered.
   Upload those PDFs on the website yourself."); a quiet note for PDFs whose invoice is not in the month's sales.
 - Right column: **ProRewards** card (Signed in badge, program, dates, "77 tires, read from the claim page",
-  Show website) and **Ready to match** card (one sentence, primary **Match tires** button).
+  Show website) and **Ready to match** card (one sentence).
+- Header action: primary **Match tires** at the far right, disabled before an export is loaded.
 - Empty state: one large drop zone for the Excel file, with a Choose file button.
 
 ### 2. Review (step 2)
-- Header action: primary **Enter N sales**, disabled with "Decide 2 tires to continue" beside it while any
-  line needs a decision.
+- Header action: primary **Enter N sales** at the far right, disabled with "Decide 2 tires to continue" beside it
+  while any line needs a decision. It stays reachable while the Review list scrolls.
 - A segmented filter: All, Ready, Needs a decision (warning color), Not eligible, Not a tire, each with its
   count; a search box (invoice or tire).
 - A table: Status (a pill with a dot), Date, Invoice (mono), On the report (muted, ellipsis), Claim page tire

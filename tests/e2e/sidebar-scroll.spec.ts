@@ -40,6 +40,10 @@ test('sidebar stays visible through a long Review page and navigation starts at 
       .setInputFiles(exportPath)
     await page.getByRole('button', { name: 'Match tires' }).click()
     await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible()
+    const enter = page
+      .locator('main > header')
+      .getByRole('button', { name: 'Enter 35 sales' })
+    await expect(enter).toHaveCount(1)
     await page.evaluate(() =>
       window.scrollTo(0, document.documentElement.scrollHeight)
     )
@@ -53,6 +57,7 @@ test('sidebar stays visible through a long Review page and navigation starts at 
     await expect(
       page.getByRole('button', { name: 'Settings' })
     ).toBeInViewport()
+    await expect(enter).toBeInViewport()
     await page.getByRole('button', { name: 'Settings' }).click()
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)

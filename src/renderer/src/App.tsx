@@ -35,6 +35,9 @@ export default function App(): React.JSX.Element {
   const [settingsReady, setSettingsReady] = useState(false)
   const [systemDark, setSystemDark] = useState(false)
   const [salesSnapshot, setSalesSnapshot] = useState<SalesSnapshot | null>(null)
+  const [headerActions, setHeaderActions] = useState<HTMLDivElement | null>(
+    null
+  )
   const [reviewReady, setReviewReady] = useState(false)
   const [reviewSnapshot, setReviewSnapshot] = useState<ReviewSnapshot | null>(
     null
@@ -146,6 +149,7 @@ export default function App(): React.JSX.Element {
   const content =
     current === 'sales' ? (
       <Sales
+        headerActions={headerActions}
         snapshot={salesSnapshot}
         onSnapshot={(next, newExport) => {
           setSalesSnapshot(next)
@@ -191,6 +195,7 @@ export default function App(): React.JSX.Element {
       />
     ) : current === 'review' ? (
       <Review
+        headerActions={headerActions}
         snapshot={reviewSnapshot}
         run={runState}
         onSnapshot={setReviewSnapshot}
@@ -250,7 +255,7 @@ export default function App(): React.JSX.Element {
         onRestartToUpdate={restartToUpdate}
       />
       <main className="min-w-0 flex-1">
-        <header className="flex h-[60px] items-center border-b border-border px-8">
+        <header className="sticky top-0 z-10 flex h-[60px] items-center justify-between gap-4 border-b border-border bg-background px-8">
           <div>
             {steps[current] && (
               <div className="text-[11px] font-semibold uppercase text-muted-foreground">
@@ -259,6 +264,7 @@ export default function App(): React.JSX.Element {
             )}
             <h1 className="text-lg font-semibold">{titles[current]}</h1>
           </div>
+          <div ref={setHeaderActions} className="flex items-center gap-3" />
         </header>
         <div className="p-8">
           {error && (

@@ -34,10 +34,16 @@ test('Sales screen imports a workbook and PDF, then opens the claim page for mat
   })
   try {
     const page = await app.firstWindow()
+    await app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()[0]!.setSize(1100, 700)
+    )
     await expect(page.getByText('No sales loaded yet.')).toBeVisible()
     await expect(
       page.getByRole('button', { name: 'Match tires' })
     ).toBeDisabled()
+    await expect(
+      page.locator('main > header').getByRole('button', { name: 'Match tires' })
+    ).toHaveCount(1)
     await page
       .getByLabel('Choose Material Sales export')
       .setInputFiles(exportPath)

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { FileSpreadsheet, FolderOpen, UploadCloud } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import type { SalesSnapshot } from '../../../shared/sales'
@@ -35,6 +36,7 @@ function exportError(error: unknown): string {
 
 export function Sales({
   snapshot,
+  headerActions,
   onSnapshot,
   onMatch,
   onShowWebsite,
@@ -42,6 +44,7 @@ export function Sales({
   sitePage
 }: {
   snapshot: SalesSnapshot | null
+  headerActions?: HTMLElement | null
   onSnapshot: (next: SalesSnapshot, newExport: boolean) => void
   onMatch: () => Promise<void>
   onShowWebsite: () => void
@@ -151,6 +154,13 @@ export function Sales({
 
   return (
     <div className="space-y-5">
+      {headerActions &&
+        createPortal(
+          <Button disabled={!snapshot || busy} onClick={() => void match()}>
+            Match tires
+          </Button>,
+          headerActions
+        )}
       <input
         ref={exportInput}
         aria-label="Choose Material Sales export"
@@ -212,7 +222,6 @@ export function Sales({
               Choose Excel file
             </Button>
           </section>
-          <Button disabled>Match tires</Button>
         </>
       ) : (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,1fr)]">
@@ -446,13 +455,6 @@ export function Sales({
                 {monthLabel(snapshot.state.month)} · {tireCount} tire line
                 {tireCount === 1 ? '' : 's'} ready for review.
               </p>
-              <Button
-                className="mt-4"
-                disabled={busy}
-                onClick={() => void match()}
-              >
-                Match tires
-              </Button>
             </section>
           </div>
         </div>

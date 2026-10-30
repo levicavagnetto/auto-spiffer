@@ -80,22 +80,31 @@ test('an external link does not replace the in-app site tab', async () => {
   const { args, folder, remove } = testUserData()
   const fixture = join(folder, 'links.html')
   writeFileSync(fixture, '<a href="https://example.org/">Leave</a>')
-  const app = await electron.launch({ args })
+  const fixtureUrl = pathToFileURL(fixture).href
+  const app = await electron.launch({
+    args,
+    env: { ...process.env, AUTO_SPIFFER_TEST_SITE_FILE: fixture }
+  })
   try {
     const page = await app.firstWindow()
     await page.getByRole('button', { name: 'ProRewards' }).click()
-    const initialUrl = await app.evaluate(
-      async ({ BrowserWindow, shell }, fixtureUrl) => {
-        const view = BrowserWindow.getAllWindows()[0]!.contentView
-          .children[0] as Electron.WebContentsView
-        shell.openExternal = async (url) => {
-          ;(globalThis as { __externalUrl?: string }).__externalUrl = url
-        }
-        await view.webContents.loadURL(fixtureUrl)
-        return view.webContents.getURL()
-      },
-      pathToFileURL(fixture).href
-    )
+    await expect
+      .poll(() =>
+        app.evaluate(({ BrowserWindow }) => {
+          const view = BrowserWindow.getAllWindows()[0]!.contentView
+            .children[0] as Electron.WebContentsView
+          return view.webContents.getURL()
+        })
+      )
+      .toBe(fixtureUrl)
+    const initialUrl = await app.evaluate(({ BrowserWindow, shell }) => {
+      const view = BrowserWindow.getAllWindows()[0]!.contentView
+        .children[0] as Electron.WebContentsView
+      shell.openExternal = async (url) => {
+        ;(globalThis as { __externalUrl?: string }).__externalUrl = url
+      }
+      return view.webContents.getURL()
+    })
     await app.evaluate(async ({ BrowserWindow }) => {
       const view = BrowserWindow.getAllWindows()[0]!.contentView
         .children[0] as Electron.WebContentsView

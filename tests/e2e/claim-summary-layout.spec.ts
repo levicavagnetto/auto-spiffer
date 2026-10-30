@@ -62,7 +62,7 @@ test('a long completed summary stays inside the Enter pane at the minimum window
       state
     )
     await expect(
-      page.getByRole('button', { name: /PDFs needing upload.*20 invoices/ })
+      page.getByRole('button', { name: /PDFs needing upload.*21 invoices/ })
     ).toBeVisible()
     const panel = page.getByRole('region', { name: 'Enter claims panel' })
     const details = page.getByRole('region', { name: 'PDF invoice list' })

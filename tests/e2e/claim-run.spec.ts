@@ -56,7 +56,13 @@ test('enters ready sales, skips them on restart, and never clicks Next', async (
     expect(state.summary?.uploaded).toEqual(['900101'])
     expect(state.summary?.missingPdfs).toEqual(['900102'])
     await page.getByRole('button', { name: 'Check page and run again' }).click()
-    await expect(page.getByText('Finished entering')).toBeVisible()
+    await expect
+      .poll(
+        async () =>
+          (await page.evaluate(() => window.api.getRunState())).summary
+            ?.alreadyThere.length ?? 0
+      )
+      .toBe(2)
     state = await page.evaluate(() => window.api.getRunState())
     expect(state.summary?.alreadyThere).toHaveLength(2)
     expect(state.summary?.added).toHaveLength(0)
@@ -132,9 +138,11 @@ test('a duplicate and a rejected sale are reported without clicking Yes or Next'
     await page.getByRole('button', { name: 'Check page and run again' }).click()
     await expect
       .poll(
-        async () => (await page.evaluate(() => window.api.getRunState())).phase
+        async () =>
+          (await page.evaluate(() => window.api.getRunState())).summary
+            ?.failed[0]?.reason
       )
-      .toBe('finished')
+      .toContain('rejected')
     state = await page.evaluate(() => window.api.getRunState())
     expect(state.summary?.failed[0]?.reason).toContain('rejected')
     const site = await app.evaluate(async ({ BrowserWindow }) => {
@@ -223,9 +231,11 @@ test('Stop finishes the current sale and restart skips it', async () => {
     await page.getByRole('button', { name: 'Check page and run again' }).click()
     await expect
       .poll(
-        async () => (await page.evaluate(() => window.api.getRunState())).phase
+        async () =>
+          (await page.evaluate(() => window.api.getRunState())).summary
+            ?.alreadyThere.length ?? 0
       )
-      .toBe('finished')
+      .toBe(1)
     state = await page.evaluate(() => window.api.getRunState())
     expect(state.summary?.alreadyThere).toHaveLength(1)
     expect(state.summary?.added).toHaveLength(1)

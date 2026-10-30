@@ -206,7 +206,9 @@ test('Match tires keeps Sales open and shows a login error when sign-in is neede
     await expect(
       page.getByRole('heading', { name: 'Sales', level: 1 })
     ).toBeVisible()
-    await expect(page.getByRole('alert').locator('span')).toHaveText('Could not log in')
+    await expect(page.getByRole('alert').locator('span')).toHaveText(
+      'Could not log in'
+    )
     await expect(page.getByRole('heading', { name: 'Review' })).toHaveCount(0)
   } finally {
     await app.close()
@@ -247,9 +249,12 @@ test('a corrected saved password retries without restarting the app', async () =
       .getByLabel('Choose Material Sales export')
       .setInputFiles(exportPath)
     await page.getByRole('button', { name: 'Match tires' }).click()
-    await expect(page.getByRole('alert').locator('span')).toHaveText('Could not log in', {
-      timeout: 5000
-    })
+    await expect(page.getByRole('alert').locator('span')).toHaveText(
+      'Could not log in',
+      {
+        timeout: 5000
+      }
+    )
     await page.evaluate(() =>
       window.api.saveCredentials({
         email: 'shop@example.com',

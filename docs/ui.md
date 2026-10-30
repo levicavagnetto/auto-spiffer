@@ -19,32 +19,36 @@ summary to build from.
 
 ## Colors
 
-A blue variant of the Ubuntu/Canonical palette. Define every color as a CSS variable in the shadcn theme
-file, never as a literal in a component.
+A higher-contrast blue palette. Define app colors as CSS variables in the shared theme file, never as a
+literal in a component. The workspace, sidebar, header, cards, and table headers have distinct surfaces.
+The embedded ProRewards website retains its own colors.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| background | `#FFFFFF` | `#01102E` (dark navy) | main area |
-| sidebar | `#F5F6F7` (slate 10%) | `#0A1938` | sidebar |
-| card | `#FFFFFF` | `#0D1E42` | cards, the side sheet |
-| muted (subtle fills, tab track, selected nav) | `#ECEEF0` (slate 20%) | `#16294F` | |
-| border | `#D9DDE1` (slate 40%) | `#243661` (mid indigo) | |
-| foreground | `#10151C` (text grey) | `#F5F6F7` | |
-| muted-foreground | `#5C6575` | `#9FA9B3` (cool slate) | secondary text |
-| primary (filled buttons, progress bar) | `#244A7C` (Canonical blue), text `#FFFFFF` | `#4DA2ED` (azure 80%), text `#01102E` | |
-| accent / brand / focus ring | `#208BE9` (azure) | `#4DA2ED` | logo, links, the outline on what the app is doing |
-| info (the line being entered now) | bg `#E9F3FD`, text `#1A62A8` | bg `#12305E`, text `#A6D1F6` | |
-| success (Ready, Signed in, added) | bg `#E6F4EA`, text `#1D6B38` | bg `#0D3122`, text `#7FD39F` | |
-| warning (Needs a decision) | bg `#FDF3E1`, text `#8A4F00`, border `#EFC16A` | bg `#382909`, text `#F3C46A`, border `#8A5A00` | |
-| destructive (Stop, failed, sign out) | bg `#FCEBEA`, text `#B3261E` | bg `#3B1416`, text `#F4A19A` | |
+| background | `#EEF3F9` | `#0B1428` | workspace |
+| sidebar | `#E3EBF5` | `#101D38` | navigation |
+| header | `#FFFFFF` | `#101B34` | screen header |
+| card | `#FFFFFF` | `#14223E` | cards, table, side sheet |
+| muted | `#DCE7F4` | `#172746` | subtle fills and tab track |
+| table-header | `#DCE7F4` | `#24385C` | Review table header |
+| table-alternate | `#F5F8FC` | `#182945` | alternating Review rows |
+| nav-active | `#C8DDF8` | `#294778` | selected navigation item |
+| nav-active-foreground | `#173C70` | `#FFFFFF` | selected navigation text |
+| wheel / wheel-foreground | `#E7E8FA` / `#4D5594` | `#30385D` / `#C4D0FF` | possible-wheel status |
+| border | `#C5D4E6` | `#3A5383` | dividers and outlines |
+| foreground | `#182842` | `#F5F8FF` | main text |
+| muted-foreground | `#516784` | `#AAB9D7` | secondary text |
+| primary / primary-foreground | `#245B9A` / `#FFFFFF` | `#67B6FF` / `#08172E` | filled buttons and progress bar |
+| accent | `#1D609E` | `#79BDFF` | links and focus outline |
+| info / info-foreground | `#E0ECFA` / `#245B9A` | `#17365D` / `#B9DCFF` | active information |
+| success / success-foreground | `#DCF2E8` / `#176548` | `#143D35` / `#8AE0B4` | success states |
+| warning / warning-foreground | `#FFF0CF` / `#794400` | `#4A350E` / `#FFD17B` | attention states |
+| destructive / destructive-foreground | `#FCE8E6` / `#A32921` | `#4A2026` / `#FFC1BB` | error states |
 | scrim behind the side sheet | `rgba(1,16,46,.4)` | `rgba(0,0,0,.55)` | |
 
-The palette has no green, amber or red, so the status colors above sit outside it on purpose. Azure is only
-3.4:1 against white text, so it is never a filled button with white text.
-
-Palette reference: azure `#208BE9` (tints `#4DA2ED #79B9F2 #A6D1F6 #D2E8FB #E9F3FD`), Canonical blue
-`#244A7C`, light indigo `#2B4C9B`, mid indigo `#243661`, dark navy `#01102E`, cool slate `#9FA9B3` (tints
-`#B2BAC2 #C5CBD1 #D9DDE1 #ECEEF0 #F5F6F7`), cool grey `#333A44`, text grey `#10151C`.
+Success, warning, and error colors remain distinct from the blue brand palette. The logo itself retains its
+existing artwork colors. The two Review mockups in `private-data/mockups/` are visual references only; their
+sample content and layout are not part of the app theme.
 
 ## Logo
 

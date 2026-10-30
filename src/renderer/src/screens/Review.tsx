@@ -187,7 +187,7 @@ export function Review({
       )}
       <div className="overflow-auto rounded-xl border border-border bg-card">
         <table className="w-full min-w-[900px] text-left text-sm">
-          <thead className="bg-muted text-xs text-muted-foreground">
+          <thead className="bg-table-header text-xs text-muted-foreground">
             <tr>
               <th className="p-3">Status</th>
               <th className="p-3">Date</th>
@@ -203,10 +203,12 @@ export function Review({
             {visible.map((line) => (
               <tr
                 key={line.id}
-                className={`border-t border-border ${line.status === 'needs-decision' && !line.leftOut ? 'bg-warning/30' : ''}`}
+                className={`border-t border-border even:bg-table-alternate ${line.status === 'needs-decision' && !line.leftOut ? 'bg-warning/30' : ''}`}
               >
                 <td className="p-3">
-                  <span className="whitespace-nowrap rounded-full bg-muted px-2 py-1 text-xs">
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2 py-1 text-xs ${run?.summary?.failed.some((item) => item.lineId === line.id) ? 'bg-destructive text-destructive-foreground' : line.status === 'needs-decision' && !line.leftOut ? 'bg-warning text-warning-foreground' : line.status === 'possible-wheel' && !line.leftOut ? 'bg-wheel text-wheel-foreground' : line.status === 'ready' && !line.leftOut ? 'bg-success text-success-foreground' : 'bg-muted text-foreground'}`}
+                  >
                     {run?.summary?.added.includes(line.id)
                       ? 'Entered'
                       : run?.summary?.alreadyThere.includes(line.id)

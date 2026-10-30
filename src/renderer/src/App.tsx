@@ -253,7 +253,7 @@ export default function App(): React.JSX.Element {
         onRestartToUpdate={restartToUpdate}
       />
       <main className="min-w-0 flex-1">
-        <header className="sticky top-0 z-10 flex h-[60px] items-center justify-between gap-4 border-b border-border bg-background px-8">
+        <header className="sticky top-0 z-10 flex h-[60px] items-center justify-between gap-4 border-b border-border bg-header px-8">
           <div>
             {steps[current] && (
               <div className="text-[11px] font-semibold uppercase text-muted-foreground">

@@ -118,7 +118,7 @@ export function Sidebar({
                   disabled={disabled}
                   aria-current={current === item.screen ? 'page' : undefined}
                   onClick={() => onNavigate(item.screen)}
-                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50 aria-[current=page]:bg-muted"
+                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50 aria-[current=page]:bg-nav-active aria-[current=page]:text-nav-active-foreground"
                 >
                   <Icon className="size-4" aria-hidden="true" />
                   {item.label}

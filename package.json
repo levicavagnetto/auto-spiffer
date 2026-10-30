@@ -1,6 +1,6 @@
 {
   "name": "auto-spiffer",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "description": "Enter monthly ProRewards sales claims for a tire shop",
   "main": "./out/main/index.js",

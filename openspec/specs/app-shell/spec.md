@@ -24,9 +24,7 @@ until the step before them is done.
 - **THEN** a tooltip says to load the month's sales first
 
 ### Requirement: Themes
-The app SHALL offer Light, Dark and "Same as Windows" themes, default "Same as Windows", built only from the
-color tokens in `docs/ui.md`. The choice SHALL be remembered. Text SHALL meet a 4.5:1 contrast ratio in both
-themes.
+The app SHALL offer Light, Dark and "Same as Windows" themes, default "Same as Windows", using the revised color tokens in `docs/ui.md`. Both themes SHALL give the sidebar, workspace, headers, cards, tables, controls, and status messages clearly distinguishable colors consistent with the approved Review mockups. The choice SHALL be remembered. Text SHALL meet a 4.5:1 contrast ratio in both themes. Theme changes SHALL NOT alter component layout, geometry, typography, copy, or behavior.
 
 #### Scenario: Follows Windows
 - **WHEN** the theme is "Same as Windows" and Windows switches to dark mode
@@ -35,6 +33,14 @@ themes.
 #### Scenario: Chosen theme kept
 - **WHEN** the person picks Dark and restarts the app
 - **THEN** the app opens in the dark theme
+
+#### Scenario: Colors are consistent across screens
+- **WHEN** the person navigates among Sales, Review, Enter claims, ProRewards, Saved matches, and Settings in either theme
+- **THEN** existing app surfaces and controls use the corresponding revised palette, with readable text and visible state differences
+
+#### Scenario: Existing interface structure is preserved
+- **WHEN** the revised palette is applied
+- **THEN** each screen keeps its existing elements, positions, sizes, spacing, shapes, typography, copy, and interactions
 
 ### Requirement: Screens cannot reach the system
 The screens SHALL run sandboxed, with context isolation and no Node access, and load only the app's own
@@ -71,3 +77,11 @@ Only one copy of the app SHALL run at a time.
 #### Scenario: Started twice
 - **WHEN** the person starts the app while it is already open
 - **THEN** no second window opens, and the open window comes to the front
+
+### Requirement: Main window has no application menu
+The Auto Spiffer main window SHALL open without the Electron application menu. The native title bar and window controls SHALL remain available.
+
+#### Scenario: Launch on Windows
+- **WHEN** the person opens Auto Spiffer
+- **THEN** no File, Edit, View, or Window menu bar appears above the app content
+- **AND** the native window controls remain available

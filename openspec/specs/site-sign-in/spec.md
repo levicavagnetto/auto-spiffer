@@ -30,40 +30,46 @@ site's cookies, and load the login page.
 - **THEN** the app does not save it and says the password cannot be stored safely on this computer
 
 ### Requirement: Sign in once
-When the tab shows the site's login page and a password is saved, the app SHALL fill the email and password and
-click Log in, once. If the login page is still showing after 20 seconds, it SHALL stop and say: "The website did
-not finish signing in (wrong password, a code, or a CAPTCHA?). Finish signing in in the ProRewards tab." It SHALL
-not try again until the person asks.
+When the site's login page appears and a password is saved, the app SHALL fill the email and password and click Log in once. If the site shows a login error, the app SHALL stop promptly. If the login page is still showing after 10 seconds without a specific error, it SHALL stop and report the failure. It SHALL not retry the same saved credentials automatically. Saving a replacement password SHALL allow a new attempt in the open app. During Match tires, the app SHALL keep Sales visible and show a temporary error toast with exactly "Could not log in" if sign-in cannot complete. The person MAY open ProRewards to finish signing in.
 
 #### Scenario: Cookies still valid
 - **WHEN** the app starts and the site's login is still valid
 - **THEN** the saved password is not used
 
 #### Scenario: Wrong password
-- **WHEN** the saved password is wrong
-- **THEN** the app tries once, stops with the message above, and the ProRewards screen opens so the person can finish
+- **WHEN** the saved password is wrong during Match tires
+- **THEN** the app tries once, stops, and shows a "Could not log in" toast on Sales
 
 #### Scenario: No saved password
-- **WHEN** the site shows its login page and no password is saved
-- **THEN** the app shows the ProRewards screen and asks the person to sign in there
+- **WHEN** Match tires reaches the login page and no password is saved
+- **THEN** the app keeps Sales visible and shows a "Could not log in" toast
+
+#### Scenario: Corrected password in the open app
+- **WHEN** the previous password failed and the person saves a corrected password in Settings
+- **THEN** the app makes a fresh sign-in attempt without restarting
 
 ### Requirement: Open the month's claim page
-When the person clicks Match tires and the claim page is not open, the app SHALL go to Submit Sale, choose the one
-program whose name contains the month's name and year, click that step's Next, and wait up to 15 seconds for the
-claim page. It SHALL never click a button on the claim page itself. Otherwise it SHALL ask the person to finish in
-the tab, and continue by itself once the claim page is showing.
+Before Match tires or any claim-page-dependent check, entry, or upload, the app SHALL locate the month's claim page. If the tab is elsewhere or shows another month's claim, it SHALL go to Submit Sale, choose the one program whose name contains the month's name and year, click only that program-choice step's Next, and wait up to 15 seconds for the claim page. It SHALL never click Next on the claim page. If safe navigation cannot finish, it SHALL ask the person to finish in the tab and perform no claim action until the correct page is confirmed.
 
 #### Scenario: Program found
 - **WHEN** the month is September 2026 and Submit Sale lists "September 2026 Pro Rewards" once
-- **THEN** the app picks it, clicks Next, and continues to matching when the claim page appears
+- **THEN** the app picks it, clicks Next on the program-choice step, and continues the requested action when the claim page appears
 
 #### Scenario: Program not listed
 - **WHEN** no program contains "September 2026"
-- **THEN** the app says "This month's program is not in the list on the website. Pick the program in the ProRewards tab." and waits
+- **THEN** the app says "This month's program is not in the list on the website. Pick the program in the ProRewards tab." and performs no claim action
 
 #### Scenario: Person finishes by hand
-- **WHEN** the person picks the program and opens the claim page themselves
-- **THEN** the app notices within 2 seconds and continues
+- **WHEN** the person picks the program and opens the claim page themselves after a navigation handoff
+- **THEN** the app notices within 2 seconds and continues only after confirming the correct program
+
+#### Scenario: Different month's claim page
+- **WHEN** October sales are ready but the tab shows September's claim page
+- **THEN** the app opens the October program through Submit Sale before checking or entering October sales
+
+#### Scenario: Sign-in required
+- **WHEN** the site redirects to the login page during navigation
+- **THEN** the app follows the existing one-attempt saved-password rule and asks the person to finish signing in if it cannot
 
 ### Requirement: Sign-in state shown
 The sidebar SHALL show whether the tab is signed in. The Sales screen's ProRewards card SHALL show the sign-in

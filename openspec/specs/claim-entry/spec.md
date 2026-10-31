@@ -6,18 +6,23 @@ Enters the month's ready lines on the claim page, uploads their invoice PDFs, an
 ## Requirements
 
 ### Requirement: Check the page before typing
-Before entering anything, the app SHALL confirm that the tab shows the claim page, that its promotion is the
-month's program, that every line's sale date is inside the page's program dates, and that every line's tire is
-in the page's product list. If any check fails, the app SHALL enter nothing and say plainly what is wrong and
-what to do.
+Before entering anything, the app SHALL open the month's claim page if needed, then confirm that its promotion is the month's program, every line's sale date is inside the program dates, and every line's tire is in the product list. If navigation or any check fails, it SHALL enter nothing and say plainly what is wrong and what to do. A page check requested after a run SHALL use the same recovery and validation.
 
 #### Scenario: Wrong program
 - **WHEN** the lines are for September 2026 and the page's promotion is October 2026 Pro Rewards
-- **THEN** nothing is entered and the app says the page is for October 2026 and to open the September program
+- **THEN** the app tries to open the September program, then checks that page before entering; if it cannot, nothing is entered and the app explains what needs attention
 
 #### Scenario: Page check passes
-- **WHEN** the program, dates and tires all match
+- **WHEN** the program, dates and tires all match after any needed navigation
 - **THEN** the screen shows "Page check passed" with the program and date range, and the run starts
+
+#### Scenario: Start after visiting Home
+- **WHEN** the person matched tires, visited ProRewards Home, then clicks Start entering
+- **THEN** the app returns to that month's claim page, checks it, and begins only when the check passes
+
+#### Scenario: Check page and run again after visiting another page
+- **WHEN** a run has finished, the person visits another ProRewards page, then clicks Check page and run again
+- **THEN** the app returns to the month's claim page, rechecks it, and skips any already-entered lines visible in its sale list
 
 ### Requirement: Enter each line once
 The app SHALL enter the ready, included lines one at a time, grouped by invoice in date order. Before each line it
@@ -75,44 +80,46 @@ invoice whose lines were partly added in this run. The person SHALL be able to r
 - **THEN** that line finishes, its invoice's PDF is uploaded if a line of it was added, and the run ends as stopped
 
 ### Requirement: Never submit
-The run SHALL never click Next, Back, Submit, Save Claim or Yes, and SHALL leave the claim page scrolled to the
-top and the tab shown when it ends.
+The run SHALL never click Next, Back, Submit, Save Claim or Yes on the claim page. Navigation MAY click the program-choice page's Next control only after selecting the unique program for the intended month. The run SHALL answer No to the site's duplicate warning and SHALL leave the claim page scrolled to the top and the tab shown when it ends.
 
 #### Scenario: End of a run
 - **WHEN** the run ends, finished or stopped
 - **THEN** the tab shows the claim page from the top, and the screen says to check the page and click Next and Submit on the website
 
 ### Requirement: Enter claims screen
-The Enter claims screen SHALL show the ProRewards tab beside a panel that, as in `docs/ui.md`, shows the plan
-and Start entering before a run, and during a run the progress ("N of M sales"), the line being entered, Pause or
-Resume, Stop, the page check result, an activity list newest first, and the note that the app never submits.
+The Enter claims screen SHALL show the ProRewards tab beside a panel with a consistent layout before, during, and after a run. The panel SHALL show progress, the current sale or result, the appropriate controls, the page-check result, expandable Activity and PDFs needing upload sections, and the note that the app never submits. Routine missing-PDF notices SHALL be grouped under a count rather than repeated in Activity. The PDF section SHALL show each affected invoice once and allow individual invoice-number copying. The progress indicator SHALL use the app theme and expose an accessible name and accurate completed and total values.
 
 #### Scenario: During a run
-- **WHEN** 10 of 21 lines are done
-- **THEN** the panel shows "11 of 21 sales", the line being entered, and the last lines' results
+- **WHEN** 10 of 21 lines are done and the next line is being entered
+- **THEN** the panel shows "11 of 21 sales", the current line, Pause and Stop, an Activity section, and a grouped PDF count
+
+#### Scenario: Two of four sales complete
+- **WHEN** two of four sales have been entered or confirmed on the page
+- **THEN** the screen shows `2 of 4 sales`
+- **AND** the progress indicator reports value 2 out of 4
+- **AND** its track and fill use the current theme's muted and primary colors
+
+#### Scenario: Missing PDFs during a run
+- **WHEN** several processed sales have no PDF
+- **THEN** Activity does not show one routine missing-PDF notice per sale, and expanding PDFs needing upload shows their individually copyable invoice numbers
 
 ### Requirement: Run summary
-After a run, the screen SHALL show a summary: added, already on the page, failed with reasons and pictures, PDFs
-uploaded, uploads failed, and sales whose PDFs must be uploaded by hand. Review SHALL show each line's run result.
+After a run, the panel SHALL retain the same layout and show added, already on the page, failed with reasons and pictures, PDFs uploaded, uploads failed, and sales whose PDFs must be uploaded by hand. The finished PDF section SHALL be expanded by default. Review SHALL show each line's run result.
 
 #### Scenario: Summary
 - **WHEN** a run ends with 19 added, 1 already on the page and 1 failed
-- **THEN** the summary shows those counts, the failed line's reason and picture, and the PDFs to upload by hand
+- **THEN** the result card shows the counts and Activity shows the failed line's reason and picture, while PDFs needing upload shows the affected invoices
 
 #### Scenario: Many invoices have no PDF
 - **WHEN** a completed run has more missing-PDF invoices than fit in the left pane at the minimum window size
-- **THEN** the summary shows their count and every invoice in a scrollable detail area, while the result counts,
-  rerun button and submission reminder stay visible inside the pane and the ProRewards tab remains usable
+- **THEN** the PDF list scrolls inside the panel, while the result counts, rerun button, submission reminder, and ProRewards tab remain usable
 
 #### Scenario: Long Review page
 - **WHEN** the person scrolls down a long Review list
-- **THEN** the sidebar stays visible and its navigation remains usable; choosing another screen shows that screen
-  from the top, including at the minimum window size
+- **THEN** the sidebar stays visible and its navigation remains usable; choosing another screen shows that screen from the top, including at the minimum window size
 
 ### Requirement: One run at a time, with guards
-The app SHALL refuse to start a run while one is going, while the tab is not on the claim page, or with no ready
-lines. Closing the app during a run SHALL ask first; if confirmed, the current line finishes and the run stops.
-The window SHALL stay usable during a run.
+The app SHALL refuse to start a run while one is going or with no ready lines. When the tab is not on the month's claim page, it SHALL attempt safe navigation before starting and SHALL enter nothing unless the page check passes. Closing the app during a run SHALL ask first; if confirmed, the current line finishes and the run stops. The window SHALL stay usable during a run.
 
 #### Scenario: Nothing to enter
 - **WHEN** no line is ready
@@ -121,3 +128,41 @@ The window SHALL stay usable during a run.
 #### Scenario: Close during a run
 - **WHEN** the person closes the window during a run
 - **THEN** the app asks "A claim is being entered. Stop after this line and close?" and only closes after the line finishes
+
+#### Scenario: Cannot reach the claim page
+- **WHEN** the app cannot safely open and verify the month's claim page
+- **THEN** the run does not start, no line or PDF is sent, and the screen says what the person must do in the ProRewards tab
+
+### Requirement: Missing PDFs remain visible after rerun
+
+The finished Enter claims panel SHALL show invoices for ready sales without linked PDFs, even when a rerun finds those sales already on the claim page.
+
+#### Scenario: Rerun skips an entered sale
+
+- **GIVEN** a ready sale has no linked PDF
+- **WHEN** Check page and run again finds that sale already on the claim page
+- **THEN** its invoice remains in PDFs needing upload
+
+#### Scenario: One invoice appears in multiple sources
+
+- **WHEN** an invoice has no linked PDF and also appears in the run's missing-PDF result
+- **THEN** the panel lists that invoice once
+
+### Requirement: Recover the claim page during a run
+Before each line or PDF action, the app SHALL confirm that it is on the verified month's claim page. If the tab moved, it SHALL navigate back and repeat the relevant page and duplicate checks before acting. It SHALL not continue automatically when the recovered page cannot be verified as the same claim being entered.
+
+#### Scenario: Person leaves the page between lines
+- **WHEN** the person navigates to Home after one sale and before the next sale
+- **THEN** the app returns to the month's claim page, confirms the earlier sale is still visible, and checks the next sale against the live list before entering it
+
+#### Scenario: Page changed before PDF upload
+- **WHEN** the site is no longer on the claim page after an invoice's sale was added but before its PDF upload
+- **THEN** the app returns to the month's claim page and confirms that sale is still visible before uploading the PDF once
+
+#### Scenario: Recovered page does not show this run's sale
+- **WHEN** the app reopens the month's claim page but a sale it added earlier in this run is missing from the page's sale list
+- **THEN** it stops automatic entry, reports that the claim page needs review, and does not add another line or upload a PDF
+
+#### Scenario: Login or site navigation cannot finish
+- **WHEN** sign-in or program navigation does not reach a verifiable claim page
+- **THEN** the app stops automatic entry and asks the person to finish on the ProRewards tab without guessing, submitting, or retrying the password indefinitely

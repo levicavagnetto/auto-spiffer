@@ -42,12 +42,15 @@ the next check, without bothering the person.
 - **THEN** the app only checks when they click Check now
 
 ### Requirement: Settings for updates and logs
-Settings SHALL show the version and update status, **Check now**, the automatic updates switch, and **Open
-folder** for the logs.
+Settings SHALL show the version and update status, **Check now**, the automatic updates switch, and **Open folder** for the logs. When Check now fails, Settings SHALL show a temporary plain-language error toast without Electron's IPC error wrapper.
 
 #### Scenario: Check now
 - **WHEN** the person clicks Check now and no newer version exists
 - **THEN** Settings says "Auto Spiffer 1.0.0 · up to date, checked just now"
+
+#### Scenario: Check now in a development build
+- **WHEN** the person clicks Check now without installing Auto Spiffer
+- **THEN** a temporary toast says exactly "Install Auto Spiffer to check for updates"
 
 ### Requirement: Release from a tag
 Pushing a tag `vX.Y.Z` SHALL build and publish a GitHub Release with the installer and the update feed, after the
@@ -68,3 +71,10 @@ their old saved choices do not carry over.
 #### Scenario: 0.x user sees the update
 - **WHEN** a 0.4.0 user clicks Update after 1.0.0 is released
 - **THEN** the old app opens the 1.0.0 release page, and the README there explains the switch
+
+### Requirement: Development builds do not check updates
+An unpackaged development build SHALL NOT contact the update feed at startup, on a schedule, or when the person turns on Install updates automatically. The preference SHALL still be saved and displayed. Check now SHALL continue to explain that Auto Spiffer must be installed to check for updates.
+
+#### Scenario: Turn on automatic updates in development
+- **WHEN** the person turns off and then turns on Install updates automatically in a development build
+- **THEN** the setting is saved and the update state remains idle without checking the feed

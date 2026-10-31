@@ -1,11 +1,17 @@
 ## MODIFIED Requirements
 
 ### Requirement: Enter claims screen
-The Enter claims screen SHALL show the ProRewards tab beside a panel with a consistent layout before, during, and after a run. The panel SHALL show progress, the current sale or result, the appropriate controls, the page-check result, expandable Activity and PDFs needing upload sections, and the note that the app never submits. Routine missing-PDF notices SHALL be grouped under a count rather than repeated in Activity. The PDF section SHALL show each affected invoice once and allow individual invoice-number copying.
+The Enter claims screen SHALL show the ProRewards tab beside a panel with a consistent layout before, during, and after a run. The panel SHALL show progress, the current sale or result, the appropriate controls, the page-check result, expandable Activity and PDFs needing upload sections, and the note that the app never submits. Routine missing-PDF notices SHALL be grouped under a count rather than repeated in Activity. The PDF section SHALL show each affected invoice once and allow individual invoice-number copying. The progress indicator SHALL use the app theme and expose an accessible name and accurate completed and total values.
 
 #### Scenario: During a run
 - **WHEN** 10 of 21 lines are done and the next line is being entered
 - **THEN** the panel shows "11 of 21 sales", the current line, Pause and Stop, an Activity section, and a grouped PDF count
+
+#### Scenario: Two of four sales complete
+- **WHEN** two of four sales have been entered or confirmed on the page
+- **THEN** the screen shows `2 of 4 sales`
+- **AND** the progress indicator reports value 2 out of 4
+- **AND** its track and fill use the current theme's muted and primary colors
 
 #### Scenario: Missing PDFs during a run
 - **WHEN** several processed sales have no PDF

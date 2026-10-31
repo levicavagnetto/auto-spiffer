@@ -29,8 +29,7 @@ decimals), description (whitespace squeezed) and quantity (a whole number). Empt
 - **THEN** the app says it could not read the file as an Excel workbook
 
 ### Requirement: Rows that are not tires
-A sale whose description contains "shipping" or "handling", or the word "tube", or no tire size (as defined in
-`docs/matching.md`) SHALL be marked "Not a tire", kept for display, and never matched or entered.
+A sale whose description contains "shipping" or "handling", or the word "tube", SHALL be marked "Not a tire". A sale with no tire size (as defined in `docs/matching.md`) SHALL be marked "Not a tire" unless it is recognized as a possible wheel. Possible wheels SHALL be kept for display in Review, separate from other non-tire rows. Neither category SHALL be matched to a tire or entered automatically.
 
 #### Scenario: Shipping row
 - **WHEN** a row's description is "Shipping and Handling"
@@ -39,6 +38,22 @@ A sale whose description contains "shipping" or "handling", or the word "tube", 
 #### Scenario: Tube
 - **WHEN** a row's description is "18X8.50/9.50-8 FST IMPORT TR13 TUBE 18X850/950-8"
 - **THEN** it is marked Not a tire
+
+#### Scenario: Wheel dimensions and bolt pattern
+- **WHEN** a row describes "XW OFFROAD XW-123 20X9 8X165.1 +12 BLACK"
+- **THEN** it is marked Possible wheel, not a tire sale
+
+#### Scenario: Wheel dimensions without the word wheel
+- **WHEN** a row describes "STYLE A 20X10 -12 5X5.00 BLACK"
+- **THEN** it is marked Possible wheel, not a tire sale
+
+#### Scenario: Unclear non-tire row
+- **WHEN** a row has no tire size and no reliable wheel wording or wheel dimensions with a bolt pattern
+- **THEN** it remains Not a tire
+
+#### Scenario: Tire row with incidental wheel wording
+- **WHEN** a sale has a recognized tire size and only incidental wheel-related wording
+- **THEN** it remains a tire sale unless its description clearly identifies a wheel product
 
 ### Requirement: The month
 The month SHALL be the calendar month of the sale dates. When the sales span more than one month, the app SHALL
@@ -74,13 +89,11 @@ to 7 digit number in the file name. File names SHALL otherwise not matter. Readi
 - **THEN** it is listed as unreadable with its name, and the others are still read
 
 ### Requirement: Link sales to PDFs
-Each sale SHALL be linked to the PDF for its invoice number. The Sales screen SHALL report how many PDFs were
-loaded and linked, list the tire sales that have no PDF (they are still entered later), list PDFs whose invoice
-is not in the month's sales (they are ignored), and list invoices with more than one PDF (the first is used).
+Each sale SHALL be linked to the PDF for its invoice number. The Sales screen SHALL report how many PDFs were loaded and linked, show a compact count of tire sales that have no PDF (they are still entered later), list PDFs whose invoice is not in the month's sales (they are ignored), and list invoices with more than one PDF (the first is used). The missing-invoice count SHALL be expandable into a bounded list of invoice numbers. Each number SHALL be individually copyable. The screen SHALL tell the person whether copying succeeded or failed.
 
 #### Scenario: Sales without a PDF
 - **WHEN** two tire sales have no matching PDF
-- **THEN** the Sales screen lists their invoice numbers and says they will still be entered and their PDFs must be uploaded on the website
+- **THEN** the Sales screen shows that two invoices need PDFs, with their numbers available in the expandable list, and says the sales will still be entered
 
 #### Scenario: Extra PDF
 - **WHEN** a PDF's invoice is not in the month's sales
@@ -88,7 +101,20 @@ is not in the month's sales (they are ignored), and list invoices with more than
 
 #### Scenario: No PDFs at all
 - **WHEN** the person loads no PDFs
-- **THEN** the app continues, and says the PDFs must be uploaded on the website
+- **THEN** the app continues, and says the PDFs can be added here or uploaded on ProRewards
+
+#### Scenario: Missing invoice PDFs
+- **WHEN** some tire sales have no linked PDF
+- **THEN** the Sales screen shows the missing count and says those sales will still be entered and their PDFs can be added here or uploaded on ProRewards
+- **AND** the invoice numbers are initially hidden
+
+#### Scenario: Copy one invoice number
+- **WHEN** the person expands the missing-invoice list and clicks an invoice number
+- **THEN** only that number is copied to the clipboard and the screen confirms it
+
+#### Scenario: PDF added for a missing invoice
+- **WHEN** a PDF is linked to an invoice previously in the missing list
+- **THEN** that invoice disappears from the list and the count updates
 
 ### Requirement: Sales screen
 The Sales screen SHALL show the export (file name, date range, rows, tire lines, rows left out and why) and the

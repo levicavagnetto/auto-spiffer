@@ -2,8 +2,8 @@
 
 ## 1. Measure the reference
 
-- [ ] 1.1 Dump the reference PDF's text runs, lines, boxes and images with positions (design D1); verify the output stays in `private-data/real-invoices/analysis/`
-- [ ] 1.2 Identify its fonts and images and where the logo comes from (design D3); record the answer in this design
+- [x] 1.1 Dump the reference PDF's text runs, lines, boxes and images with positions (design D1); verify the output stays in `private-data/real-invoices/analysis/`
+- [x] 1.2 Identify its fonts and images and where the logo comes from (design D3); record the answer in this design
 - [ ] 1.3 Map every printed value on the reference to an `InvoiceData` field or fixed template text; list anything with no source and resolve it with the user before task 2
 
 ## 2. Template and renderer

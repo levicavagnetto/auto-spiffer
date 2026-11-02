@@ -2,7 +2,7 @@
 
 ## 1. Prove one invoice (Phase 0, scripts in private-data only)
 
-- [ ] 1.1 Unpack the capture locally and decode the gzip bodies of sessions 50 to 55; verify the decoded files stay under `private-data/protractor-data/`
+- [x] 1.1 Unpack the capture locally and decode the gzip bodies of sessions 50 to 55; verify the decoded files stay under `private-data/protractor-data/`
 - [ ] 1.2 Decode `XmlRequestCompressed` and identify sign-in fields, lookup by invoice number, number to internal ID, detail read, sign-out, and the lock or save operations to block; write `docs/protractor-reference.md` with shapes only (no values, credentials, tenant or customer data)
 - [ ] 1.3 Check whether Protractor API 2.0 is available to the shop and returns the same data; record the answer in the reference doc
 - [ ] 1.4 If the capture is not enough, ask the user for a narrow new capture (sign in, find one invoice by number, open it, nothing else)

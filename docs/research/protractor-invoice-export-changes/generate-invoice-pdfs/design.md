@@ -77,7 +77,20 @@ clashes between exports. Change 13 deletes these files.
 
 None.
 
+## Findings (tasks 1.1 to 1.3)
+
+- Fonts: ArialMT, Arial-BoldMT, Arial-BoldItalicMT and SegoeUI-Semibold, all Windows system fonts (D3 `local()`).
+- Images: a header banner (logo, shop name and address, ASE and SEMA badges), a road-side-assistance QR code,
+  and the signature. Banner and QR are not in any Protractor reply. Decision with the user: the person picks one
+  exported invoice PDF in Settings once, and the app copies the banner, QR code and the shop's fixed text
+  (disclaimers, lug-retorque footer) from it into app data.
+- Invoice 214939 (same invoice as capture session 55): every customer, vehicle, line, price, total, tax and payment
+  value is in the `WorkOrderReadByID` reply. Labels are fixed template text. The footer time is when the PDF is made.
+- Service advisor and technician print as names ("ZachN"), but the reply has only their IDs; the employee list is
+  not in the capture.
+
 ## Open Questions
 
-- Which fonts and images does the reference use, and does Protractor's data include the logo? (task 1.2)
+- Which request returns employee names for ServiceAdvisorID and TechnicianID?
+- Where does the tax code letter "(S)" come from?
 - What picture tolerance is close enough? (task 2.4, with the user)

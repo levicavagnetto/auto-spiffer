@@ -1,6 +1,11 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { FileSpreadsheet, FolderOpen, UploadCloud } from 'lucide-react'
+import {
+  FileSpreadsheet,
+  FolderOpen,
+  LoaderCircle,
+  UploadCloud
+} from 'lucide-react'
 import { Alert, AlertTitle } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
 import { Card, CardDescription, CardTitle } from '../components/ui/card'
@@ -41,6 +46,7 @@ export function Sales({
   const exportInput = useRef<HTMLInputElement>(null)
   const pdfInput = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
+  const [matching, setMatching] = useState(false)
   const [error, setError] = useState('')
 
   const loadExport = async (path: string): Promise<void> => {
@@ -106,6 +112,7 @@ export function Sales({
 
   const match = async (): Promise<void> => {
     setBusy(true)
+    setMatching(true)
     setError('')
     try {
       await onMatch()
@@ -119,6 +126,7 @@ export function Sales({
       )
     } finally {
       setBusy(false)
+      setMatching(false)
     }
   }
 
@@ -147,9 +155,23 @@ export function Sales({
     <div className="space-y-5">
       {headerActions &&
         createPortal(
-          <Button disabled={!snapshot || busy} onClick={() => void match()}>
-            Match tires
-          </Button>,
+          <>
+            {matching && (
+              <span role="status" className="sr-only">
+                Signing in and matching tires. This can take a minute.
+              </span>
+            )}
+            <Button
+              disabled={!snapshot || busy}
+              aria-busy={matching}
+              onClick={() => void match()}
+            >
+              {matching && (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              )}
+              {matching ? 'Matching tires…' : 'Match tires'}
+            </Button>
+          </>,
           headerActions
         )}
       <input

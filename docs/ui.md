@@ -84,7 +84,7 @@ One content column; the cards use the available page width.
   ("41 PDFs loaded, 40 linked to a sale"); a warning box listing sales with no PDF ("They are still entered.
   Upload those PDFs on the website yourself."); a quiet note for PDFs whose invoice is not in the month's sales.
 - Header action: primary **Match tires** at the far right, disabled before an export is loaded.
-- Match tires loads and signs in to ProRewards in the background while Sales remains visible. On success it opens Review. If sign-in or matching cannot finish, a temporary error toast appears on Sales with the next step; sign-in failure begins "Could not log in".
+- Match tires loads and signs in to ProRewards in the background while Sales remains visible. While it works, the button shows a spinning circle and reads "Matching tires…", and it stays disabled. On success it opens Review. If sign-in or matching cannot finish, a temporary error toast appears on Sales with the next step; sign-in failure begins "Could not log in".
 - The ProRewards sidebar item remains the way to open the website and see sign-in state.
 - Empty state: one large drop zone for the Excel file, with a Choose file button.
 

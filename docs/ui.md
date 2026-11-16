@@ -8,6 +8,11 @@ summary to build from.
 
 - **shadcn/ui** components (new-york style) on **Tailwind CSS v4**, **lucide** icons, the **Geist** and
   **Geist Mono** fonts (bundled with the app, not loaded from the web).
+- Every control comes from `src/renderer/src/components/ui/` (shadcn, Base UI flavor): Button, Input, Label,
+  Checkbox, RadioGroup, Select, Tabs, Table, Card, Badge, Alert, Sheet (Review tire drawer), Collapsible,
+  Separator, Progress, and Sonner for toasts (one `<Toaster>` in `App.tsx`; `ErrorToast` shows through it).
+  The only raw controls are the two hidden file inputs on Sales, opened by Buttons. Alert variants: default,
+  muted, warning, warning-subtle, destructive, destructive-subtle. Badge adds warning and success.
 - A fixed left **sidebar** (248 px) and one screen at a time on the right, each with a 60 px header
   (step label and title on the left, the main action or a status chip on the right).
 - The native window title bar and controls remain, without Electron's File/Edit/View/Window menu bar.

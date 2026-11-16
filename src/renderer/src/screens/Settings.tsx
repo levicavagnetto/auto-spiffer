@@ -3,6 +3,12 @@ import type { CredentialsState, Theme } from '../../../shared/ipc'
 import type { SavedMatchList } from '../../../shared/review'
 import type { UpdateState } from '../../../shared/updates'
 import { ErrorToast } from '../components/ErrorToast'
+import { Button } from '../components/ui/button'
+import { Card, CardDescription, CardTitle } from '../components/ui/card'
+import { Checkbox } from '../components/ui/checkbox'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group'
 
 const choices: { value: Theme; label: string }[] = [
   { value: 'light', label: 'Light' },
@@ -165,65 +171,63 @@ export function Settings({
 
       <div className="grid max-w-4xl grid-cols-2 items-start gap-5">
         <div className="flex flex-col gap-5">
-          <section className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-base font-semibold">ProRewards sign-in</h2>
+          <Card className="p-6">
+            <CardTitle className="text-base">ProRewards sign-in</CardTitle>
             <div className="mt-4 space-y-3 text-sm">
-              <label className="block">
+              <Label className="flex-col items-stretch gap-1 font-normal">
                 Email
-                <input
+                <Input
                   type="email"
                   value={email}
                   disabled={!ready || credentialBusy}
                   onChange={(event) => setEmailDraft(event.target.value)}
-                  className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
                 />
-              </label>
-              <label className="block">
+              </Label>
+              <Label className="flex-col items-stretch gap-1 font-normal">
                 Password
-                <input
+                <Input
                   type="password"
                   value={password}
                   disabled={!ready || credentialBusy}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder={credentials?.hasPassword ? 'Saved password' : ''}
-                  className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
                 />
-              </label>
+              </Label>
               {credentials?.hasPassword && (
                 <p className="text-success-foreground">
                   Saved, encrypted with your Windows account
                 </p>
               )}
-              <button
+              <Button
                 type="button"
                 disabled={!ready || credentialBusy}
                 onClick={() => void savePassword()}
-                className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
               >
                 {credentials?.hasPassword ? 'Change password' : 'Save password'}
-              </button>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+              </Button>
+              <Label className="font-normal">
+                <Checkbox
                   checked={credentials?.staySignedIn ?? true}
                   disabled={!ready || credentialBusy}
-                  onChange={(event) => void setStay(event.target.checked)}
+                  onCheckedChange={(checked) => void setStay(checked)}
                 />
                 Stay signed in
-              </label>
-              <button
+              </Label>
+              <Button
                 type="button"
+                variant="destructive-link"
+                size="inline"
+                className="block"
                 disabled={!ready || credentialBusy}
                 onClick={() => void forget()}
-                className="text-destructive-foreground hover:underline disabled:opacity-50"
               >
                 Sign out and forget password
-              </button>
+              </Button>
               {credentialMessage && <p role="status">{credentialMessage}</p>}
             </div>
-          </section>
-          <section className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-base font-semibold">Updates</h2>
+          </Card>
+          <Card className="p-6">
+            <CardTitle className="text-base">Updates</CardTitle>
             <p className="mt-3 text-sm" role="status">
               {updateStatus}
             </p>
@@ -233,71 +237,65 @@ export function Settings({
               </p>
             )}
             <div className="mt-4 flex flex-col items-start gap-3 text-sm">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 disabled={!ready || updateBusy}
                 onClick={() => void checkForUpdates()}
-                className="rounded-md border border-border px-4 py-2 hover:bg-muted disabled:opacity-50"
               >
                 Check now
-              </button>
+              </Button>
               {update?.phase === 'ready' && !update.restartQueued && (
-                <button
-                  type="button"
-                  onClick={() => void restartToUpdate()}
-                  className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground"
-                >
+                <Button type="button" onClick={() => void restartToUpdate()}>
                   Restart to update
-                </button>
+                </Button>
               )}
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+              <Label className="font-normal">
+                <Checkbox
                   checked={update?.automatic ?? true}
                   disabled={!ready}
-                  onChange={(event) =>
-                    void setAutomaticUpdates(event.target.checked)
+                  onCheckedChange={(checked) =>
+                    void setAutomaticUpdates(checked)
                   }
                 />
                 Install updates automatically
-              </label>
+              </Label>
               {updateMessage && <p role="alert">{updateMessage}</p>}
             </div>
-          </section>
+          </Card>
         </div>
         <div className="flex flex-col gap-5">
-          <section className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-base font-semibold">Appearance</h2>
-            <div className="mt-4 flex flex-col gap-3">
+          <Card className="p-6">
+            <CardTitle className="text-base">Appearance</CardTitle>
+            <RadioGroup
+              aria-label="Appearance"
+              className="mt-4"
+              value={theme}
+              disabled={!ready}
+              onValueChange={(value) => onThemeChange(value as Theme)}
+            >
               {choices.map((choice) => (
-                <label
+                <Label
                   key={choice.value}
-                  className="flex cursor-pointer items-center gap-3 text-sm"
+                  className="cursor-pointer gap-3 font-normal"
                 >
-                  <input
-                    type="radio"
-                    name="appearance"
-                    value={choice.value}
-                    checked={theme === choice.value}
-                    disabled={!ready}
-                    onChange={() => onThemeChange(choice.value)}
-                    className="accent-primary"
-                  />
+                  <RadioGroupItem value={choice.value} />
                   {choice.label}
-                </label>
+                </Label>
               ))}
-            </div>
-          </section>
-          <section className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-base font-semibold">Logs</h2>
-            <button
+            </RadioGroup>
+          </Card>
+          <Card className="p-6">
+            <CardTitle className="text-base">Logs</CardTitle>
+            <Button
               type="button"
+              variant="outline"
+              className="mt-4"
               onClick={() => void openLogsFolder()}
-              className="mt-4 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
             >
               Open folder
-            </button>
-          </section>
+            </Button>
+          </Card>
         </div>
       </div>
     </>
@@ -318,23 +316,23 @@ function SavedMatchesCard({
       .includes(query.toLowerCase())
   )
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
-      <h2 className="text-base font-semibold">Saved matches</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+    <Card className="p-6">
+      <CardTitle className="text-base">Saved matches</CardTitle>
+      <CardDescription className="mt-1">
         {matches.length} saved match{matches.length === 1 ? '' : 'es'}
-      </p>
+      </CardDescription>
       {matches.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">
           No tire matches saved yet.
         </p>
       ) : (
         <>
-          <input
+          <Input
             aria-label="Search saved matches"
             placeholder="Search saved matches"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="mt-4 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            className="mt-4"
           />
           <ul className="mt-3 max-h-80 overflow-auto">
             {visible.map((item) => (
@@ -357,20 +355,22 @@ function SavedMatchesCard({
                       {item.example} · {item.decidedOn}
                     </p>
                   </div>
-                  <button
+                  <Button
                     type="button"
+                    variant="destructive-link"
+                    size="inline"
                     aria-label={`Remove ${item.signature}`}
-                    className="text-xs text-destructive-foreground hover:underline"
+                    className="text-xs"
                     onClick={() => onRemove(item.signature)}
                   >
                     Remove
-                  </button>
+                  </Button>
                 </div>
               </li>
             ))}
           </ul>
         </>
       )}
-    </section>
+    </Card>
   )
 }

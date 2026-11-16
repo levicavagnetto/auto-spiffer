@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCw } from 'lucide-react'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
 import type { SiteLocation, SiteStatus } from '../../../shared/ipc'
 import { LiveCheck } from './LiveCheck'
 
@@ -47,24 +50,25 @@ export function ProRewards({
   }, [])
 
   return (
-    <section className="flex h-[calc(100vh-124px)] min-h-[500px] flex-col overflow-hidden rounded-xl border border-border bg-card">
+    <Card className="flex h-[calc(100vh-124px)] min-h-[500px] flex-col overflow-hidden">
       <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-4 text-sm">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           aria-label="Reload website"
           title="Reload website"
           onClick={() => void window.api.reloadSite()}
-          className="rounded-md p-1.5 hover:bg-muted focus-visible:outline-2 focus-visible:outline-accent"
         >
           <RotateCw className="size-4" aria-hidden="true" />
-        </button>
+        </Button>
         <span
           title={status.address}
           className="min-w-0 flex-1 truncate text-muted-foreground"
         >
           {status.address}
         </span>
-        <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+        <Badge className="px-2.5">
           {status.state === 'loading'
             ? 'Loading'
             : status.state === 'error'
@@ -72,19 +76,21 @@ export function ProRewards({
               : status.state === 'ready'
                 ? 'Page ready'
                 : 'Opening'}
-        </span>
+        </Badge>
         {siteLocation === 'login' && (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs"
             disabled={retrying}
             onClick={() => {
               setRetrying(true)
               void window.api.retrySignIn().finally(() => setRetrying(false))
             }}
-            className="rounded-md border border-border px-2 py-1 text-xs disabled:opacity-50"
           >
             Try saved sign-in
-          </button>
+          </Button>
         )}
       </div>
       {liveCheckAvailable && <LiveCheck />}
@@ -97,6 +103,6 @@ export function ProRewards({
         aria-label="Website bottom bar"
         className="h-4 shrink-0 border-t border-border bg-card"
       />
-    </section>
+    </Card>
   )
 }

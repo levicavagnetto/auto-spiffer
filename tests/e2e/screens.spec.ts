@@ -12,7 +12,9 @@ test('Check now in development shows a plain error toast', async () => {
     await expect(toast.locator('span')).toHaveText(
       'Install Auto Spiffer to check for updates'
     )
-    await expect(toast).toHaveClass(/fixed/)
+    await expect(
+      toast.locator('xpath=ancestor::*[@data-sonner-toaster]')
+    ).toHaveCount(1)
   } finally {
     await app.close()
     remove()
@@ -81,7 +83,7 @@ test('screens navigate and appearance and window size survive a restart', async 
       }
       const cardHeight = async (name: string): Promise<number> => {
         const box = await page
-          .locator('section')
+          .locator('[data-slot="card"]')
           .filter({ has: page.getByRole('heading', { name, exact: true }) })
           .boundingBox()
         expect(box).not.toBeNull()
@@ -93,7 +95,7 @@ test('screens navigate and appearance and window size survive a restart', async 
       expect(await cardHeight('Logs')).toBeLessThan(await cardHeight('Updates'))
       const cardBox = async (name: string) => {
         const box = await page
-          .locator('section')
+          .locator('[data-slot="card"]')
           .filter({ has: page.getByRole('heading', { name, exact: true }) })
           .boundingBox()
         expect(box).not.toBeNull()

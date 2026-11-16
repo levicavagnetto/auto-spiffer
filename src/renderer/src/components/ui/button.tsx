@@ -11,13 +11,18 @@ const buttonVariants = cva(
         outline: 'border border-border bg-card text-foreground hover:bg-muted',
         ghost: 'text-foreground hover:bg-muted',
         destructive:
-          'bg-destructive text-destructive-foreground hover:opacity-90'
+          'bg-destructive text-destructive-foreground hover:opacity-90',
+        link: 'text-primary underline-offset-4 hover:underline',
+        'destructive-link':
+          'text-destructive-foreground underline-offset-4 hover:underline'
       },
       size: {
         default: 'h-9 px-4 py-2',
         sm: 'h-8 px-3',
         lg: 'h-10 px-6',
-        icon: 'size-9'
+        icon: 'size-9',
+        'icon-sm': 'size-7',
+        inline: 'h-auto p-0'
       }
     },
     defaultVariants: { variant: 'default', size: 'default' }

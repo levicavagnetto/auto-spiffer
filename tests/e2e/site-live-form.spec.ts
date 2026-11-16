@@ -30,9 +30,10 @@ test('development live check adds one sale before offering upload', async () => 
     await page.getByRole('button', { name: 'Read claim page' }).click()
     await page.getByLabel('Sale date').fill('2026-10-18')
     await page.getByLabel('Invoice number').fill('TEST-900201')
+    await page.getByLabel('Eligible Product').click()
     await page
-      .getByLabel('Eligible Product')
-      .selectOption({ label: 'Nokian Remedy WRG5 - Passenger Tires' })
+      .getByRole('option', { name: 'Nokian Remedy WRG5 - Passenger Tires' })
+      .click()
     await page.getByLabel('Quantity').fill('4')
     await page.getByRole('button', { name: 'Add test sale' }).click()
     await expect(

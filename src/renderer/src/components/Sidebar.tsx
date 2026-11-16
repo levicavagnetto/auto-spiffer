@@ -1,3 +1,5 @@
+import { Button } from './ui/button'
+import { Card } from './ui/card'
 import {
   BookmarkCheck,
   FileSpreadsheet,
@@ -80,7 +82,7 @@ export function Sidebar({
         <img src={logo} alt="" className="size-7" />
         <strong className="text-[15px] font-semibold">Auto Spiffer</strong>
       </div>
-      <div className="rounded-lg border border-border bg-card p-3">
+      <Card className="rounded-lg p-3">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           This month
         </div>
@@ -92,7 +94,7 @@ export function Sidebar({
             {tireLines ?? 0} tire line{tireLines === 1 ? '' : 's'}
           </div>
         )}
-      </div>
+      </Card>
       <nav aria-label="Main navigation" className="mt-5 flex flex-col gap-1">
         {navItems.map((item, index) => {
           const disabled =
@@ -113,12 +115,13 @@ export function Sidebar({
                 </div>
               )}
               <span title={disabled ? reason : undefined} className="block">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   disabled={disabled}
                   aria-current={current === item.screen ? 'page' : undefined}
                   onClick={() => onNavigate(item.screen)}
-                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50 aria-[current=page]:bg-nav-active aria-[current=page]:text-nav-active-foreground"
+                  className="h-auto w-full justify-start gap-2.5 px-3 py-2 text-left disabled:pointer-events-auto disabled:cursor-not-allowed aria-[current=page]:bg-nav-active aria-[current=page]:text-nav-active-foreground"
                 >
                   <Icon className="size-4" aria-hidden="true" />
                   {item.label}
@@ -128,7 +131,7 @@ export function Sidebar({
                         {savedMatchCount}
                       </span>
                     )}
-                </button>
+                </Button>
               </span>
               {item.screen === 'website' && (
                 <div className="px-3 text-xs text-muted-foreground">
@@ -147,13 +150,15 @@ export function Sidebar({
         {update?.phase === 'ready' && update.readyVersion ? (
           <>
             <p>Version {update.readyVersion} is ready</p>
-            <button
+            <Button
               type="button"
+              variant="link"
+              size="inline"
               onClick={onRestartToUpdate}
-              className="mt-1 text-accent hover:underline"
+              className="mt-1 text-xs font-normal text-accent"
             >
               Restart to update
-            </button>
+            </Button>
           </>
         ) : (
           <p>

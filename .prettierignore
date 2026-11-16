@@ -5,3 +5,4 @@ release
 coverage
 private-data
 package-lock.json
+tests/fixtures/*.html

@@ -1,4 +1,19 @@
 import { useState } from 'react'
+import { Button } from '../components/ui/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '../components/ui/collapsible'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../components/ui/select'
 
 type Busy = 'reading' | 'adding' | 'uploading' | null
 
@@ -82,123 +97,133 @@ export function LiveCheck(): React.JSX.Element {
     }
   }
 
-  const field =
-    'h-8 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground'
-  const button =
-    'rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50'
+  const field = 'h-8 px-2'
+  const label = 'grid gap-1 font-normal'
 
   return (
-    <details className="shrink-0 border-b border-border px-4 py-2 text-sm">
-      <summary className="cursor-pointer font-medium">Live check</summary>
-      <p className="mt-2 text-muted-foreground">
-        Test one sale on the live claim page. This check does not submit the
-        claim. Remove the test sale and PDF on the website after checking them.
-      </p>
-      <div className="mt-3">
-        <button
-          type="button"
-          className={button}
-          disabled={busy !== null}
-          onClick={() => void readPage()}
-        >
-          Read claim page
-        </button>
-      </div>
-      <form
-        onSubmit={(event) => void addSale(event)}
-        className="mt-3 grid grid-cols-2 gap-2 xl:grid-cols-4"
-      >
-        <label className="grid gap-1">
-          Sale date
-          <input
-            type="date"
-            required
-            className={field}
-            value={saleDate}
-            onChange={(event) => {
-              setSaleDate(event.target.value)
-              setAdded(false)
-            }}
-          />
-        </label>
-        <label className="grid gap-1">
-          Invoice number
-          <input
-            required
-            className={field}
-            value={invoice}
-            onChange={(event) => {
-              setInvoice(event.target.value)
-              setAdded(false)
-            }}
-          />
-        </label>
-        <label className="grid gap-1">
-          Eligible Product
-          <select
-            required
-            className={field}
-            value={product}
-            onChange={(event) => {
-              setProduct(event.target.value)
-              setAdded(false)
-            }}
-          >
-            <option value="">Choose a tire</option>
-            {tires.map((tire) => (
-              <option key={tire} value={tire}>
-                {tire}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-1">
-          Quantity
-          <input
-            type="number"
-            min="1"
-            max="1000"
-            required
-            className={field}
-            value={qty}
-            onChange={(event) => {
-              setQty(event.target.value)
-              setAdded(false)
-            }}
-          />
-        </label>
-        <button
-          type="submit"
-          className={`${button} justify-self-start`}
-          disabled={busy !== null || tires.length === 0}
-        >
-          Add test sale
-        </button>
-      </form>
-      <div className="mt-3 flex items-end gap-2">
-        <label className="min-w-0 flex-1 grid gap-1">
-          Full PDF path
-          <input
-            className={field}
-            value={pdfPath}
-            onChange={(event) => setPdfPath(event.target.value)}
-            placeholder="C:\\path\\to\\invoice.pdf"
-          />
-        </label>
-        <button
-          type="button"
-          className={button}
-          disabled={!added || !pdfPath.trim() || busy !== null}
-          onClick={() => void upload()}
-        >
-          Upload invoice PDF
-        </button>
-      </div>
-      {result && (
-        <p role="status" className="mt-2 text-muted-foreground">
-          {result}
+    <Collapsible className="shrink-0 border-b border-border px-4 py-2 text-sm">
+      <CollapsibleTrigger className="cursor-pointer font-medium outline-none hover:underline focus-visible:outline-2 focus-visible:outline-accent">
+        Live check
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <p className="mt-2 text-muted-foreground">
+          Test one sale on the live claim page. This check does not submit the
+          claim. Remove the test sale and PDF on the website after checking
+          them.
         </p>
-      )}
-    </details>
+        <div className="mt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={busy !== null}
+            onClick={() => void readPage()}
+          >
+            Read claim page
+          </Button>
+        </div>
+        <form
+          onSubmit={(event) => void addSale(event)}
+          className="mt-3 grid grid-cols-2 gap-2 xl:grid-cols-4"
+        >
+          <Label className={label}>
+            Sale date
+            <Input
+              type="date"
+              required
+              className={field}
+              value={saleDate}
+              onChange={(event) => {
+                setSaleDate(event.target.value)
+                setAdded(false)
+              }}
+            />
+          </Label>
+          <Label className={label}>
+            Invoice number
+            <Input
+              required
+              className={field}
+              value={invoice}
+              onChange={(event) => {
+                setInvoice(event.target.value)
+                setAdded(false)
+              }}
+            />
+          </Label>
+          <Label className={label}>
+            Eligible Product
+            <Select
+              required
+              value={product || null}
+              onValueChange={(value) => {
+                setProduct(value ?? '')
+                setAdded(false)
+              }}
+            >
+              <SelectTrigger className={field}>
+                <SelectValue placeholder="Choose a tire" />
+              </SelectTrigger>
+              <SelectContent>
+                {tires.map((tire) => (
+                  <SelectItem key={tire} value={tire}>
+                    {tire}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Label>
+          <Label className={label}>
+            Quantity
+            <Input
+              type="number"
+              min="1"
+              max="1000"
+              required
+              className={field}
+              value={qty}
+              onChange={(event) => {
+                setQty(event.target.value)
+                setAdded(false)
+              }}
+            />
+          </Label>
+          <Button
+            type="submit"
+            variant="outline"
+            size="sm"
+            className="justify-self-start"
+            disabled={busy !== null || tires.length === 0}
+          >
+            Add test sale
+          </Button>
+        </form>
+        <div className="mt-3 flex items-end gap-2">
+          <Label className={`min-w-0 flex-1 ${label}`}>
+            Full PDF path
+            <Input
+              className={field}
+              value={pdfPath}
+              onChange={(event) => setPdfPath(event.target.value)}
+              placeholder="C:\\path\\to\\invoice.pdf"
+            />
+          </Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!added || !pdfPath.trim() || busy !== null}
+            onClick={() => void upload()}
+          >
+            Upload invoice PDF
+          </Button>
+        </div>
+        {result && (
+          <p role="status" className="mt-2 text-muted-foreground">
+            {result}
+          </p>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

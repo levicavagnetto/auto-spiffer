@@ -7,6 +7,7 @@ import {
   waitFor
 } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Toaster } from '../../src/renderer/src/components/ui/sonner'
 import { Settings } from '../../src/renderer/src/screens/Settings'
 import type { UpdateState } from '../../src/shared/updates'
 
@@ -34,19 +35,22 @@ describe('Settings updates and logs', () => {
       })
     })
     render(
-      <Settings
-        theme="system"
-        onThemeChange={vi.fn()}
-        ready
-        credentials={null}
-        onCredentials={vi.fn()}
-        update={base}
-        onUpdate={vi.fn()}
-      />
+      <>
+        <Settings
+          theme="system"
+          onThemeChange={vi.fn()}
+          ready
+          credentials={null}
+          onCredentials={vi.fn()}
+          update={base}
+          onUpdate={vi.fn()}
+        />
+        <Toaster />
+      </>
     )
     fireEvent.click(screen.getByRole('button', { name: 'Check now' }))
     const alert = await screen.findByRole('alert')
-    expect(alert.className).toContain('fixed')
+    expect(alert.closest('[data-sonner-toaster]')).not.toBeNull()
     expect(alert.querySelector('span')?.textContent).toBe(
       'Install Auto Spiffer to check for updates'
     )

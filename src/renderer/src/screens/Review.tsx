@@ -1,6 +1,28 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Alert } from '../components/ui/alert'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
+import { Checkbox } from '../components/ui/checkbox'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle
+} from '../components/ui/sheet'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '../components/ui/table'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import type { ReviewLine, ReviewSnapshot } from '../../../shared/review'
 import type { RunState } from '../../../shared/run'
 
@@ -112,6 +134,31 @@ export function Review({
     }
   }
 
+  const isFailed = (line: ReviewLine): boolean =>
+    Boolean(run?.summary?.failed.some((item) => item.lineId === line.id))
+  const statusText = (line: ReviewLine): string =>
+    run?.summary?.added.includes(line.id)
+      ? 'Entered'
+      : run?.summary?.alreadyThere.includes(line.id)
+        ? 'On page'
+        : isFailed(line)
+          ? 'Failed'
+          : line.leftOut
+            ? 'Left out'
+            : statusLabels[line.status]
+  const statusClass = (line: ReviewLine): string =>
+    isFailed(line)
+      ? 'bg-destructive text-destructive-foreground'
+      : line.leftOut
+        ? 'bg-muted text-foreground'
+        : line.status === 'needs-decision'
+          ? 'bg-warning text-warning-foreground'
+          : line.status === 'possible-wheel'
+            ? 'bg-wheel text-wheel-foreground'
+            : line.status === 'ready'
+              ? 'bg-success text-success-foreground'
+              : 'bg-muted text-foreground'
+
   return (
     <div className="space-y-5">
       {headerActions &&
@@ -139,109 +186,94 @@ export function Review({
         </p>
       </div>
       {error && (
-        <p
-          role="alert"
-          className="rounded-lg bg-destructive p-3 text-sm text-destructive-foreground"
-        >
+        <Alert role="alert" variant="destructive">
           {error}
-        </p>
+        </Alert>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <div
-          role="tablist"
-          aria-label="Filter sales"
-          className="flex flex-wrap gap-1 rounded-lg bg-muted p-1"
+        <Tabs
+          value={filter}
+          onValueChange={(value) => setFilter(value as Filter)}
         >
-          {filters.map((item) => {
-            const count =
-              item.key === 'all'
-                ? lines.length
-                : lines.filter((line) => line.status === item.key).length
-            return (
-              <button
-                key={item.key}
-                type="button"
-                role="tab"
-                aria-selected={filter === item.key}
-                onClick={() => setFilter(item.key)}
-                className={`rounded-md px-3 py-1.5 text-xs ${filter === item.key ? 'bg-card font-semibold text-foreground' : 'text-muted-foreground'}`}
-              >
-                {item.label} {count}
-              </button>
-            )
-          })}
-        </div>
-        <input
+          <TabsList aria-label="Filter sales">
+            {filters.map((item) => {
+              const count =
+                item.key === 'all'
+                  ? lines.length
+                  : lines.filter((line) => line.status === item.key).length
+              return (
+                <TabsTrigger
+                  key={item.key}
+                  value={item.key}
+                  className="text-xs"
+                >
+                  {item.label} {count}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
+        </Tabs>
+        <Input
           aria-label="Search invoice or tire"
           placeholder="Search invoice or tire"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          className="min-w-52 flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm"
+          className="h-auto min-w-52 flex-1 bg-card py-2"
         />
       </div>
       {filter === 'possible-wheel' && (
-        <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+        <Alert className="p-4 text-muted-foreground">
           These rows look like wheels. Check whether they qualify for ATD Custom
           Wheels or ATD Steel Wheels, then enter them on ProRewards yourself.
-        </p>
+        </Alert>
       )}
-      <div className="overflow-auto rounded-xl border border-border bg-card">
-        <table className="w-full min-w-[900px] text-left text-sm">
-          <thead className="bg-table-header text-xs text-muted-foreground">
-            <tr>
-              <th className="p-3">Status</th>
-              <th className="p-3">Date</th>
-              <th className="p-3">Invoice</th>
-              <th className="p-3">On the report</th>
-              <th className="p-3">Claim page tire</th>
-              <th className="p-3 text-right">Qty</th>
-              <th className="p-3">PDF</th>
-              <th className="p-3">This month</th>
-            </tr>
-          </thead>
-          <tbody>
+      <Card className="overflow-auto">
+        <Table className="min-w-[900px]">
+          <TableHeader className="bg-table-header text-xs text-muted-foreground">
+            <TableRow className="border-0">
+              <TableHead className="p-3 font-medium">Status</TableHead>
+              <TableHead className="p-3 font-medium">Date</TableHead>
+              <TableHead className="p-3 font-medium">Invoice</TableHead>
+              <TableHead className="p-3 font-medium">On the report</TableHead>
+              <TableHead className="p-3 font-medium">Claim page tire</TableHead>
+              <TableHead className="p-3 text-right font-medium">Qty</TableHead>
+              <TableHead className="p-3 font-medium">PDF</TableHead>
+              <TableHead className="p-3 font-medium">This month</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {visible.map((line) => (
-              <tr
+              <TableRow
                 key={line.id}
-                className={`border-t border-border even:bg-table-alternate ${line.status === 'needs-decision' && !line.leftOut ? 'bg-warning/30' : ''}`}
+                className={`border-t border-b-0 even:bg-table-alternate ${line.status === 'needs-decision' && !line.leftOut ? 'bg-warning/30' : ''}`}
               >
-                <td className="p-3">
-                  <span
-                    className={`whitespace-nowrap rounded-full px-2 py-1 text-xs ${run?.summary?.failed.some((item) => item.lineId === line.id) ? 'bg-destructive text-destructive-foreground' : line.status === 'needs-decision' && !line.leftOut ? 'bg-warning text-warning-foreground' : line.status === 'possible-wheel' && !line.leftOut ? 'bg-wheel text-wheel-foreground' : line.status === 'ready' && !line.leftOut ? 'bg-success text-success-foreground' : 'bg-muted text-foreground'}`}
-                  >
-                    {run?.summary?.added.includes(line.id)
-                      ? 'Entered'
-                      : run?.summary?.alreadyThere.includes(line.id)
-                        ? 'On page'
-                        : run?.summary?.failed.some(
-                              (item) => item.lineId === line.id
-                            )
-                          ? 'Failed'
-                          : line.leftOut
-                            ? 'Left out'
-                            : statusLabels[line.status]}
-                  </span>
-                </td>
-                <td className="p-3 whitespace-nowrap">
+                <TableCell className="p-3">
+                  <Badge className={`font-normal ${statusClass(line)}`}>
+                    {statusText(line)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="p-3 whitespace-nowrap">
                   {dateLabel(line.saleDate)}
-                </td>
-                <td className="p-3 font-mono">{line.invoice}</td>
-                <td
+                </TableCell>
+                <TableCell className="p-3 font-mono">{line.invoice}</TableCell>
+                <TableCell
                   className="max-w-56 truncate p-3 text-muted-foreground"
                   title={line.description}
                 >
                   {line.description}
-                </td>
-                <td className="p-3">
+                </TableCell>
+                <TableCell className="p-3">
                   {line.status === 'possible-wheel' ? (
                     <span className="text-muted-foreground">
                       Possible wheel
                     </span>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
+                      size="inline"
                       aria-label={`Review ${line.invoice} ${line.description}`}
-                      className="max-w-64 text-left font-medium text-primary hover:underline"
+                      className="max-w-64 justify-start text-left whitespace-normal"
                       onClick={() => {
                         setSelectedId(line.id)
                         setSelectedTire(line.tire ?? line.guess ?? '')
@@ -255,44 +287,46 @@ export function Review({
                           ? 'Not a tire'
                           : line.reason)}
                       {line.guess && !line.tire ? ' ?' : ''}
-                    </button>
+                    </Button>
                   )}
-                </td>
-                <td className="p-3 text-right">
+                </TableCell>
+                <TableCell className="p-3 text-right">
                   {line.qty}
                   {line.rows.length > 1 ? '*' : ''}
-                </td>
-                <td className="p-3" title={line.pdf}>
+                </TableCell>
+                <TableCell className="p-3" title={line.pdf}>
                   {line.pdf ? '✓' : '—'}
-                </td>
-                <td className="p-3">
+                </TableCell>
+                <TableCell className="p-3">
                   {line.status === 'possible-wheel' ? (
                     <span className="text-xs text-muted-foreground">
                       Enter by hand
                     </span>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
+                      size="inline"
                       disabled={busy}
-                      className="whitespace-nowrap text-xs text-primary hover:underline"
+                      className="text-xs font-normal"
                       onClick={() => void toggleLeftOut(line)}
                     >
                       {line.leftOut
                         ? 'Include this line'
                         : 'Leave this line out'}
-                    </button>
+                    </Button>
                   )}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
         {visible.length === 0 && (
           <p className="p-6 text-sm text-muted-foreground">
             No sales match this search.
           </p>
         )}
-      </div>
+      </Card>
       <p className="text-sm text-muted-foreground">
         {ready.length} ready ({ready.reduce((sum, line) => sum + line.qty, 0)}{' '}
         tires) · {undecided} need a decision ·{' '}
@@ -309,136 +343,121 @@ export function Review({
           ? ' · * Added up from more than one row'
           : ''}
       </p>
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 bg-[var(--scrim)]"
-          onClick={() => setSelectedId(null)}
-        >
-          <aside
-            role="dialog"
-            aria-modal="true"
-            aria-label="Which tire is this?"
-            className="absolute inset-y-0 right-0 w-[440px] max-w-full overflow-y-auto border-l border-border bg-card p-6 shadow-xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex items-start justify-between">
-              <h2 className="text-lg font-semibold">Which tire is this?</h2>
-              <button
-                type="button"
-                aria-label="Close tire choice"
-                onClick={() => setSelectedId(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Invoice {selected.invoice} · {dateLabel(selected.saleDate)} · qty{' '}
-              {selected.qty}
-            </p>
-            <p className="mt-4 rounded-lg bg-muted p-3 font-mono text-sm">
-              {selected.description}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs">
-              {[
-                `Brand: ${selected.readAs.brand ?? 'Unknown'}`,
-                `Size: ${selected.readAs.sizes.join(', ') || 'Unknown'}`,
-                `Model: ${selected.readAs.words.join(' ') || 'Unknown'}`
-              ].map((chip) => (
-                <span
-                  key={chip}
-                  className="rounded-full border border-border px-2 py-1"
-                >
-                  {chip}
-                </span>
-              ))}
-            </div>
-            <p className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
-              {selected.reason}
-            </p>
-            {selected.status !== 'not-a-tire' && (
-              <>
-                {selected.suggestions.length > 0 && (
-                  <div className="mt-5">
-                    <h3 className="text-sm font-semibold">Best guesses</h3>
-                    <div className="mt-2 space-y-2">
-                      {selected.suggestions.map((suggestion) => (
-                        <label
-                          key={suggestion.label}
-                          className="flex cursor-pointer gap-3 rounded-lg border border-border p-3 text-sm"
+      <Sheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedId(null)
+        }}
+      >
+        <SheetContent closeLabel="Close tire choice">
+          {selected && (
+            <>
+              <SheetTitle>Which tire is this?</SheetTitle>
+              <SheetDescription className="mt-4">
+                Invoice {selected.invoice} · {dateLabel(selected.saleDate)} ·
+                qty {selected.qty}
+              </SheetDescription>
+              <Alert variant="muted" className="mt-4 font-mono">
+                {selected.description}
+              </Alert>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {[
+                  `Brand: ${selected.readAs.brand ?? 'Unknown'}`,
+                  `Size: ${selected.readAs.sizes.join(', ') || 'Unknown'}`,
+                  `Model: ${selected.readAs.words.join(' ') || 'Unknown'}`
+                ].map((chip) => (
+                  <Badge key={chip} variant="outline" className="font-normal">
+                    {chip}
+                  </Badge>
+                ))}
+              </div>
+              <Alert variant="warning" className="mt-4">
+                {selected.reason}
+              </Alert>
+              {selected.status !== 'not-a-tire' && (
+                <>
+                  <RadioGroup
+                    aria-label="Tire choice"
+                    value={selectedTire}
+                    onValueChange={(value) => setSelectedTire(String(value))}
+                    className="block"
+                  >
+                    {selected.suggestions.length > 0 && (
+                      <div className="mt-5">
+                        <h3 className="text-sm font-semibold">Best guesses</h3>
+                        <div className="mt-2 space-y-2">
+                          {selected.suggestions.map((suggestion) => (
+                            <Label
+                              key={suggestion.label}
+                              className="cursor-pointer items-start gap-3 rounded-lg border border-border p-3 leading-normal font-normal"
+                            >
+                              <RadioGroupItem
+                                value={suggestion.label}
+                                className="mt-0.5"
+                              />
+                              <span>
+                                <strong>{suggestion.label}</strong>
+                                <span className="ml-2 text-muted-foreground">
+                                  {suggestion.score}%
+                                </span>
+                                <small className="mt-1 block text-muted-foreground">
+                                  {suggestion.reason}
+                                </small>
+                              </span>
+                            </Label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <Label className="mt-5 flex-col items-stretch gap-2 font-semibold">
+                      Search all claim page tires
+                      <Input
+                        aria-label="Search all claim page tires"
+                        value={tireSearch}
+                        onChange={(event) => setTireSearch(event.target.value)}
+                        className="font-normal"
+                      />
+                    </Label>
+                    <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border">
+                      {tireOptions.map((tire) => (
+                        <Label
+                          key={tire.label}
+                          className="cursor-pointer gap-2 border-b border-border p-2 leading-normal font-normal last:border-0"
                         >
-                          <input
-                            type="radio"
-                            name="tire-choice"
-                            checked={selectedTire === suggestion.label}
-                            onChange={() => setSelectedTire(suggestion.label)}
-                          />
-                          <span>
-                            <strong>{suggestion.label}</strong>
-                            <span className="ml-2 text-muted-foreground">
-                              {suggestion.score}%
-                            </span>
-                            <small className="mt-1 block text-muted-foreground">
-                              {suggestion.reason}
-                            </small>
-                          </span>
-                        </label>
+                          <RadioGroupItem value={tire.label} />
+                          {tire.label}
+                        </Label>
                       ))}
                     </div>
-                  </div>
-                )}
-                <label className="mt-5 block text-sm font-semibold">
-                  Search all claim page tires
-                  <input
-                    aria-label="Search all claim page tires"
-                    value={tireSearch}
-                    onChange={(event) => setTireSearch(event.target.value)}
-                    className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 font-normal"
-                  />
-                </label>
-                <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border">
-                  {tireOptions.map((tire) => (
-                    <label
-                      key={tire.label}
-                      className="flex cursor-pointer gap-2 border-b border-border p-2 text-sm last:border-0"
+                  </RadioGroup>
+                  <Label className="mt-5 font-normal">
+                    <Checkbox
+                      checked={remember}
+                      onCheckedChange={(checked) => setRemember(checked)}
+                    />
+                    Remember this choice
+                  </Label>
+                  <div className="mt-6 flex flex-col gap-2">
+                    <Button
+                      disabled={busy || !selectedTire}
+                      onClick={() => void decide(selectedTire)}
                     >
-                      <input
-                        type="radio"
-                        name="tire-choice"
-                        checked={selectedTire === tire.label}
-                        onChange={() => setSelectedTire(tire.label)}
-                      />
-                      {tire.label}
-                    </label>
-                  ))}
-                </div>
-                <label className="mt-5 flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={(event) => setRemember(event.target.checked)}
-                  />
-                  Remember this choice
-                </label>
-                <div className="mt-6 flex flex-col gap-2">
-                  <Button
-                    disabled={busy || !selectedTire}
-                    onClick={() => void decide(selectedTire)}
-                  >
-                    Use {selectedTire ? selectedTire.split(' - ')[0] : 'tire'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() => void decide(null)}
-                  >
-                    Not an eligible tire
-                  </Button>
-                </div>
-              </>
-            )}
-          </aside>
-        </div>
-      )}
+                      Use {selectedTire ? selectedTire.split(' - ')[0] : 'tire'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={busy}
+                      onClick={() => void decide(null)}
+                    >
+                      Not an eligible tire
+                    </Button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

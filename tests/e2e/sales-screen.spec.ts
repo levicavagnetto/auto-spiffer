@@ -60,10 +60,10 @@ test('Sales screen imports a workbook and PDF, then opens the claim page for mat
       page.getByRole('heading', { name: 'Ready to match' })
     ).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'ProRewards' })).toBeEnabled()
-    const exportCard = page.locator('main section').filter({
+    const exportCard = page.locator('main [data-slot="card"]').filter({
       has: page.getByRole('heading', { name: 'Material Sales export' })
     })
-    const pdfCard = page.locator('main section').filter({
+    const pdfCard = page.locator('main [data-slot="card"]').filter({
       has: page.getByRole('heading', { name: 'Invoice PDFs' })
     })
     const exportWidth = (await exportCard.boundingBox())?.width ?? 0

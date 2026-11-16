@@ -1,5 +1,11 @@
 import { useState } from 'react'
+import { Alert, AlertTitle } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '../components/ui/collapsible'
 
 export function MissingInvoicePdfs({
   invoices
@@ -21,34 +27,37 @@ export function MissingInvoicePdfs({
   }
 
   return (
-    <section
-      className="mt-4 rounded-lg bg-warning p-4 text-sm text-warning-foreground"
+    <Alert
+      role="region"
+      variant="warning"
+      className="mt-4 p-4"
       aria-label="Missing invoice PDFs"
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="font-semibold">
-            {invoices.length} invoice{invoices.length === 1 ? '' : 's'} need
-            {invoices.length === 1 ? 's' : ''} a PDF
-          </p>
-          <p className="mt-1">
-            These sales will still be entered. Add the PDFs here, or upload them
-            on ProRewards yourself.
-          </p>
+      <Collapsible open={expanded} onOpenChange={setExpanded}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <AlertTitle>
+              {invoices.length} invoice{invoices.length === 1 ? '' : 's'} need
+              {invoices.length === 1 ? 's' : ''} a PDF
+            </AlertTitle>
+            <p className="mt-1">
+              These sales will still be entered. Add the PDFs here, or upload
+              them on ProRewards yourself.
+            </p>
+          </div>
+          <CollapsibleTrigger
+            render={
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-warning-foreground/40 text-warning-foreground hover:bg-warning-foreground/10 hover:text-warning-foreground"
+              />
+            }
+          >
+            {expanded ? 'Hide invoices ▴' : 'Show invoices ▾'}
+          </CollapsibleTrigger>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-warning-foreground/40 text-warning-foreground hover:bg-warning-foreground/10 hover:text-warning-foreground"
-          aria-expanded={expanded}
-          aria-controls="missing-invoice-list"
-          onClick={() => setExpanded((open) => !open)}
-        >
-          {expanded ? 'Hide invoices ▴' : 'Show invoices ▾'}
-        </Button>
-      </div>
-      {expanded && (
-        <div
+        <CollapsibleContent
           id="missing-invoice-list"
           className="mt-4 border-t border-warning-foreground/30 pt-4"
         >
@@ -70,8 +79,8 @@ export function MissingInvoicePdfs({
           <p role="status" className="mt-3 min-h-4 text-xs">
             {feedback}
           </p>
-        </div>
-      )}
-    </section>
+        </CollapsibleContent>
+      </Collapsible>
+    </Alert>
   )
 }

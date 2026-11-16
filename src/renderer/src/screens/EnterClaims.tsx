@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCw } from 'lucide-react'
+import { Alert } from '../components/ui/alert'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '../components/ui/collapsible'
 import { Progress } from '../components/ui/progress'
 import type { ReviewSnapshot } from '../../../shared/review'
 import type { RunState } from '../../../shared/run'
@@ -164,9 +172,10 @@ export function EnterClaims({
   }
   return (
     <div className="grid h-[calc(100vh-124px)] min-h-[500px] gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
-      <section
+      <Card
+        role="region"
         aria-label="Enter claims panel"
-        className="flex min-h-0 flex-col rounded-xl border border-border bg-card p-5"
+        className="flex min-h-0 flex-col p-5"
       >
         <h2 className="shrink-0 text-2xl font-semibold">
           {position} of {total} sales
@@ -180,7 +189,7 @@ export function EnterClaims({
         <p className="mt-2 shrink-0 text-xs text-muted-foreground">
           {phaseLabel}
         </p>
-        <div className="mt-4 shrink-0 rounded-lg bg-muted p-3 text-sm">
+        <Alert variant="muted" className="mt-4 shrink-0">
           {summary ? (
             <>
               <p className="text-xs font-semibold uppercase text-muted-foreground">
@@ -229,10 +238,10 @@ export function EnterClaims({
                 invoice PDFs
               </p>
               {runLimit && (
-                <p className="mt-2 rounded-md bg-warning/30 p-2">
+                <Alert variant="warning-subtle" className="mt-2 rounded-md p-2">
                   Developer trial: this run is limited to the first {runLimit}{' '}
                   sales. Relaunch without the limit before entering the rest.
-                </p>
+                </Alert>
               )}
               {!ready.length && (
                 <p className="mt-2 text-muted-foreground">
@@ -259,7 +268,7 @@ export function EnterClaims({
               ))}
             </div>
           )}
-        </div>
+        </Alert>
         <div className="mt-4 flex shrink-0 gap-2">
           {summary ? (
             <Button
@@ -301,144 +310,141 @@ export function EnterClaims({
           )}
         </div>
         {error && (
-          <p
+          <Alert
             role="alert"
-            className="mt-3 shrink-0 rounded-md bg-destructive/10 p-3 text-sm"
+            variant="destructive-subtle"
+            className="mt-3 shrink-0 rounded-md"
           >
             {error}
-          </p>
+          </Alert>
         )}
         <div className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 text-sm">
-          <div className="overflow-hidden rounded-lg border border-border">
-            <button
-              type="button"
-              aria-expanded={activityExpanded}
-              aria-controls="claim-activity"
-              onClick={() => setActivityExpanded((open) => !open)}
-              className="flex w-full items-center justify-between gap-2 p-3 text-left font-semibold hover:bg-muted"
-            >
+          <Collapsible
+            open={activityExpanded}
+            onOpenChange={setActivityExpanded}
+            className="overflow-hidden rounded-lg border border-border"
+          >
+            <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 p-3 text-left font-semibold outline-none hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent">
               <span>Activity</span>
               <span className="text-xs font-normal text-muted-foreground">
                 {state.done} sales checked {activityExpanded ? '▴' : '▾'}
               </span>
-            </button>
-            {activityExpanded && (
-              <div
-                id="claim-activity"
-                className="max-h-40 overflow-y-auto border-t border-border p-3"
-              >
-                {summary?.failed.map((item) => (
-                  <div
-                    key={item.lineId}
-                    className="mb-2 rounded-md bg-destructive/10 p-2"
-                  >
-                    Invoice {item.invoice}: {item.reason}
-                    {item.screenshot && (
-                      <button
-                        type="button"
-                        className="mt-1 block text-primary underline"
-                        onClick={() =>
-                          void window.api.openRunScreenshot(item.screenshot!)
-                        }
-                      >
-                        Open page picture
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {summary?.uploadFailed.map((item) => (
-                  <p
-                    key={item.invoice}
-                    className="mb-2 rounded-md bg-warning/30 p-2"
-                  >
-                    Invoice {item.invoice}: PDF upload failed. Upload it by
-                    hand.
-                  </p>
-                ))}
-                {activity.length > 0 ? (
-                  <ol className="space-y-2">
-                    {activity.map((item, index) => (
-                      <li
-                        key={`${item.lineId}-${index}`}
-                        className="rounded-md bg-muted p-2"
-                      >
-                        {item.text}
-                      </li>
-                    ))}
-                  </ol>
-                ) : !summary?.failed.length && !summary?.uploadFailed.length ? (
-                  <p className="text-muted-foreground">No activity yet.</p>
-                ) : null}
-              </div>
-            )}
-          </div>
-          <div className="overflow-hidden rounded-lg border border-border">
-            <button
-              type="button"
-              aria-expanded={pdfExpanded}
-              aria-controls="pdf-invoice-list"
-              onClick={() => setPdfExpanded((open) => !open)}
-              className="flex w-full items-center justify-between gap-2 p-3 text-left font-semibold hover:bg-muted"
+            </CollapsibleTrigger>
+            <CollapsibleContent
+              id="claim-activity"
+              className="max-h-40 overflow-y-auto border-t border-border p-3"
             >
+              {summary?.failed.map((item) => (
+                <Alert
+                  key={item.lineId}
+                  variant="destructive-subtle"
+                  className="mb-2 rounded-md p-2"
+                >
+                  Invoice {item.invoice}: {item.reason}
+                  {item.screenshot && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="inline"
+                      className="mt-1 flex font-normal underline"
+                      onClick={() =>
+                        void window.api.openRunScreenshot(item.screenshot!)
+                      }
+                    >
+                      Open page picture
+                    </Button>
+                  )}
+                </Alert>
+              ))}
+              {summary?.uploadFailed.map((item) => (
+                <Alert
+                  key={item.invoice}
+                  variant="warning-subtle"
+                  className="mb-2 rounded-md p-2"
+                >
+                  Invoice {item.invoice}: PDF upload failed. Upload it by hand.
+                </Alert>
+              ))}
+              {activity.length > 0 ? (
+                <ol className="space-y-2">
+                  {activity.map((item, index) => (
+                    <li
+                      key={`${item.lineId}-${index}`}
+                      className="rounded-md bg-muted p-2"
+                    >
+                      {item.text}
+                    </li>
+                  ))}
+                </ol>
+              ) : !summary?.failed.length && !summary?.uploadFailed.length ? (
+                <p className="text-muted-foreground">No activity yet.</p>
+              ) : null}
+            </CollapsibleContent>
+          </Collapsible>
+          <Collapsible
+            open={pdfExpanded}
+            onOpenChange={setPdfExpanded}
+            className="overflow-hidden rounded-lg border border-border"
+          >
+            <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 p-3 text-left font-semibold outline-none hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent">
               <span>PDFs needing upload</span>
               <span className="text-xs font-normal text-muted-foreground">
                 {missingInvoices.length} invoice
                 {missingInvoices.length === 1 ? '' : 's'}{' '}
                 {pdfExpanded ? '▴' : '▾'}
               </span>
-            </button>
-            {pdfExpanded && (
-              <div className="border-t border-border p-3">
-                <p className="mb-3 text-xs text-muted-foreground">
-                  {missingInvoices.length
-                    ? 'Upload these PDFs on ProRewards. Click an invoice number to copy it.'
-                    : 'No PDFs need uploading.'}
-                </p>
-                {missingInvoices.length > 0 && (
-                  <div
-                    id="pdf-invoice-list"
-                    role="region"
-                    aria-label="PDF invoice list"
-                    tabIndex={0}
-                    className="flex max-h-40 flex-wrap gap-2 overflow-y-auto"
-                  >
-                    {missingInvoices.map((invoice) => (
-                      <Button
-                        key={invoice}
-                        variant="outline"
-                        size="sm"
-                        className="font-mono"
-                        aria-label={`Copy invoice ${invoice}`}
-                        onClick={() => void copyInvoice(invoice)}
-                      >
-                        {invoice}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-                <p role="status" className="mt-2 min-h-4 text-xs">
-                  {copyFeedback}
-                </p>
-              </div>
-            )}
-          </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="border-t border-border p-3">
+              <p className="mb-3 text-xs text-muted-foreground">
+                {missingInvoices.length
+                  ? 'Upload these PDFs on ProRewards. Click an invoice number to copy it.'
+                  : 'No PDFs need uploading.'}
+              </p>
+              {missingInvoices.length > 0 && (
+                <div
+                  id="pdf-invoice-list"
+                  role="region"
+                  aria-label="PDF invoice list"
+                  tabIndex={0}
+                  className="flex max-h-40 flex-wrap gap-2 overflow-y-auto"
+                >
+                  {missingInvoices.map((invoice) => (
+                    <Button
+                      key={invoice}
+                      variant="outline"
+                      size="sm"
+                      className="font-mono"
+                      aria-label={`Copy invoice ${invoice}`}
+                      onClick={() => void copyInvoice(invoice)}
+                    >
+                      {invoice}
+                    </Button>
+                  ))}
+                </div>
+              )}
+              <p role="status" className="mt-2 min-h-4 text-xs">
+                {copyFeedback}
+              </p>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
         <p className="mt-4 shrink-0 border-t border-border pt-4 text-xs text-muted-foreground">
           {summary
             ? 'Check the page, then click Next and Submit on the website yourself.'
             : 'Auto Spiffer never clicks Next or Submit. When it finishes, check the page and submit the claim yourself.'}
         </p>
-      </section>
-      <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card">
+      </Card>
+      <Card className="flex min-h-0 flex-col overflow-hidden">
         <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-4 text-sm">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             aria-label="Reload website"
             onClick={() => void window.api.reloadSite()}
-            className="rounded-md p-1.5 hover:bg-muted"
           >
             <RotateCw className="size-4" />
-          </button>
+          </Button>
           <span
             className="min-w-0 flex-1 truncate text-muted-foreground"
             title={site.address}
@@ -446,9 +452,7 @@ export function EnterClaims({
             {site.address}
           </span>
           {busy && (
-            <span className="rounded-full bg-muted px-2 py-1 text-xs">
-              Auto Spiffer is typing
-            </span>
+            <Badge className="font-normal">Auto Spiffer is typing</Badge>
           )}
         </div>
         <div
@@ -460,7 +464,7 @@ export function EnterClaims({
           aria-label="Website bottom bar"
           className="h-4 shrink-0 border-t border-border bg-card"
         />
-      </section>
+      </Card>
     </div>
   )
 }

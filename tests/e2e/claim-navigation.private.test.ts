@@ -86,6 +86,10 @@ for (const scenario of ['one', 'none', 'two', 'stuck'] as const) {
           .children[0] as Electron.WebContentsView
         await view.webContents.loadURL(address)
       }, pathToFileURL(claimPage).href)
+      // Match tires runs unattended: after a problem it stops with an error,
+      // so the person opens the claim page and presses Match tires again.
+      if (scenario !== 'one')
+        await page.getByRole('button', { name: 'Match tires' }).click()
       await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible({
         timeout: 8_000
       })

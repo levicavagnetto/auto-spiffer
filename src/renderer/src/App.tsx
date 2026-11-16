@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CredentialsState, SiteLocation, Theme } from '../../shared/ipc'
 import { Sidebar, type Screen } from './components/Sidebar'
 import { ErrorToast } from './components/ErrorToast'
+import { Alert } from './components/ui/alert'
+import { Toaster } from './components/ui/sonner'
 import { Sales } from './screens/Sales'
 import { Review } from './screens/Review'
 import { EnterClaims } from './screens/EnterClaims'
@@ -266,16 +268,18 @@ export default function App(): React.JSX.Element {
         </header>
         <div className="p-8">
           {error && (
-            <div
+            <Alert
               role="alert"
-              className="mb-5 rounded-md bg-destructive p-3 text-sm text-destructive-foreground"
+              variant="destructive"
+              className="mb-5 rounded-md"
             >
               {error}
-            </div>
+            </Alert>
           )}
           {content}
         </div>
       </main>
+      <Toaster />
     </div>
   )
 }

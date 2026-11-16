@@ -8,6 +8,11 @@ summary to build from.
 
 - **shadcn/ui** components (new-york style) on **Tailwind CSS v4**, **lucide** icons, the **Geist** and
   **Geist Mono** fonts (bundled with the app, not loaded from the web).
+- Every control comes from `src/renderer/src/components/ui/` (shadcn, Base UI flavor): Button, Input, Label,
+  Checkbox, RadioGroup, Select, Tabs, Table, Card, Badge, Alert, Sheet (Review tire drawer), Collapsible,
+  Separator, Progress, and Sonner for toasts (one `<Toaster>` in `App.tsx`; `ErrorToast` shows through it).
+  The only raw controls are the two hidden file inputs on Sales, opened by Buttons. Alert variants: default,
+  muted, warning, warning-subtle, destructive, destructive-subtle. Badge adds warning and success.
 - A fixed left **sidebar** (248 px) and one screen at a time on the right, each with a 60 px header
   (step label and title on the left, the main action or a status chip on the right).
 - The native window title bar and controls remain, without Electron's File/Edit/View/Window menu bar.
@@ -79,7 +84,7 @@ One content column; the cards use the available page width.
   ("41 PDFs loaded, 40 linked to a sale"); a warning box listing sales with no PDF ("They are still entered.
   Upload those PDFs on the website yourself."); a quiet note for PDFs whose invoice is not in the month's sales.
 - Header action: primary **Match tires** at the far right, disabled before an export is loaded.
-- Match tires loads and signs in to ProRewards in the background while Sales remains visible. On success it opens Review. If sign-in or matching cannot finish, a temporary error toast appears on Sales with the next step; sign-in failure begins "Could not log in".
+- Match tires loads and signs in to ProRewards in the background while Sales remains visible. While it works, the button shows a spinning circle and reads "Matching tires…", and it stays disabled. On success it opens Review. If sign-in or matching cannot finish, a temporary error toast appears on Sales with the next step; sign-in failure begins "Could not log in".
 - The ProRewards sidebar item remains the way to open the website and see sign-in state.
 - Empty state: one large drop zone for the Excel file, with a Choose file button.
 

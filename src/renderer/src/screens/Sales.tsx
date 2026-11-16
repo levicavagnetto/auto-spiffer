@@ -1,7 +1,14 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { FileSpreadsheet, FolderOpen, UploadCloud } from 'lucide-react'
+import {
+  FileSpreadsheet,
+  FolderOpen,
+  LoaderCircle,
+  UploadCloud
+} from 'lucide-react'
+import { Alert, AlertTitle } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
+import { Card, CardDescription, CardTitle } from '../components/ui/card'
 import { MissingInvoicePdfs } from './MissingInvoicePdfs'
 import type { SalesSnapshot } from '../../../shared/sales'
 
@@ -39,6 +46,7 @@ export function Sales({
   const exportInput = useRef<HTMLInputElement>(null)
   const pdfInput = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
+  const [matching, setMatching] = useState(false)
   const [error, setError] = useState('')
 
   const loadExport = async (path: string): Promise<void> => {
@@ -104,6 +112,7 @@ export function Sales({
 
   const match = async (): Promise<void> => {
     setBusy(true)
+    setMatching(true)
     setError('')
     try {
       await onMatch()
@@ -117,6 +126,7 @@ export function Sales({
       )
     } finally {
       setBusy(false)
+      setMatching(false)
     }
   }
 
@@ -145,9 +155,23 @@ export function Sales({
     <div className="space-y-5">
       {headerActions &&
         createPortal(
-          <Button disabled={!snapshot || busy} onClick={() => void match()}>
-            Match tires
-          </Button>,
+          <>
+            {matching && (
+              <span role="status" className="sr-only">
+                Signing in and matching tires. This can take a minute.
+              </span>
+            )}
+            <Button
+              disabled={!snapshot || busy}
+              aria-busy={matching}
+              onClick={() => void match()}
+            >
+              {matching && (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              )}
+              {matching ? 'Matching tires…' : 'Match tires'}
+            </Button>
+          </>,
           headerActions
         )}
       <input
@@ -174,18 +198,16 @@ export function Sales({
         }}
       />
       {error && (
-        <p
-          role="alert"
-          className="rounded-lg bg-destructive p-3 text-sm text-destructive-foreground"
-        >
+        <Alert role="alert" variant="destructive">
           {error}
-        </p>
+        </Alert>
       )}
       {!snapshot ? (
         <>
-          <section
+          <Card
+            role="region"
             aria-label="Sales export drop zone"
-            className="flex min-h-72 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-8 text-center"
+            className="flex min-h-72 flex-col items-center justify-center border-2 border-dashed p-8 text-center"
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               event.preventDefault()
@@ -196,13 +218,13 @@ export function Sales({
               className="mb-4 size-9 text-accent"
               aria-hidden="true"
             />
-            <h2 className="text-lg font-semibold">Material Sales export</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <CardTitle>Material Sales export</CardTitle>
+            <CardDescription className="mt-2">
               No sales loaded yet.
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            </CardDescription>
+            <CardDescription className="mt-1">
               Drop the month&apos;s Excel export here, or choose a file.
-            </p>
+            </CardDescription>
             <Button
               className="mt-5"
               disabled={busy}
@@ -210,14 +232,16 @@ export function Sales({
             >
               Choose Excel file
             </Button>
-          </section>
+          </Card>
         </>
       ) : (
         <div className="space-y-5">
-          <section className="rounded-xl border border-border bg-card p-5">
+          <Card className="p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-semibold">Material Sales export</h2>
+                <CardTitle className="text-base">
+                  Material Sales export
+                </CardTitle>
                 <p className="mt-1 break-all text-sm text-muted-foreground">
                   {snapshot.state.file.split(/[\\/]/).at(-1)}
                 </p>
@@ -247,13 +271,15 @@ export function Sales({
               </span>
             </div>
             {snapshot.state.monthWarning && (
-              <p className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
+              <Alert role={undefined} variant="warning" className="mt-4">
                 {snapshot.state.monthWarning}
-              </p>
+              </Alert>
             )}
             {snapshot.state.unreadable.length > 0 && (
-              <div className="mt-4 rounded-lg bg-warning p-3 text-sm text-warning-foreground">
-                <p className="font-medium">Rows that could not be read</p>
+              <Alert role={undefined} variant="warning" className="mt-4">
+                <AlertTitle className="font-medium">
+                  Rows that could not be read
+                </AlertTitle>
                 <ul className="mt-1 list-inside list-disc">
                   {snapshot.state.unreadable.map((item) => (
                     <li key={item.row}>
@@ -261,13 +287,13 @@ export function Sales({
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Alert>
             )}
-          </section>
-          <section className="rounded-xl border border-border bg-card p-5">
+          </Card>
+          <Card className="p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="font-semibold">Invoice PDFs</h2>
+                <CardTitle className="text-base">Invoice PDFs</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {snapshot.links.loadedCount} PDF
                   {snapshot.links.loadedCount === 1 ? '' : 's'} loaded ·{' '}
@@ -393,7 +419,7 @@ export function Sales({
                 ))}
               </ul>
             )}
-          </section>
+          </Card>
         </div>
       )}
     </div>

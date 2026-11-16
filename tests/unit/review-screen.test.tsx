@@ -4,6 +4,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within
 } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
@@ -123,6 +124,33 @@ it('opens a tire decision sheet with suggestions and a search', () => {
   expect(
     screen.getByRole('checkbox', { name: 'Remember this choice' })
   ).toBeTruthy()
+})
+
+it('closes the tire decision sheet with Esc and returns focus to the row', async () => {
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  const opener = screen.getByRole('button', { name: /Review 900001/ })
+  opener.focus()
+  fireEvent.click(opener)
+  const dialog = await screen.findByRole('dialog', {
+    name: 'Which tire is this?'
+  })
+  await waitFor(() =>
+    expect(dialog.contains(document.activeElement)).toBe(true)
+  )
+  fireEvent.keyDown(document.activeElement!, { key: 'Escape' })
+  await waitFor(() =>
+    expect(
+      screen.queryByRole('dialog', { name: 'Which tire is this?' })
+    ).toBeNull()
+  )
+  await waitFor(() => expect(document.activeElement).toBe(opener))
 })
 
 it('keeps Enter in the header as ready lines change', () => {

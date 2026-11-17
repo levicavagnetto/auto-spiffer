@@ -34,7 +34,7 @@ export default function App(): React.JSX.Element {
   const [matchError, setMatchError] = useState<string | null>(null)
   const matching = useRef(false)
   const [current, setCurrent] = useState<Screen>('sales')
-  const [version, setVersion] = useState('1.1.0')
+  const [version, setVersion] = useState('1.2.0')
   const [theme, setTheme] = useState<Theme>('system')
   const [settingsReady, setSettingsReady] = useState(false)
   const [systemDark, setSystemDark] = useState(false)

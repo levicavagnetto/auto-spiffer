@@ -94,10 +94,10 @@ const handlers: CallHandlers = {
   matchTires: () => {
     throw new Error('No fixture')
   },
-  decideTire: () => {
+  decideLine: () => {
     throw new Error('No fixture')
   },
-  setLineLeftOut: () => {
+  setLinesLeftOut: () => {
     throw new Error('No fixture')
   },
   listSavedMatches: () => [],

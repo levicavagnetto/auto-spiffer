@@ -83,26 +83,26 @@ export class ReviewSession {
       (item) => item.signature === input.signature
     )
     if (!line) throw new Error('That sale is no longer in the review.')
-    if (line.status === 'not-a-tire' || line.status === 'possible-wheel')
+    if (line.status === 'not-a-tire')
       throw new Error('This line is not a tire.')
     if (
       input.label !== null &&
-      !current.tires.some(
-        (item) => item.kind === 'tire' && item.label === input.label
-      )
+      !current.tires.some((item) => item.label === input.label)
     )
-      throw new Error('Choose a tire on the current claim page list.')
+      throw new Error('Choose a tire or wheel on the current claim page list.')
     this.decisions[input.signature] = input.label
     if (input.remember)
       this.saved.set(input.signature, input.label, line.description)
     return this.snapshot()!
   }
 
-  setLeftOut(input: { id: string; leftOut: boolean }): ReviewSnapshot {
-    if (!this.snapshot()?.lines.some((line) => line.id === input.id))
+  setLeftOut(input: { ids: string[]; leftOut: boolean }): ReviewSnapshot {
+    const lines = this.snapshot()?.lines ?? []
+    if (!input.ids.every((id) => lines.some((line) => line.id === id)))
       throw new Error('That sale is no longer in the review.')
-    if (input.leftOut) this.leftOut.add(input.id)
-    else this.leftOut.delete(input.id)
+    for (const id of input.ids)
+      if (input.leftOut) this.leftOut.add(id)
+      else this.leftOut.delete(id)
     return this.snapshot()!
   }
 

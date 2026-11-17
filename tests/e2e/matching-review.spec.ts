@@ -43,7 +43,7 @@ test('a decision updates matching lines and saved match can be removed', async (
       page.getByRole('dialog', { name: 'Which tire is this?' })
     ).toBeVisible()
     await page.getByRole('button', { name: 'Use Nokian One HT' }).click()
-    await expect(page.getByText('2 ready (3 tires)')).toBeVisible()
+    await expect(page.getByText('2 ready (3 items)')).toBeVisible()
     await page.getByRole('button', { name: /Saved matches/ }).click()
     await expect(page.getByText('nokian|one')).toBeVisible()
     await page.getByRole('button', { name: 'Remove nokian|one' }).click()
@@ -57,7 +57,7 @@ test('a decision updates matching lines and saved match can be removed', async (
   }
 })
 
-test('Review separates possible wheels from tires and tubes', async () => {
+test('Review includes lines with checkboxes and approves a wheel', async () => {
   const { args, folder, remove } = testUserData()
   const workbook = new ExcelJS.Workbook()
   const sheet = workbook.addWorksheet('Report')
@@ -99,13 +99,34 @@ test('Review separates possible wheels from tires and tubes', async () => {
     await expect(page.getByText('900811')).toHaveCount(0)
     await expect(page.getByText('900813')).toHaveCount(0)
     await expect(
-      page.getByText(/Check whether they qualify for ATD Custom Wheels/)
+      page.getByText(/choose ATD Custom Wheels or ATD Steel Wheels/)
     ).toBeVisible()
-    await expect(
-      page.getByRole('button', { name: /Review 900812/ })
-    ).toHaveCount(0)
     await page.getByRole('tab', { name: 'Not a tire 1' }).click()
     await expect(page.getByText('900813')).toBeVisible()
+    await expect(
+      page.getByRole('columnheader', { name: 'Claim page tire' })
+    ).toHaveCount(0)
+
+    await page.getByRole('tab', { name: /^All/ }).click()
+    await page.getByRole('checkbox', { name: /Include 900811/ }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(
+      page.getByRole('button', { name: 'Enter 0 sales' })
+    ).toBeDisabled()
+    await page.getByRole('checkbox', { name: 'Include all' }).click()
+    await expect(
+      page.getByRole('button', { name: 'Enter 1 sale' })
+    ).toBeEnabled()
+
+    await page.getByText('900812').click()
+    const wheel = page.getByRole('dialog', { name: 'Which wheel is this?' })
+    await expect(wheel).toBeVisible()
+    await wheel.getByRole('radio', { name: 'ATD Custom Wheels' }).click()
+    await wheel.getByRole('button', { name: 'Use ATD Custom Wheels' }).click()
+    await expect(
+      page.getByRole('button', { name: 'Enter 2 sales' })
+    ).toBeEnabled()
+    await expect(page.getByText('ATD Custom Wheels')).toBeVisible()
   } finally {
     await app.close()
     remove()

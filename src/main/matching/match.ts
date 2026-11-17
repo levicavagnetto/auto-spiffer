@@ -133,8 +133,7 @@ export function matchTire(
   const choice = saved[signature]
   if (
     choice &&
-    (choice.label === null ||
-      tires.some((item) => item.kind === 'tire' && item.label === choice.label))
+    (choice.label === null || tires.some((item) => item.label === choice.label))
   ) {
     if (choice.label === null)
       return {

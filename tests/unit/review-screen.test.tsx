@@ -192,7 +192,7 @@ it('keeps Enter in the header as ready lines change', () => {
   ).toBe(true)
 })
 
-it('shows possible wheels in their own filter with manual guidance and no tire picker', () => {
+it('shows possible wheels in their own filter with a note', () => {
   const header = headerTarget()
   const withWheels: ReviewSnapshot = {
     ...snapshot,
@@ -235,10 +235,8 @@ it('shows possible wheels in their own filter with manual guidance and no tire p
   expect(screen.queryByText('900002')).toBeNull()
   expect(screen.queryByText('900004')).toBeNull()
   expect(
-    screen.getByText(/Check whether they qualify for ATD Custom Wheels/)
+    screen.getByText(/choose ATD Custom Wheels or ATD Steel Wheels/)
   ).toBeTruthy()
-  expect(screen.queryByRole('button', { name: /Review 900003/ })).toBeNull()
-  expect(screen.getByText('Enter by hand')).toBeTruthy()
   expect(screen.getByText('✓')).toBeTruthy()
   fireEvent.click(screen.getByRole('tab', { name: 'Not a tire 1' }))
   expect(screen.getByText('900004')).toBeTruthy()
@@ -250,4 +248,246 @@ it('shows possible wheels in their own filter with manual guidance and no tire p
   })
   expect(screen.getByText('900003')).toBeTruthy()
   expect(screen.queryByText('900002')).toBeNull()
+})
+
+const wheelSnapshot: ReviewSnapshot = {
+  ...snapshot,
+  tires: [
+    ...snapshot.tires,
+    {
+      label: 'ATD Custom Wheels',
+      brand: 'ATD',
+      model: 'Custom Wheels',
+      category: null,
+      kind: 'wheel'
+    },
+    {
+      label: 'ATD Steel Wheels',
+      brand: 'ATD',
+      model: 'Steel Wheels',
+      category: null,
+      kind: 'wheel'
+    }
+  ],
+  lines: [
+    snapshot.lines[0]!,
+    {
+      ...snapshot.lines[1]!,
+      id: 'wheel',
+      invoice: '900003',
+      description: 'STYLE A 20X10 -12 5X5.00 BLACK',
+      status: 'possible-wheel',
+      tire: undefined,
+      signature: 'wheel|style a black'
+    }
+  ]
+}
+
+it('opens the wheel form for a possible wheel and approves it', async () => {
+  const decideLine = vi.fn(async () => wheelSnapshot)
+  Object.assign(window, { api: { decideLine } })
+  render(
+    <Review
+      snapshot={wheelSnapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  fireEvent.click(screen.getByText('900003'))
+  const dialog = screen.getByRole('dialog', { name: 'Which wheel is this?' })
+  expect(
+    within(dialog).queryByLabelText('Search all claim page tires')
+  ).toBeNull()
+  fireEvent.click(
+    within(dialog).getByRole('radio', { name: 'ATD Steel Wheels' })
+  )
+  fireEvent.click(
+    within(dialog).getByRole('button', { name: 'Use ATD Steel Wheels' })
+  )
+  await waitFor(() =>
+    expect(decideLine).toHaveBeenCalledWith({
+      signature: 'wheel|style a black',
+      label: 'ATD Steel Wheels',
+      remember: true
+    })
+  )
+})
+
+it('switches a tire line to the wheel form', () => {
+  render(
+    <Review
+      snapshot={wheelSnapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  fireEvent.click(screen.getByText('900001'))
+  fireEvent.click(screen.getByRole('button', { name: 'This is a wheel' }))
+  expect(
+    screen.getByRole('dialog', { name: 'Which wheel is this?' })
+  ).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'This is a tire' })).toBeTruthy()
+})
+
+it('says when the claim page has no wheel products', () => {
+  render(
+    <Review
+      snapshot={{ ...wheelSnapshot, tires: snapshot.tires }}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  fireEvent.click(screen.getByText('900003'))
+  expect(screen.getByText(/has no wheel products/)).toBeTruthy()
+  expect(screen.queryByRole('button', { name: /^Use / })).toBeNull()
+})
+
+it('has no claim page tire or this month column and shows the tire under the report', () => {
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  expect(
+    screen.queryByRole('columnheader', { name: 'Claim page tire' })
+  ).toBeNull()
+  expect(screen.queryByRole('columnheader', { name: 'This month' })).toBeNull()
+  expect(screen.getByText('Falken Aklimate - Passenger Tires')).toBeTruthy()
+  expect(screen.getByText('Nokian One HT - Light Truck Tires ?')).toBeTruthy()
+})
+
+it('includes lines with checkboxes and select all without opening the panel', async () => {
+  const setLinesLeftOut = vi.fn(async () => snapshot)
+  Object.assign(window, { api: { setLinesLeftOut } })
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  fireEvent.click(screen.getByRole('checkbox', { name: /Include 900001/ }))
+  await waitFor(() =>
+    expect(setLinesLeftOut).toHaveBeenCalledWith({
+      ids: ['one'],
+      leftOut: true
+    })
+  )
+  expect(screen.queryByRole('dialog')).toBeNull()
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Include all' }))
+  await waitFor(() =>
+    expect(setLinesLeftOut).toHaveBeenLastCalledWith({
+      ids: ['one', 'two'],
+      leftOut: true
+    })
+  )
+})
+
+it('shows a Tire or Wheel type pill for each line', () => {
+  render(
+    <Review
+      snapshot={wheelSnapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  expect(screen.getByRole('columnheader', { name: 'Type' })).toBeTruthy()
+  const tireRow = screen.getByText('900001').closest('tr')!
+  const wheelRow = screen.getByText('900003').closest('tr')!
+  expect(within(tireRow).getByText('Tire')).toBeTruthy()
+  expect(within(wheelRow).getByText('Wheel')).toBeTruthy()
+})
+
+it('sorts by a column when its header is clicked', () => {
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  const invoices = (): string[] =>
+    screen.getAllByText(/^90000\d$/).map((cell) => cell.textContent ?? '')
+  expect(invoices()).toEqual(['900001', '900002'])
+  fireEvent.click(screen.getByRole('button', { name: 'Qty' }))
+  expect(invoices()).toEqual(['900002', '900001'])
+  expect(
+    screen.getByRole('columnheader', { name: 'Qty' }).getAttribute('aria-sort')
+  ).toBe('ascending')
+  fireEvent.click(screen.getByRole('button', { name: 'Qty' }))
+  expect(invoices()).toEqual(['900001', '900002'])
+  fireEvent.click(screen.getByRole('button', { name: 'Qty' }))
+  expect(
+    screen.getByRole('columnheader', { name: 'Qty' }).getAttribute('aria-sort')
+  ).toBe('none')
+})
+
+it('sorts by every column without crashing', () => {
+  render(
+    <Review
+      snapshot={wheelSnapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  for (const name of [
+    'Status',
+    'Type',
+    'Date',
+    'Invoice',
+    'On the report',
+    'Qty',
+    'PDF'
+  ]) {
+    fireEvent.click(screen.getByRole('button', { name }))
+    fireEvent.click(screen.getByRole('button', { name }))
+    expect(screen.getByText('900003')).toBeTruthy()
+  }
+})
+
+it('focuses the search box when / is pressed outside a text box', () => {
+  render(
+    <Review
+      snapshot={snapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  const search = screen.getByRole('textbox', { name: 'Search invoice or tire' })
+  fireEvent.keyDown(document.body, { key: '/' })
+  expect(document.activeElement).toBe(search)
+  fireEvent.change(search, { target: { value: '900' } })
+  search.blur()
+  fireEvent.click(screen.getByText('900001'))
+  const tireSearch = screen.getByLabelText('Search all claim page tires')
+  tireSearch.focus()
+  fireEvent.keyDown(tireSearch, { key: '/' })
+  expect(document.activeElement).toBe(tireSearch)
+})
+
+it('filters to tires only with the Tires tab', () => {
+  render(
+    <Review
+      snapshot={wheelSnapshot}
+      run={null}
+      onSnapshot={vi.fn()}
+      onEnter={vi.fn()}
+    />
+  )
+  const tabs = screen.getAllByRole('tab').map((tab) => tab.textContent)
+  expect(tabs.indexOf('Tires 1')).toBe(tabs.indexOf('Wheels 1') - 1)
+  fireEvent.click(screen.getByRole('tab', { name: 'Tires 1' }))
+  expect(screen.getByText('900001')).toBeTruthy()
+  expect(screen.queryByText('900003')).toBeNull()
 })

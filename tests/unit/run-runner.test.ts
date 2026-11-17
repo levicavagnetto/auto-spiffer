@@ -282,3 +282,26 @@ it('does not upload a PDF when the added sale disappears during recovery', async
   ).rejects.toThrow(/claim page needs review/i)
   expect(driver.upload).not.toHaveBeenCalled()
 })
+
+it('enters an approved wheel line like a tire and skips it when already there', async () => {
+  const wheel = {
+    ...line('wheel', '900123', 4, 'wheel.pdf'),
+    tire: 'ATD Custom Wheels',
+    signature: 'wheel|style a black'
+  }
+  const driver = fakeDriver()
+  driver.page.tires.push('ATD Custom Wheels')
+  const summary = await runLines([wheel], driver, new RunControl(), vi.fn())
+  expect(driver.addLine).toHaveBeenCalledWith(
+    expect.objectContaining({
+      invoice: '900123',
+      product: 'ATD Custom Wheels',
+      qty: 4
+    })
+  )
+  expect(driver.upload).toHaveBeenCalledWith('wheel.pdf')
+  expect(summary.added).toEqual(['wheel'])
+  const again = await runLines([wheel], driver, new RunControl(), vi.fn())
+  expect(again.alreadyThere).toEqual(['wheel'])
+  expect(driver.addLine).toHaveBeenCalledOnce()
+})

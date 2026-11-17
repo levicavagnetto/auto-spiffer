@@ -71,7 +71,7 @@ held back as **Outside program dates**, with both dates in the reason, and never
 
 ### Requirement: Review screen
 
-The Review screen SHALL list every line (tire lines, Possible wheel lines, and Not a tire rows) in a table whose columns are, in order: Include, Status, Type, Date, Invoice, On the report, Qty and PDF, as in `docs/ui.md`. The On the report cell SHALL show the report's description and, as a muted second line, the chosen tire or wheel product, the guess with a `?`, or why the line is not entered. It SHALL filter by status with counts, including a Wheels filter, search by invoice, description, tire or wheel product, and summarize ready lines and items. The **Enter N sales** action SHALL appear at the right of the page header, show the number of ready, included lines, and stay disabled, with the reason beside it, while any included line Needs a decision. It SHALL also be disabled when no included lines are ready.
+The Review screen SHALL list every line in a table with the columns Include, Status, Type, Date, Invoice, On the report, Qty and PDF, as in `docs/ui.md`. It SHALL filter by status with counts, search, and summarize ready lines. The header's **Enter N sales** action SHALL count ready, included lines and stay disabled, with the reason beside it, while any included line Needs a decision or when none are ready.
 
 #### Scenario: Lines needing a decision
 
@@ -125,12 +125,7 @@ The Review screen SHALL list every line (tire lines, Possible wheel lines, and N
 
 ### Requirement: Settle a line
 
-Clicking anywhere on a row, or pressing Enter or Space on the row's On the report cell (a button), SHALL open the side panel for that line, whatever its status. Clicking the row's Include checkbox SHALL NOT open the panel. The panel SHALL show the invoice, date, quantity and report text, then one of two forms, chosen by what the line is:
-
-- **Tire** (any line not treated as a wheel): titled **Which tire is this?**, with what was read (brand, size, model words), the suggestions with scores and reasons, a search over every tire on the claim page, "Remember this choice" (on by default), and the actions "Use <tire>", "Not an eligible tire" and "This is a wheel".
-- **Wheel** (a Possible wheel line, or a line whose chosen product is a wheel product): titled **Which wheel is this?**, with a choice among the wheel products on this month's claim page (ATD Custom Wheels, ATD Steel Wheels), "Remember this choice" (on by default), and the actions "Use <wheel product>", "Not an eligible wheel" and "This is a tire".
-
-"This is a wheel" and "This is a tire" SHALL switch the panel to the other form without changing the line until the person makes a choice. Choosing SHALL update the line, and every other line with the same wording, at once.
+Clicking a row, or pressing Enter on its On the report button, SHALL open a side panel for that line; the Include checkbox SHALL NOT. The panel SHALL show a **Which tire is this?** form for tires or a **Which wheel is this?** form for wheels, as in `docs/ui.md`, each with "Remember this choice" and a not-eligible action, and a button to switch to the other form. Choosing SHALL update the line and every line with the same wording at once.
 
 #### Scenario: Open a row
 

@@ -106,12 +106,8 @@ is not in the month's sales (they are ignored), and list invoices with more than
 - **THEN** the app continues, and says the PDFs must be uploaded on the website
 
 ### Requirement: Sales screen
-The Sales screen SHALL show the export (file name, date range, rows, tire lines, rows left out and why) and the
-invoice PDFs summary and warnings in a single content column that uses the available page width. It SHALL NOT
-show separate ProRewards or Ready to match cards. A **Match tires** action SHALL appear at the right of the page
-header; it SHALL be disabled until an export is read and SHALL remain available after an export is read. Picking
-a new export SHALL replace the old one; adding PDFs SHALL add to those already loaded, and the person SHALL be
-able to remove them. The ProRewards sidebar item SHALL remain available.
+
+The Sales screen SHALL show the export summary (file name, date range, rows, tire lines, rows left out and why) and the invoice PDFs summary and warnings in one full-width column, as in `docs/ui.md`, without ProRewards or Ready to match cards. A **Match tires** action SHALL sit at the right of the page header, disabled until an export is read. A new export SHALL replace the old one; PDFs SHALL add to those loaded and be removable.
 
 #### Scenario: Replace the export
 - **WHEN** the person picks a different export

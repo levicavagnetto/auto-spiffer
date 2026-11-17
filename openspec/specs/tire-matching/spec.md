@@ -70,66 +70,162 @@ held back as **Outside program dates**, with both dates in the reason, and never
 - **THEN** the line is Outside program dates and not counted as ready
 
 ### Requirement: Review screen
-The Review screen SHALL list every line (tire lines, Possible wheel lines, and Not a tire rows) with status, sale date, invoice, the report's description, the claim page tire (or the guess, or why not), quantity and whether it has a PDF, as in `docs/ui.md`. It SHALL filter by status with counts, including a Wheels filter, search by invoice or tire, and summarize ready lines and tires. The **Enter N sales** action SHALL appear at the right of the page header, show the number of ready tire lines, and stay disabled, with the reason beside it, while any tire line Needs a decision. It SHALL also be disabled when no tire lines are ready.
+
+The Review screen SHALL list every line in a table with the columns Include, Status, Type, Date, Invoice, On the report, Qty and PDF, as in `docs/ui.md`. It SHALL filter by status with counts, search, and summarize ready lines. The header's **Enter N sales** action SHALL count ready, included lines and stay disabled, with the reason beside it, while any included line Needs a decision or when none are ready.
 
 #### Scenario: Lines needing a decision
-- **WHEN** two tire lines Need a decision
+
+- **WHEN** two included lines Need a decision
 - **THEN** Enter is disabled and the page header says "Decide 2 tires to continue" beside it
 
 #### Scenario: All decided
-- **WHEN** the person settles the last tire line that needed a decision
-- **THEN** the page header's Enter action shows the number of ready tire lines and becomes available
+
+- **WHEN** the person settles the last line that needed a decision
+- **THEN** the page header's Enter action shows the number of ready lines and becomes available
 
 #### Scenario: No ready lines
-- **WHEN** no tire lines are ready to enter
+
+- **WHEN** no included lines are ready to enter
 - **THEN** the page header's Enter action is disabled
 
+#### Scenario: Chosen item under the description
+
+- **WHEN** a line is Ready with "Nokian One HT - Light Truck Tires"
+- **THEN** the On the report cell shows the description and, under it in muted text, "Nokian One HT - Light Truck Tires"
+
+#### Scenario: Type pill
+
+- **WHEN** the table shows a tire line and a possible or approved wheel line
+- **THEN** the tire line has a Tire pill and the wheel line a Wheel pill, each in its own color, and Not a tire rows have none
+
+#### Scenario: Sort by a column
+
+- **WHEN** the person clicks the Qty header
+- **THEN** the lines sort by quantity, smallest first; a second click sorts largest first, and a third returns to the report order
+
+#### Scenario: Old columns are gone
+
+- **WHEN** the Review table is shown
+- **THEN** it has no Claim page tire column and no This month column
+
 #### Scenario: Wheels filter
-- **WHEN** Review contains possible wheel lines
-- **THEN** the Wheels filter shows their count and selecting it shows their date, invoice, description, quantity, and PDF indicator in the existing table
+
+- **WHEN** Review contains possible or approved wheel lines
+- **THEN** the Wheels filter shows their count and selecting it shows them in the same table
 
 #### Scenario: Wheels in All
+
 - **WHEN** Review contains possible wheel lines
 - **THEN** they remain visible in All and are excluded from the generic Not a tire filter
 
 #### Scenario: Manual wheel guidance
+
 - **WHEN** the Wheels filter is selected
-- **THEN** a note tells the person to check whether the wheels qualify for ATD Custom Wheels or ATD Steel Wheels and enter them on ProRewards themselves
+- **THEN** a note says to open a wheel and choose ATD Custom Wheels or ATD Steel Wheels to have it entered
 
 ### Requirement: Settle a line
-Opening a line SHALL show the **Which tire is this?** sheet: the report text, what was read from it (brand, size,
-model words), the suggestions with scores and reasons, a search over every tire on the claim page, "Remember
-this choice" (on by default), and the actions "Use <tire>" and "Not an eligible tire". Choosing SHALL update the
-line, and every other line with the same wording, at once.
+
+Clicking a row, or pressing Enter on its On the report button, SHALL open a side panel for that line; the Include checkbox SHALL NOT. The panel SHALL show a **Which tire is this?** form for tires or a **Which wheel is this?** form for wheels, as in `docs/ui.md`, each with "Remember this choice" and a not-eligible action, and a button to switch to the other form. Choosing SHALL update the line and every line with the same wording at once.
+
+#### Scenario: Open a row
+
+- **WHEN** the person clicks the date of a Ready line
+- **THEN** the side panel opens for that line
+
+#### Scenario: Open a row from the keyboard
+
+- **WHEN** the row's On the report button has focus and the person presses Enter
+- **THEN** the side panel opens for that line
 
 #### Scenario: Pick the suggested tire
+
 - **WHEN** the person opens the "NOK ONE" line and clicks Use Nokian One HT
 - **THEN** the line becomes Ready with Nokian One HT, and so does every other line with that wording
 
 #### Scenario: Not eligible
+
 - **WHEN** the person clicks Not an eligible tire
 - **THEN** the line becomes Not eligible ("you marked this as not eligible")
 
 #### Scenario: Override a ready line
+
 - **WHEN** the person opens a Ready line and picks a different tire
 - **THEN** the line uses the tire they picked
 
-### Requirement: Leave a line out
-The person SHALL be able to leave any line out of this month's entry, and include it again. Left-out lines are
-not entered and do not block Enter. This choice SHALL not be remembered after the sales file is replaced or the
-app restarts.
+#### Scenario: Possible wheel opens the wheel form
+
+- **WHEN** the person opens a Possible wheel line
+- **THEN** the panel is titled Which wheel is this? and offers only the wheel products on the claim page, with no tire picker
+
+#### Scenario: Tire line opens the tire form
+
+- **WHEN** the person opens a tire line
+- **THEN** the panel is titled Which tire is this? and shows no wheel product choice
+
+#### Scenario: Mark a tire line as a wheel
+
+- **WHEN** the person opens a tire line, clicks This is a wheel, and then clicks Use ATD Custom Wheels
+- **THEN** the line becomes Ready with ATD Custom Wheels
+
+### Requirement: Approve a wheel
+
+A wheel line SHALL be entered only after the person, or a saved choice, picks a wheel product. Approving SHALL make the line Ready with that product and count it in Enter N sales. An unapproved Possible wheel SHALL NOT be entered and SHALL NOT keep Enter disabled. When the claim page lists no wheel product, the wheel form SHALL say "This month's claim page has no wheel products, so wheels can't be entered." and offer no Use action.
+
+#### Scenario: Approve as Custom Wheels
+
+- **WHEN** the person opens a Possible wheel line, picks ATD Custom Wheels and clicks Use ATD Custom Wheels
+- **THEN** the line becomes Ready with "ATD Custom Wheels" and Enter counts it
+
+#### Scenario: Steel wheels
+
+- **WHEN** the claim page offers ATD Custom Wheels and ATD Steel Wheels and the person picks ATD Steel Wheels
+- **THEN** the line becomes Ready with "ATD Steel Wheels"
+
+#### Scenario: Only one wheel product
+
+- **WHEN** the claim page offers ATD Custom Wheels but not ATD Steel Wheels
+- **THEN** the wheel form offers only ATD Custom Wheels
+
+#### Scenario: No wheel products
+
+- **WHEN** the claim page lists no wheel product
+- **THEN** the wheel form shows the no-wheel-products message and no Use action, and wheel lines stay Possible wheel
+
+#### Scenario: Wheel not eligible
+
+- **WHEN** the person clicks Not an eligible wheel
+- **THEN** the line becomes Not eligible ("you marked this as not eligible")
+
+#### Scenario: Unapproved wheel
+
+- **WHEN** Review has one ready tire and one Possible wheel that nobody approved
+- **THEN** Enter shows one sale and the run enters only the tire
+
+### Requirement: Include lines with checkboxes
+
+Each Ready or Needs a decision line SHALL have an **Include** checkbox in the first column, ticked by default; other lines SHALL have none. Left-out lines SHALL not be entered and SHALL not block Enter, and the choice SHALL not outlive the sales file or an app restart. A header checkbox SHALL include or leave out every line with a checkbox in the current view.
 
 #### Scenario: Leave out a line
-- **WHEN** the person leaves out a line that Needs a decision
+
+- **WHEN** the person unticks a line that Needs a decision
 - **THEN** it shows as Left out, and it no longer keeps Enter disabled
 
-### Requirement: Possible wheels are review-only
-The app SHALL label recognized wheel sales Possible wheel without choosing a claim-page wheel product or treating them as eligible. They SHALL NOT block tire entry, count as ready tire sales, enter automatically, upload PDFs automatically, or create saved tire matches.
+#### Scenario: Include it again
 
-#### Scenario: Tire entry with a wheel row
-- **WHEN** Review contains one ready tire and one possible wheel
-- **THEN** Enter shows one sale and the automatic run processes only the tire
+- **WHEN** the person ticks a left-out line
+- **THEN** it is counted again
 
-#### Scenario: Wheel product choices on the site
-- **WHEN** the claim page offers ATD Custom Wheels and ATD Steel Wheels
-- **THEN** the app does not pick either product for a possible wheel sale
+#### Scenario: Clear all in a filter
+
+- **WHEN** the Needs a decision filter is selected and the person unticks the header checkbox
+- **THEN** every line in that filter is left out, and lines in other filters are unchanged
+
+#### Scenario: Mixed state
+
+- **WHEN** some, but not all, lines with a checkbox in the current view are included
+- **THEN** the header checkbox shows a mixed state
+
+#### Scenario: Checkbox does not open the panel
+
+- **WHEN** the person clicks a row's Include checkbox
+- **THEN** the include state changes and the side panel does not open

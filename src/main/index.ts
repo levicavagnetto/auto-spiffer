@@ -422,11 +422,11 @@ if (!app.requestSingleInstanceLock()) {
           await claimNavigator.open(month, undefined, true)
           return review.match()
         },
-        decideTire: (input) => {
+        decideLine: (input) => {
           ensureNoRun()
           return review.decide(input)
         },
-        setLineLeftOut: (input) => {
+        setLinesLeftOut: (input) => {
           ensureNoRun()
           return review.setLeftOut(input)
         },

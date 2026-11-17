@@ -3,6 +3,7 @@ import type { ReviewLine } from '../../shared/review'
 import { matchTire, type SavedChoices } from './match'
 import { parseDescription } from './parse'
 import type { Tire } from './tireList'
+import { wheelSignature } from './wheel'
 
 export function planLines(
   sales: Sale[],
@@ -20,20 +21,42 @@ export function planLines(
     const match = sale.notATire
       ? null
       : matchTire(sale.description, tires, saved)
-    const signature = match?.signature ?? `row|${sale.row}`
-    const decision = Object.hasOwn(decisions, signature)
+    const isWheel = sale.notATire === 'wheel'
+    const signature =
+      match?.signature ??
+      (isWheel ? wheelSignature(sale.description) : `row|${sale.row}`)
+    const onList = (label: string | null | undefined): boolean =>
+      label === null || tires.some((item) => item.label === label)
+    const ownDecision = Object.hasOwn(decisions, signature)
       ? decisions[signature]
       : undefined
-    const status = sale.notATire
-      ? sale.notATire === 'wheel'
-        ? 'possible-wheel'
-        : 'not-a-tire'
-      : decision === null
+    const savedWheel =
+      isWheel && ownDecision === undefined && onList(saved[signature]?.label)
+        ? saved[signature]!.label
+        : undefined
+    const wheelChoice = ownDecision !== undefined ? ownDecision : savedWheel
+    const decision =
+      isWheel && wheelChoice !== undefined && !onList(wheelChoice)
+        ? undefined
+        : ownDecision
+    const status = isWheel
+      ? wheelChoice === null
         ? 'not-eligible'
-        : decision
+        : wheelChoice && onList(wheelChoice)
           ? 'ready'
-          : match!.status
-    const tire = decision ?? match?.tire
+          : 'possible-wheel'
+      : sale.notATire
+        ? 'not-a-tire'
+        : decision === null
+          ? 'not-eligible'
+          : decision
+            ? 'ready'
+            : match!.status
+    const tire = isWheel
+      ? status === 'ready'
+        ? wheelChoice
+        : undefined
+      : (decision ?? match?.tire)
     const outside =
       status === 'ready' &&
       dates[0] &&
@@ -54,21 +77,31 @@ export function planLines(
       suggestions: decision !== undefined ? [] : (match?.suggestions ?? []),
       reason: outside
         ? `Sale date ${sale.saleDate} is outside program dates ${dates[0]} to ${dates[1]}.`
-        : sale.notATire
-          ? sale.notATire === 'wheel'
-            ? 'Possible wheel. Check it on ProRewards yourself.'
-            : sale.notATire === 'tube'
+        : isWheel
+          ? wheelChoice === null
+            ? 'You marked this as not eligible.'
+            : status === 'ready'
+              ? savedWheel !== undefined
+                ? 'Your saved match.'
+                : 'Your choice for this month.'
+              : tires.some((item) => item.kind === 'wheel')
+                ? 'Possible wheel. Open it and choose the wheel product.'
+                : "This month's claim page has no wheel products, so wheels can't be entered."
+          : sale.notATire
+            ? sale.notATire === 'tube'
               ? 'Tube, not a tire.'
               : sale.notATire === 'shipping'
                 ? 'Shipping or handling, not a tire.'
                 : 'No tire size found.'
-          : decision === null
-            ? 'You marked this as not eligible.'
-            : decision
-              ? 'Your choice for this month.'
-              : match!.reason,
+            : decision === null
+              ? 'You marked this as not eligible.'
+              : decision
+                ? 'Your choice for this month.'
+                : match!.reason,
       signature,
-      savedMatch: decision === undefined && (match?.savedMatch ?? false),
+      savedMatch: isWheel
+        ? savedWheel !== undefined && status === 'ready'
+        : decision === undefined && (match?.savedMatch ?? false),
       pdf: pdfs[sale.invoice],
       leftOut: leftOut.has(id),
       readAs: { brand: parsed.brand, sizes: parsed.sizes, words: parsed.words }

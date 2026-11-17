@@ -40,6 +40,8 @@ The embedded ProRewards website retains its own colors.
 | nav-active | `#C8DDF8` | `#294778` | selected navigation item |
 | nav-active-foreground | `#173C70` | `#FFFFFF` | selected navigation text |
 | wheel / wheel-foreground | `#E7E8FA` / `#4D5594` | `#30385D` / `#C4D0FF` | possible-wheel status |
+| type-tire / type-tire-foreground | `#DBE8FB` / `#1D4F94` | `#17345E` / `#A8CBFF` | Tire type pill on Review |
+| type-wheel / type-wheel-foreground | `#F1E5FA` / `#6A2B8F` | `#3B2452` / `#E0BDFF` | Wheel type pill on Review |
 | border | `#C5D4E6` | `#3A5383` | dividers and outlines |
 | foreground | `#182842` | `#F5F8FF` | main text |
 | muted-foreground | `#516784` | `#AAB9D7` | secondary text |
@@ -91,20 +93,32 @@ One content column; the cards use the available page width.
 ### 2. Review (step 2)
 - Header action: primary **Enter N sales** at the far right, disabled with "Decide 2 tires to continue" beside it
   while any line needs a decision. It stays reachable while the Review list scrolls.
-- A segmented filter: All, Ready, Needs a decision (warning color), Not eligible, Wheels, Not a tire, each with its
-  count; a search box (invoice or tire).
-- Wheels shows likely wheel rows as "Possible wheel" in the same table, without a tire choice. Its note says:
-  "These rows look like wheels. Check whether they qualify for ATD Custom Wheels or ATD Steel Wheels, then enter them on ProRewards yourself."
-- A table: Status (a pill with a dot), Date, Invoice (mono), On the report (muted, ellipsis), Claim page tire
-  (bold when Ready, warning color with `?` for a guess, muted "Not on the claim page" or "Not a tire"),
-  Qty (right-aligned, `*` when merged), PDF (check or dash). The selected row has the warning tint.
-- A footer summary: "19 ready (65 tires) · 2 need a decision · 18 not eligible · 3 not a tire".
-- **Which tire is this?** side sheet (440 px, from the right, over a scrim), opened by clicking a row:
-  invoice, date and quantity; the report text in mono with the model words highlighted; chips for Brand,
-  Size, Model; **Best guesses** as radio cards with match percentages and the reason ("HT is not on the
-  report"); a search over all tires on the claim page; **Remember this choice** (on by default; "Next time
-  'NOK ONE' is matched without asking"); buttons **Not an eligible tire** and **Use <tire>**.
-- A row menu also offers **Leave this line out** / **Include this line** (not remembered between months).
+- A segmented filter: All, Ready, Needs a decision (warning color), Not eligible, Tires, Wheels, Not a tire, each with its
+  count; a search box (invoice or tire). Pressing `/` anywhere on Review, outside a text box and
+  with the side sheet closed, puts the cursor in the search box; a small `/` key hint sits inside the box on the right.
+- Wheels shows possible and approved wheel rows in the same table. Its note says:
+  "Open a wheel and choose ATD Custom Wheels or ATD Steel Wheels to have it entered. Wheels nobody chooses are not entered."
+- A table: Include (checkbox, only on Ready and Needs a decision rows; the header checkbox selects or clears
+  every such row in the current filter and search, with a mixed state), Status (a pill), Type (a **Tire** or **Wheel** pill in the type colors; none on Not a
+  tire rows), Date, Invoice (mono),
+  On the report (the report text, muted, with a second line for the tire or wheel: medium weight when Ready,
+  warning color with `?` for a guess, otherwise muted "Not on the claim page", "Possible wheel" or "Not a
+  tire"), Qty (right-aligned, `*` when merged), PDF (check or dash). Unticked rows are left out (not
+  remembered between months).
+- Clicking a column header (all but Include) sorts by it: ascending, then descending, then back to the
+  report order. The active header shows an arrow.
+- Clicking anywhere on a row opens the side sheet; the On the report cell is a button for keyboard users.
+  The Include checkbox does not open it.
+- A footer summary: "19 ready (65 items) · 2 need a decision · 18 not eligible · 1 possible wheel · 3 not a tire".
+- Side sheet (440 px, from the right, over a scrim) with invoice, date, quantity and the report text, then one
+  form depending on what the row is:
+  - **Which tire is this?**: chips for Brand, Size, Model; **Best guesses** as radio cards with match
+    percentages and the reason; a search over all tires on the claim page; **Remember this choice** (on by
+    default); buttons **Use <tire>**, **Not an eligible tire** and **This is a wheel**.
+  - **Which wheel is this?**: radio cards for the wheel products on this month's claim page (ATD Custom
+    Wheels, ATD Steel Wheels); **Remember this choice**; buttons **Use <wheel product>**, **Not an eligible
+    wheel** and **This is a tire**. With no wheel products on the claim page it says "This month's claim page
+    has no wheel products, so wheels can't be entered." and has no Use button.
 
 ### 3. Enter claims (step 3)
 Two panes.

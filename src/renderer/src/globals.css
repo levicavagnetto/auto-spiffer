@@ -15,6 +15,10 @@
   --color-nav-active-foreground: var(--nav-active-foreground);
   --color-wheel: var(--wheel);
   --color-wheel-foreground: var(--wheel-foreground);
+  --color-type-tire: var(--type-tire);
+  --color-type-tire-foreground: var(--type-tire-foreground);
+  --color-type-wheel: var(--type-wheel);
+  --color-type-wheel-foreground: var(--type-wheel-foreground);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-primary: var(--primary);
@@ -47,6 +51,10 @@
   --nav-active-foreground: #173c70;
   --wheel: #e7e8fa;
   --wheel-foreground: #4d5594;
+  --type-tire: #dbe8fb;
+  --type-tire-foreground: #1d4f94;
+  --type-wheel: #f1e5fa;
+  --type-wheel-foreground: #6a2b8f;
   --border: #c5d4e6;
   --foreground: #182842;
   --muted-foreground: #516784;
@@ -77,6 +85,10 @@
   --nav-active-foreground: #ffffff;
   --wheel: #30385d;
   --wheel-foreground: #c4d0ff;
+  --type-tire: #17345e;
+  --type-tire-foreground: #a8cbff;
+  --type-wheel: #3b2452;
+  --type-wheel-foreground: #e0bdff;
   --border: #3a5383;
   --foreground: #f5f8ff;
   --muted-foreground: #aab9d7;

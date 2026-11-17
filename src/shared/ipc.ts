@@ -231,8 +231,8 @@ export const calls = {
     input: z.undefined(),
     output: reviewSnapshotSchema
   },
-  decideTire: {
-    name: 'decideTire',
+  decideLine: {
+    name: 'decideLine',
     input: z
       .object({
         signature: z.string().min(1),
@@ -242,9 +242,11 @@ export const calls = {
       .strict(),
     output: reviewSnapshotSchema
   },
-  setLineLeftOut: {
-    name: 'setLineLeftOut',
-    input: z.object({ id: z.string().min(1), leftOut: z.boolean() }).strict(),
+  setLinesLeftOut: {
+    name: 'setLinesLeftOut',
+    input: z
+      .object({ ids: z.array(z.string().min(1)), leftOut: z.boolean() })
+      .strict(),
     output: reviewSnapshotSchema
   },
   listSavedMatches: {

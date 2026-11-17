@@ -134,7 +134,12 @@ become 4). Different tires on one invoice stay separate lines. Inputs are not ch
 - The key is the wording **signature**: `<brand name lowercased, or ?>|<compacted model words>`, for example
   `nokian|one`. Size, load, warranty and noise do not affect it, so `245/55R19 NOK ONE 80K` and
   `nok one 215/70R16` share `nokian|one`, but `NOK ONE X` does not.
-- The value is the exact dropdown label, or "not eligible", plus one example description and the date.
+- A possible wheel row uses `wheel|<words>`: its lowercased description without wheel sizes (`20X9`), bolt
+  patterns (`8X165.1`), offsets (`+12`) and bare numbers, so `XW OFFROAD XW-123 20X9 8X165.1 +12 BLACK` is
+  `wheel|xw offroad xw-123 black`. A wheel is entered only after the person, or a saved choice, picks a wheel
+  product on the current list (ATD Custom Wheels or ATD Steel Wheels).
+- The value is the exact dropdown label (tire or wheel product), or "not eligible", plus one example
+  description and the date.
 - When a saved label is not in the current tire list, the match is kept but marked inactive and ignored, and
   it works again when the tire returns.
 - The person can remove any saved match in Settings.
